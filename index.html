@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StudyPath — Learn Smarter</title>
+<title>StudyPath</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -18,361 +18,236 @@
   --radius:14px;--radius-sm:8px;
 }
 body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;overflow-x:hidden}
-h1,h2,h3,.display{font-family:'Fraunces',serif}
+h1,h2,h3{font-family:'Fraunces',serif}
 .hidden{display:none!important}
 button{font-family:'DM Sans',sans-serif;cursor:pointer;border:none;outline:none}
-
-/* ── NAV ── */
-nav{
-  position:sticky;top:0;z-index:200;
-  background:var(--surface);border-bottom:1px solid var(--border);
-  padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;
-}
-.logo{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:6px}
+nav{position:sticky;top:0;z-index:200;background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:60px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--ink)}
 .logo em{font-style:normal;color:var(--accent)}
-.nav-right{display:flex;align-items:center;gap:12px}
-.pill{
-  display:inline-flex;align-items:center;gap:5px;
-  font-size:13px;font-weight:500;color:var(--ink2);
-  padding:4px 12px;border-radius:20px;border:1px solid var(--border2);
-  background:var(--surface);
-}
+.nav-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:500;color:var(--ink2);padding:4px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--surface)}
 .pill b{color:var(--ink);font-weight:600}
-
-/* ── SCREENS ── */
 .screen{display:none;animation:fadeUp .3s ease}
 .screen.active{display:block}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-
-/* ── HOME ── */
-.hero{
-  background:var(--ink);color:#fff;
-  padding:56px 28px 48px;position:relative;overflow:hidden;
-}
-.hero::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse 70% 80% at 80% 50%,#4f63f720 0%,transparent 70%);
-}
-.hero-tag{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#9896ff;margin-bottom:14px}
-.hero h1{font-size:clamp(28px,5vw,46px);line-height:1.15;margin-bottom:14px;max-width:520px}
-.hero p{font-size:15px;color:#c4c2d0;max-width:440px;line-height:1.7;margin-bottom:32px}
-.hero-actions{display:flex;gap:12px;flex-wrap:wrap}
-.btn-primary{
-  background:var(--accent);color:#fff;
-  border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;
-  transition:transform .15s,box-shadow .15s;
-}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px #4f63f740}
-.btn-ghost{
-  background:transparent;color:#fff;border:1px solid rgba(255,255,255,.2);
-  border-radius:10px;padding:12px 24px;font-size:14px;font-weight:500;
-  transition:background .15s;
-}
+/* HOME */
+.hero{background:var(--ink);color:#fff;padding:48px 24px 40px;position:relative;overflow:hidden}
+.hero-tag{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#9896ff;margin-bottom:12px}
+.hero h1{font-size:clamp(24px,5vw,42px);line-height:1.2;margin-bottom:12px;max-width:500px}
+.hero p{font-size:15px;color:#c4c2d0;max-width:420px;line-height:1.7;margin-bottom:28px}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn-primary{background:var(--accent);color:#fff;border-radius:10px;padding:11px 22px;font-size:14px;font-weight:600;transition:transform .15s,opacity .15s;border:none;cursor:pointer}
+.btn-primary:hover{transform:translateY(-1px);opacity:.9}
+.btn-ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:11px 22px;font-size:14px;font-weight:500;transition:background .15s;cursor:pointer}
 .btn-ghost:hover{background:rgba(255,255,255,.08)}
-.hero-deco{
-  position:absolute;right:28px;top:50%;transform:translateY(-50%);
-  width:160px;height:160px;opacity:.07;
-  font-size:160px;line-height:1;user-select:none;display:none;
-}
-@media(min-width:640px){.hero-deco{display:block}}
-
-/* stats bar */
-.stats-bar{
-  display:flex;gap:0;border-bottom:1px solid var(--border);
-  background:var(--surface);overflow-x:auto;
-}
-.stat-item{
-  flex:1;min-width:110px;padding:18px 20px;border-right:1px solid var(--border);
-  display:flex;flex-direction:column;gap:2px;
-}
+.stats-bar{display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--surface);overflow-x:auto}
+.stat-item{flex:1;min-width:100px;padding:16px 18px;border-right:1px solid var(--border);display:flex;flex-direction:column;gap:2px}
 .stat-item:last-child{border-right:none}
 .stat-num{font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:var(--ink)}
 .stat-label{font-size:12px;color:var(--ink3)}
-
-/* section */
-.section{padding:32px 28px}
-.section-title{font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:18px}
-
-/* subject grid */
-.subject-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
-.subject-card{
-  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-  padding:20px 18px;cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s;
-  position:relative;overflow:hidden;
-}
-.subject-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.1);border-color:var(--border2)}
+.section{padding:28px 24px}
+.section-title{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:16px}
+.subject-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.subject-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 16px;cursor:pointer;transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden}
+.subject-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.1)}
 .subject-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--card-color)}
 .subject-icon{font-size:28px;margin-bottom:10px;display:block}
 .subject-name{font-family:'Fraunces',serif;font-size:15px;font-weight:600;color:var(--ink);margin-bottom:4px}
 .subject-count{font-size:12px;color:var(--ink3)}
-.subject-bar-wrap{margin-top:12px;height:4px;background:#eee;border-radius:4px;overflow:hidden}
+.subject-bar-wrap{margin-top:10px;height:4px;background:#eee;border-radius:4px;overflow:hidden}
 .subject-bar{height:100%;border-radius:4px;background:var(--card-color);transition:width .6s ease}
-
-/* recent */
-.recent-list{display:flex;flex-direction:column;gap:10px}
-.recent-item{
-  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
-  padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;
-  transition:background .15s;
-}
+.recent-list{display:flex;flex-direction:column;gap:8px}
+.recent-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background .15s}
 .recent-item:hover{background:#fafafa}
-.recent-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.recent-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 .recent-name{font-size:14px;font-weight:500;color:var(--ink)}
 .recent-meta{font-size:12px;color:var(--ink3);margin-top:2px}
-.recent-score{margin-left:auto;font-size:13px;font-weight:600;color:var(--ink2)}
-
-/* ── SUBJECT SCREEN ── */
-.back-btn{
-  display:inline-flex;align-items:center;gap:6px;
-  background:none;color:var(--ink3);font-size:13px;font-weight:500;
-  padding:8px 0;margin:16px 28px 0;
-  transition:color .15s;
-}
+.recent-score{margin-left:auto;font-size:13px;font-weight:600}
+/* BACK BTN */
+.back-btn{display:inline-flex;align-items:center;gap:6px;background:none;color:var(--ink3);font-size:13px;font-weight:500;padding:8px 0;margin:16px 24px 0;transition:color .15s;cursor:pointer;border:none}
 .back-btn:hover{color:var(--ink)}
-.subject-header{padding:24px 28px;border-bottom:1px solid var(--border);background:var(--surface)}
-.subject-header-top{display:flex;align-items:flex-start;gap:16px;margin-bottom:16px}
-.subject-big-icon{font-size:48px}
-.subject-header h2{font-size:26px;margin-bottom:4px}
+/* SUBJECT SCREEN */
+.subject-header{padding:20px 24px;border-bottom:1px solid var(--border);background:var(--surface)}
+.subject-header-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:14px}
+.subject-big-icon{font-size:44px}
+.subject-header h2{font-size:24px;margin-bottom:4px}
 .subject-header p{font-size:14px;color:var(--ink3)}
-.difficulty-pills{display:flex;gap:8px;margin-top:4px}
-.diff-pill{
-  padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;
-  border:1.5px solid transparent;transition:all .15s;
-}
+.diff-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.diff-pill{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid transparent;transition:all .15s}
 .diff-pill.active{border-color:currentColor}
+.diff-all{color:var(--ink2);background:#eee}
 .diff-easy{color:#16a34a;background:#dcfce7}
 .diff-medium{color:#d4930a;background:#fff7e6}
 .diff-hard{color:#dc2626;background:#fee2e2}
-
-.quiz-grid{padding:24px 28px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
-.quiz-card{
-  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-  padding:20px;cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s;
-  display:flex;flex-direction:column;gap:8px;
-}
+.quiz-grid{padding:20px 24px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.quiz-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:transform .15s,box-shadow .15s,border-color .15s;display:flex;flex-direction:column;gap:7px}
 .quiz-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.1);border-color:var(--accent)}
-.quiz-card-top{display:flex;align-items:flex-start;justify-content:space-between}
+.quiz-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
 .quiz-name{font-family:'Fraunces',serif;font-size:15px;font-weight:600;color:var(--ink)}
-.quiz-badge{
-  font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;
-}
+.quiz-badge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0}
 .badge-easy{color:#16a34a;background:#dcfce7}
 .badge-medium{color:#d4930a;background:#fff7e6}
 .badge-hard{color:#dc2626;background:#fee2e2}
 .quiz-desc{font-size:13px;color:var(--ink3);line-height:1.5}
-.quiz-meta{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink3);margin-top:4px}
+.quiz-meta{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink3);margin-top:2px}
 .quiz-progress-bar{height:3px;background:#eee;border-radius:3px;overflow:hidden}
 .quiz-progress-fill{height:100%;background:var(--accent);border-radius:3px}
-.start-btn{
-  margin-top:8px;background:var(--accent);color:#fff;
-  border-radius:8px;padding:9px;font-size:13px;font-weight:600;
-  transition:opacity .15s;
-}
+.quiz-actions{display:flex;gap:8px;margin-top:8px}
+.start-btn{flex:1;background:var(--accent);color:#fff;border-radius:8px;padding:9px;font-size:13px;font-weight:600;transition:opacity .15s;border:none;cursor:pointer}
 .start-btn:hover{opacity:.88}
-
-/* ── QUIZ SCREEN ── */
-.quiz-topbar{
-  padding:14px 28px;background:var(--surface);border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;gap:16px;
-}
+.inf-btn{flex:1;background:var(--ink);color:#fff;border-radius:8px;padding:9px;font-size:13px;font-weight:600;transition:opacity .15s;border:none;cursor:pointer}
+.inf-btn:hover{opacity:.82}
+.notes-btn{width:100%;background:none;border:1.5px solid var(--border2);color:var(--ink2);border-radius:8px;padding:8px;font-size:13px;font-weight:500;transition:background .15s;cursor:pointer;margin-top:2px}
+.notes-btn:hover{background:var(--paper)}
+/* NOTES SCREEN */
+.notes-header{padding:20px 24px;border-bottom:1px solid var(--border);background:var(--surface);display:flex;align-items:flex-start;gap:14px}
+.notes-header-info{flex:1}
+.notes-header h2{font-size:22px;margin-bottom:4px}
+.notes-header p{font-size:14px;color:var(--ink3)}
+.notes-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.notes-body{max-width:800px;margin:0 auto;padding:28px 24px}
+.notes-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.notes-section h3{font-size:16px;font-weight:600;color:var(--ink);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.notes-section p{font-size:14px;color:var(--ink2);line-height:1.75}
+.notes-section ul{padding-left:18px;margin-top:8px}
+.notes-section ul li{font-size:14px;color:var(--ink2);line-height:1.7;margin-bottom:4px}
+.notes-empty{font-size:14px;color:var(--ink3);font-style:italic;padding:12px 0}
+/* MODE BANNER */
+.mode-banner{background:var(--ink);color:#fff;padding:8px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;font-weight:500}
+.mode-tag{background:rgba(255,255,255,.15);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.stop-inf-btn{background:var(--red);color:#fff;border:none;border-radius:8px;padding:6px 16px;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s}
+.stop-inf-btn:hover{opacity:.88}
+/* QUIZ SCREEN */
+.quiz-topbar{padding:12px 24px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:14px}
 .progress-track{flex:1;height:6px;background:#eee;border-radius:6px;overflow:hidden}
 .progress-fill{height:100%;background:var(--accent);border-radius:6px;transition:width .4s ease}
 .quiz-counter{font-size:13px;font-weight:500;color:var(--ink3);white-space:nowrap}
-.timer-pill{
-  display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600;
-  padding:5px 12px;border-radius:20px;background:var(--ink);color:#fff;
-}
+.timer-pill{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600;padding:5px 12px;border-radius:20px;background:var(--ink);color:#fff;white-space:nowrap}
 .timer-pill.danger{background:var(--red);animation:pulse .8s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
-
-.question-body{max-width:700px;margin:0 auto;padding:36px 28px}
-.q-category{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
-.q-text{font-family:'Fraunces',serif;font-size:clamp(18px,3vw,24px);line-height:1.45;color:var(--ink);margin-bottom:32px}
-.options-list{display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
-.option-btn{
-  display:flex;align-items:center;gap:14px;
-  background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--radius-sm);
-  padding:14px 18px;font-size:15px;font-weight:500;color:var(--ink);text-align:left;
-  transition:border-color .15s,background .15s,transform .1s;cursor:pointer;
-  position:relative;overflow:hidden;
-}
+.question-body{max-width:680px;margin:0 auto;padding:32px 24px}
+.q-category{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.q-text{font-family:'Fraunces',serif;font-size:clamp(17px,3vw,23px);line-height:1.45;color:var(--ink);margin-bottom:28px}
+.options-list{display:flex;flex-direction:column;gap:9px;margin-bottom:24px}
+.option-btn{display:flex;align-items:center;gap:12px;background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--radius-sm);padding:13px 16px;font-size:15px;font-weight:500;color:var(--ink);text-align:left;transition:border-color .15s,background .15s;cursor:pointer;width:100%}
 .option-btn:hover:not(.answered){border-color:var(--accent);background:var(--accent-light)}
 .option-btn.correct{border-color:var(--green);background:var(--green-light);color:var(--green)}
 .option-btn.wrong{border-color:var(--red);background:var(--red-light);color:var(--red)}
 .option-btn.reveal{border-color:var(--green);background:var(--green-light);color:var(--green)}
-.option-letter{
-  width:28px;height:28px;border-radius:50%;border:1.5px solid currentColor;
-  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;
-  flex-shrink:0;
-}
+.option-letter{width:27px;height:27px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
 .option-btn.correct .option-letter,.option-btn.reveal .option-letter{background:var(--green);color:#fff;border-color:var(--green)}
 .option-btn.wrong .option-letter{background:var(--red);color:#fff;border-color:var(--red)}
-
-.explanation-box{
-  background:var(--accent-light);border:1px solid rgba(79,99,247,.2);
-  border-radius:var(--radius-sm);padding:16px;margin-bottom:24px;
-  font-size:14px;color:var(--ink2);line-height:1.65;
-}
-.explanation-box strong{font-weight:600;color:var(--accent);display:block;margin-bottom:4px}
+.explanation-box{border-radius:var(--radius-sm);padding:14px;margin-bottom:22px;font-size:14px;line-height:1.65}
+.explanation-box strong{font-weight:600;display:block;margin-bottom:4px}
 .quiz-nav{display:flex;gap:10px;justify-content:flex-end}
-.btn-next{
-  background:var(--ink);color:#fff;border-radius:8px;
-  padding:12px 28px;font-size:14px;font-weight:600;
-  transition:opacity .15s;
-}
+.btn-next{background:var(--ink);color:#fff;border-radius:8px;padding:11px 26px;font-size:14px;font-weight:600;transition:opacity .15s;border:none;cursor:pointer}
 .btn-next:hover{opacity:.82}
-
-/* short answer */
-.short-input{
-  width:100%;border:1.5px solid var(--border2);border-radius:var(--radius-sm);
-  padding:12px 16px;font-size:15px;font-family:'DM Sans',sans-serif;color:var(--ink);
-  background:var(--surface);outline:none;margin-bottom:10px;
-  transition:border-color .15s;
-}
+.short-input{width:100%;border:1.5px solid var(--border2);border-radius:var(--radius-sm);padding:12px 16px;font-size:15px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--surface);outline:none;margin-bottom:10px;transition:border-color .15s}
 .short-input:focus{border-color:var(--accent)}
-.check-btn{
-  background:var(--accent);color:#fff;border-radius:8px;
-  padding:10px 22px;font-size:14px;font-weight:600;margin-bottom:16px;
-  transition:opacity .15s;
-}
+.check-btn{background:var(--accent);color:#fff;border-radius:8px;padding:10px 22px;font-size:14px;font-weight:600;margin-bottom:14px;transition:opacity .15s;border:none;cursor:pointer}
 .check-btn:hover{opacity:.88}
-
-/* ── RESULTS ── */
-.results-body{max-width:600px;margin:0 auto;padding:48px 28px;text-align:center}
-.score-ring{
-  width:140px;height:140px;border-radius:50%;margin:0 auto 28px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  font-family:'Fraunces',serif;
-}
-.score-pct{font-size:38px;font-weight:700;line-height:1}
-.score-sub{font-size:13px;font-weight:500;margin-top:2px}
-.results-title{font-size:26px;margin-bottom:8px}
-.results-desc{font-size:15px;color:var(--ink3);margin-bottom:32px}
-.results-breakdown{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:36px;
-}
-.breakdown-card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius-sm);padding:16px 12px;
-}
+/* INF mode counter */
+.inf-counter{text-align:center;padding:6px;font-size:13px;color:var(--ink3);font-weight:500}
+/* RESULTS */
+.results-body{max-width:580px;margin:0 auto;padding:44px 24px;text-align:center}
+.score-ring{width:130px;height:130px;border-radius:50%;margin:0 auto 24px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Fraunces',serif}
+.score-pct{font-size:36px;font-weight:700;line-height:1}
+.score-sub{font-size:12px;font-weight:500;margin-top:2px}
+.results-title{font-size:24px;margin-bottom:8px}
+.results-desc{font-size:15px;color:var(--ink3);margin-bottom:28px}
+.results-breakdown{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px}
+.breakdown-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 10px}
 .breakdown-num{font-family:'Fraunces',serif;font-size:24px;font-weight:700}
 .breakdown-label{font-size:12px;color:var(--ink3);margin-top:2px}
 .results-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.btn-outline{
-  background:var(--surface);color:var(--ink);border:1.5px solid var(--border2);
-  border-radius:8px;padding:12px 24px;font-size:14px;font-weight:600;
-  transition:background .15s;
-}
+.btn-outline{background:var(--surface);color:var(--ink);border:1.5px solid var(--border2);border-radius:8px;padding:11px 22px;font-size:14px;font-weight:600;transition:background .15s;cursor:pointer}
 .btn-outline:hover{background:var(--paper)}
-
-/* review */
-.review-list{text-align:left;margin-top:32px;display:flex;flex-direction:column;gap:12px}
-.review-item{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius-sm);padding:16px;
-}
-.review-q{font-size:14px;font-weight:500;color:var(--ink);margin-bottom:8px}
-.review-status{font-size:12px;font-weight:600;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:6px}
-.review-correct{color:var(--green);background:var(--green-light)}
-.review-wrong{color:var(--red);background:var(--red-light)}
-.review-answer{font-size:13px;color:var(--ink2)}
+.review-list{text-align:left;margin-top:28px;display:flex;flex-direction:column;gap:10px}
+.review-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px}
+.review-q{font-size:14px;font-weight:500;color:var(--ink);margin-bottom:7px}
+.review-status{font-size:12px;font-weight:600;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:5px}
+.review-correct{color:#16a34a;background:#dcfce7}
+.review-wrong{color:#dc2626;background:#fee2e2}
+.review-answer{font-size:13px;color:var(--ink2);margin-top:2px}
 .review-exp{font-size:12px;color:var(--ink3);margin-top:4px;line-height:1.5}
-
-/* ── IMPORT MODAL ── */
-.modal-bg{
-  position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;
-  display:flex;align-items:center;justify-content:center;padding:20px;
-}
-.modal{
-  background:var(--surface);border-radius:var(--radius);
-  padding:28px;width:100%;max-width:500px;
-  animation:fadeUp .25s ease;
-}
-.modal h3{font-family:'Fraunces',serif;font-size:20px;margin-bottom:8px}
-.modal p{font-size:14px;color:var(--ink3);margin-bottom:16px;line-height:1.6}
-.modal textarea{
-  width:100%;height:200px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);
-  padding:12px;font-family:'DM Mono',monospace,sans-serif;font-size:12px;
-  line-height:1.6;resize:vertical;outline:none;
-  transition:border-color .15s;background:var(--paper);
-}
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--surface);border-radius:var(--radius);padding:24px;width:100%;max-width:520px;animation:fadeUp .25s ease;max-height:90vh;overflow-y:auto}
+.modal h3{font-family:'Fraunces',serif;font-size:20px;margin-bottom:7px}
+.modal p{font-size:14px;color:var(--ink3);margin-bottom:14px;line-height:1.6}
+.modal textarea{width:100%;height:200px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);padding:10px;font-family:monospace;font-size:12px;line-height:1.6;resize:vertical;outline:none;background:var(--paper);transition:border-color .15s}
 .modal textarea:focus{border-color:var(--accent)}
-.modal-actions{display:flex;gap:10px;margin-top:14px;justify-content:flex-end}
-.modal-cancel{background:none;border:1.5px solid var(--border2);color:var(--ink);border-radius:8px;padding:10px 20px;font-size:14px;font-weight:500;transition:background .15s}
+.modal-actions{display:flex;gap:10px;margin-top:12px;justify-content:flex-end}
+.modal-cancel{background:none;border:1.5px solid var(--border2);color:var(--ink);border-radius:8px;padding:9px 18px;font-size:14px;font-weight:500;transition:background .15s;cursor:pointer}
 .modal-cancel:hover{background:var(--paper)}
-.modal-import{background:var(--accent);color:#fff;border-radius:8px;padding:10px 20px;font-size:14px;font-weight:600;transition:opacity .15s}
+.modal-import{background:var(--accent);color:#fff;border-radius:8px;padding:9px 18px;font-size:14px;font-weight:600;transition:opacity .15s;border:none;cursor:pointer}
 .modal-import:hover{opacity:.88}
-.sample-link{color:var(--accent);cursor:pointer;font-size:13px;text-decoration:underline}
-
-/* toast */
-.toast{
-  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
-  background:var(--ink);color:#fff;border-radius:10px;padding:12px 20px;
-  font-size:14px;font-weight:500;z-index:999;transition:transform .3s ease;
-  white-space:nowrap;pointer-events:none;
-}
+.sample-link{color:var(--accent);cursor:pointer;font-size:13px;text-decoration:underline;background:none;border:none;padding:0}
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;border-radius:10px;padding:11px 20px;font-size:14px;font-weight:500;z-index:999;transition:transform .3s ease;white-space:nowrap;pointer-events:none}
 .toast.show{transform:translateX(-50%) translateY(0)}
+/* MODE SELECT */
+.mode-select-panel{background:var(--surface);border-top:1px solid var(--border);padding:16px 24px}
+.mode-select-title{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px}
+.mode-cards{display:flex;gap:10px;flex-wrap:wrap}
+.mode-card{flex:1;min-width:160px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);padding:14px;cursor:pointer;transition:border-color .15s,background .15s;background:var(--paper)}
+.mode-card:hover{border-color:var(--accent);background:var(--accent-light)}
+.mode-card.selected{border-color:var(--accent);background:var(--accent-light)}
+.mode-card-title{font-weight:600;font-size:14px;color:var(--ink);margin-bottom:4px}
+.mode-card-desc{font-size:12px;color:var(--ink3);line-height:1.5}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
   <div class="logo">Study<em>Path</em></div>
   <div class="nav-right">
-    <div class="pill"><span class="icon">🔥</span> Streak: <b id="nav-streak">0</b></div>
-    <div class="pill"><span class="icon">⭐</span> XP: <b id="nav-xp">0</b></div>
-    <button class="btn-primary" style="padding:8px 16px;font-size:13px" onclick="openImport()">+ Import JSON</button>
+    <div class="pill">&#128293; Streak: <b id="nav-streak">0</b></div>
+    <div class="pill">&#11088; XP: <b id="nav-xp">0</b></div>
+    <button class="btn-primary" style="padding:8px 14px;font-size:13px" onclick="openImport()">+ Import JSON</button>
   </div>
 </nav>
-
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- ── SCREEN: HOME ── -->
+<!-- ══ HOME ══ -->
 <div class="screen active" id="screen-home">
   <div class="hero">
     <div class="hero-tag">Your personal study companion</div>
     <h1>Learn smarter.<br>Track your progress.</h1>
-    <p>Practice questions across every subject, get instant feedback, and watch your skills grow — one quiz at a time.</p>
+    <p>Practice questions across every subject, get instant feedback, and grow one quiz at a time.</p>
     <div class="hero-actions">
-      <button class="btn-primary" onclick="showQuickStart()">Start practising →</button>
-      <button class="btn-ghost" onclick="openImport()">Import questions</button>
+      <button class="btn-primary" onclick="showQuickStart()">Start practising &rarr;</button>
     </div>
-    <div class="hero-deco">📚</div>
   </div>
-
   <div class="stats-bar">
     <div class="stat-item"><div class="stat-num" id="total-questions">0</div><div class="stat-label">Questions answered</div></div>
     <div class="stat-item"><div class="stat-num" id="total-correct">0%</div><div class="stat-label">Accuracy</div></div>
     <div class="stat-item"><div class="stat-num" id="total-subjects">0</div><div class="stat-label">Subjects</div></div>
-    <div class="stat-item"><div class="stat-num" id="total-quizzes">0</div><div class="stat-label">Quizzes completed</div></div>
+    <div class="stat-item"><div class="stat-num" id="total-quizzes">0</div><div class="stat-label">Quizzes done</div></div>
   </div>
-
   <div class="section">
     <div class="section-title">Subjects</div>
     <div class="subject-grid" id="subject-grid"></div>
   </div>
-
-  <div class="section" id="recent-section" style="padding-top:0">
+  <div class="section" style="padding-top:0">
     <div class="section-title">Recent activity</div>
     <div class="recent-list" id="recent-list">
-      <div style="font-size:14px;color:var(--ink3);padding:12px 0">No activity yet — start a quiz!</div>
+      <div style="font-size:14px;color:var(--ink3);padding:8px 0">No activity yet — start a quiz!</div>
     </div>
   </div>
 </div>
 
-<!-- ── SCREEN: SUBJECT ── -->
+<!-- ══ SUBJECT ══ -->
 <div class="screen" id="screen-subject">
-  <button class="back-btn" onclick="goHome()">← Back</button>
+  <button class="back-btn" onclick="goHome()">&larr; Back</button>
   <div class="subject-header">
     <div class="subject-header-top">
       <div class="subject-big-icon" id="subj-icon"></div>
       <div>
         <h2 id="subj-title"></h2>
         <p id="subj-desc"></p>
-        <div class="difficulty-pills" style="margin-top:10px">
-          <div class="diff-pill diff-easy active" onclick="filterDiff('all',this)" data-diff="all">All</div>
+        <div class="diff-pills">
+          <div class="diff-pill diff-all active" onclick="filterDiff('all',this)" data-diff="all">All</div>
           <div class="diff-pill diff-easy" onclick="filterDiff('easy',this)" data-diff="easy">Easy</div>
           <div class="diff-pill diff-medium" onclick="filterDiff('medium',this)" data-diff="medium">Medium</div>
           <div class="diff-pill diff-hard" onclick="filterDiff('hard',this)" data-diff="hard">Hard</div>
@@ -383,29 +258,52 @@ nav{
   <div class="quiz-grid" id="quiz-grid"></div>
 </div>
 
-<!-- ── SCREEN: QUIZ ── -->
+<!-- ══ NOTES ══ -->
+<div class="screen" id="screen-notes">
+  <button class="back-btn" id="notes-back-btn" onclick="goBackToSubject()">&larr; Back to quizzes</button>
+  <div class="notes-header">
+    <div class="notes-header-info">
+      <h2 id="notes-title"></h2>
+      <p id="notes-subtitle"></p>
+      <div class="notes-actions">
+        <button class="btn-primary" onclick="startFromNotes(false)">&#9654; Normal quiz</button>
+        <button class="btn-primary" style="background:var(--ink)" onclick="startFromNotes(true)">&#8734; Infinite mode</button>
+      </div>
+    </div>
+  </div>
+  <div class="notes-body" id="notes-body"></div>
+</div>
+
+<!-- ══ QUIZ ══ -->
 <div class="screen" id="screen-quiz">
-  <div class="quiz-topbar">
-    <button class="back-btn" style="margin:0" onclick="confirmQuit()">← Quit</button>
+  <div id="mode-banner" class="mode-banner hidden">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="mode-tag" id="mode-tag-label">&#8734; Infinite Mode</span>
+      <span id="inf-q-counter" style="font-size:13px"></span>
+    </div>
+    <button class="stop-inf-btn" onclick="stopInfinite()">&#9632; Stop &amp; See Results</button>
+  </div>
+  <div class="quiz-topbar" id="normal-topbar">
+    <button class="back-btn" style="margin:0" onclick="confirmQuit()">&larr; Quit</button>
     <div class="progress-track"><div class="progress-fill" id="q-progress"></div></div>
     <div class="quiz-counter" id="q-counter">1 / 10</div>
-    <div class="timer-pill" id="timer-pill">⏱ 0:00</div>
+    <div class="timer-pill" id="timer-pill">&#9201; 0:00</div>
   </div>
   <div class="question-body">
     <div class="q-category" id="q-category"></div>
     <div class="q-text" id="q-text"></div>
     <div class="options-list" id="options-list"></div>
     <div class="explanation-box hidden" id="explanation-box">
-      <strong>Explanation</strong>
+      <strong id="exp-label">Explanation</strong>
       <span id="explanation-text"></span>
     </div>
     <div class="quiz-nav">
-      <button class="btn-next hidden" id="btn-next" onclick="nextQuestion()">Next →</button>
+      <button class="btn-next hidden" id="btn-next" onclick="nextQuestion()">Next &rarr;</button>
     </div>
   </div>
 </div>
 
-<!-- ── SCREEN: RESULTS ── -->
+<!-- ══ RESULTS ══ -->
 <div class="screen" id="screen-results">
   <div class="results-body">
     <div class="score-ring" id="score-ring">
@@ -415,743 +313,814 @@ nav{
     <h2 class="results-title" id="results-title">Quiz complete!</h2>
     <p class="results-desc" id="results-desc"></p>
     <div class="results-breakdown">
-      <div class="breakdown-card">
-        <div class="breakdown-num" id="res-correct" style="color:var(--green)">0</div>
-        <div class="breakdown-label">Correct</div>
-      </div>
-      <div class="breakdown-card">
-        <div class="breakdown-num" id="res-wrong" style="color:var(--red)">0</div>
-        <div class="breakdown-label">Wrong</div>
-      </div>
-      <div class="breakdown-card">
-        <div class="breakdown-num" id="res-time">0s</div>
-        <div class="breakdown-label">Time taken</div>
-      </div>
+      <div class="breakdown-card"><div class="breakdown-num" id="res-correct" style="color:var(--green)">0</div><div class="breakdown-label">Correct</div></div>
+      <div class="breakdown-card"><div class="breakdown-num" id="res-wrong" style="color:var(--red)">0</div><div class="breakdown-label">Wrong</div></div>
+      <div class="breakdown-card"><div class="breakdown-num" id="res-time">0s</div><div class="breakdown-label">Time</div></div>
     </div>
     <div class="results-actions">
-      <button class="btn-outline" onclick="goHome()">← Home</button>
+      <button class="btn-outline" onclick="goHome()">&larr; Home</button>
       <button class="btn-outline" onclick="retryQuiz()">Retry quiz</button>
-      <button class="btn-primary" onclick="nextRecommended()">Next quiz →</button>
+      <button class="btn-primary" onclick="nextRecommended()">Next quiz &rarr;</button>
     </div>
     <div class="review-list" id="review-list"></div>
   </div>
 </div>
 
-<!-- IMPORT MODAL -->
+<!-- ══ IMPORT MODAL ══ -->
 <div class="modal-bg hidden" id="modal-bg">
   <div class="modal">
     <h3>Import questions via JSON</h3>
-    <p>Paste your JSON below. <span class="sample-link" onclick="loadSample()">Load sample format</span> to see the structure.</p>
-    <textarea id="json-input" placeholder='[{"subject":"Math","icon":"➕","color":"#4f63f7","quizzes":[...]}]'></textarea>
+    <p>Paste your JSON to add subjects and quizzes. Changes apply immediately. <button class="sample-link" onclick="loadSample()">Load sample format</button></p>
+    <textarea id="json-input" placeholder='[{"subject":"...","icon":"📚","color":"#4f63f7","quizzes":[...]}]'></textarea>
     <div class="modal-actions">
       <button class="modal-cancel" onclick="closeImport()">Cancel</button>
-      <button class="modal-import" onclick="importJSON()">Import</button>
+      <button class="modal-import" onclick="importJSON()">Import now</button>
     </div>
   </div>
 </div>
 
 <script>
-// ══════════════════════════════════
-//  STATE
-// ══════════════════════════════════
-let state = {
-  subjects: [],
-  progress: JSON.parse(localStorage.getItem('sp_progress') || '{}'),
-  activity: JSON.parse(localStorage.getItem('sp_activity') || '[]'),
-  xp: +localStorage.getItem('sp_xp') || 0,
-  streak: +localStorage.getItem('sp_streak') || 0,
-  totalAnswered: +localStorage.getItem('sp_answered') || 0,
-  totalCorrect: +localStorage.getItem('sp_correct') || 0,
-  totalQuizzes: +localStorage.getItem('sp_quizzes') || 0,
-  // current quiz session
-  session: null,
-  currentQ: 0,
-  answers: [],
-  timerInterval: null,
-  elapsed: 0,
-  answered: false,
-  currentSubject: null,
-  currentQuiz: null,
+// ══════════════════ STATE ══════════════════
+var state = {
+  subjects:[],
+  progress:{},activity:[],
+  xp:0,streak:0,
+  totalAnswered:0,totalCorrect:0,totalQuizzes:0,
+  session:null,currentQ:0,answers:[],
+  timerInterval:null,elapsed:0,answered:false,
+  currentSubject:null,currentQuiz:null,
+  infiniteMode:false,
+  infPool:[],infIdx:0
 };
+try{state.progress=JSON.parse(localStorage.getItem('sp_progress')||'{}');}catch(e){}
+try{state.activity=JSON.parse(localStorage.getItem('sp_activity')||'[]');}catch(e){}
+state.xp=+localStorage.getItem('sp_xp')||0;
+state.streak=+localStorage.getItem('sp_streak')||0;
+state.totalAnswered=+localStorage.getItem('sp_answered')||0;
+state.totalCorrect=+localStorage.getItem('sp_correct')||0;
+state.totalQuizzes=+localStorage.getItem('sp_quizzes')||0;
 
-// ══════════════════════════════════
-//  DEFAULT DATA
-// ══════════════════════════════════
-const DEFAULT_DATA = [
-  {
-    subject: "Mathematics",
-    icon: "➗",
-    color: "#4f63f7",
-    description: "Algebra, geometry, calculus and more",
-    quizzes: [
-      {
-        name: "Algebra Basics",
-        difficulty: "easy",
-        description: "Equations, variables and expressions",
-        questions: [
-          {type:"mcq",question:"What is the value of x if 2x + 4 = 10?",options:["x = 2","x = 3","x = 4","x = 5"],answer:1,explanation:"2x = 10 - 4 = 6, so x = 3."},
-          {type:"mcq",question:"Simplify: 3(x + 4) − 2x",options:["x + 4","x + 12","5x + 12","x + 8"],answer:1,explanation:"3x + 12 − 2x = x + 12."},
-          {type:"mcq",question:"Which of the following is a quadratic equation?",options:["3x + 1 = 0","x² + 2x − 3 = 0","2x³ = 8","5x = 10"],answer:1,explanation:"A quadratic equation has the highest power of x as 2."},
-          {type:"short",question:"What is the slope of the line y = 4x − 7?",answer:"4",explanation:"In the form y = mx + b, m is the slope. Here m = 4."},
-          {type:"mcq",question:"If f(x) = x² − 1, what is f(3)?",options:["6","7","8","9"],answer:2,explanation:"f(3) = 3² − 1 = 9 − 1 = 8."}
-        ]
-      },
-      {
-        name: "Geometry",
-        difficulty: "medium",
-        description: "Shapes, angles, area and perimeter",
-        questions: [
-          {type:"mcq",question:"What is the area of a circle with radius 5?",options:["10π","25π","15π","50π"],answer:1,explanation:"Area = πr² = π × 25 = 25π."},
-          {type:"mcq",question:"The sum of interior angles of a triangle is:",options:["90°","180°","270°","360°"],answer:1,explanation:"All triangles have interior angles summing to exactly 180°."},
-          {type:"short",question:"What is the perimeter of a square with side 7cm?",answer:"28",explanation:"Perimeter = 4 × side = 4 × 7 = 28 cm."},
-          {type:"mcq",question:"A right-angled triangle has legs of 3 and 4. What is the hypotenuse?",options:["5","6","7","√7"],answer:0,explanation:"By Pythagoras: √(9+16) = √25 = 5."}
-        ]
-      },
-      {
-        name: "Calculus",
-        difficulty: "hard",
-        description: "Derivatives, integrals and limits",
-        questions: [
-          {type:"mcq",question:"What is the derivative of x³?",options:["3x","3x²","x²","2x²"],answer:1,explanation:"Using the power rule: d/dx(xⁿ) = nxⁿ⁻¹. So d/dx(x³) = 3x²."},
-          {type:"mcq",question:"What is ∫2x dx?",options:["x + C","x² + C","2x² + C","2 + C"],answer:1,explanation:"∫2x dx = 2 × x²/2 + C = x² + C."},
-          {type:"short",question:"What is the limit of (x²−1)/(x−1) as x → 1?",answer:"2",explanation:"Factor: (x−1)(x+1)/(x−1) = x+1. As x→1: 1+1 = 2."}
-        ]
-      }
-    ]
-  },
-  {
-    subject: "Science",
-    icon: "🔬",
-    color: "#16a34a",
-    description: "Physics, chemistry, biology and earth science",
-    quizzes: [
-    {
-        name: "Forces & Motion",
-        difficulty: "easy",
-        description: "Newton's laws and basic mechanics",
-        questions: [
-        {type:"mcq",question:"Newton's First Law is also known as the law of:",options:["Gravitation","Inertia","Action-Reaction","Acceleration"],answer:1,explanation:"Newton's First Law states that objects stay at rest or in motion unless acted upon by a force — this is inertia."},
-        {type:"mcq",question:"What is the SI unit of force?",options:["Joule","Watt","Newton","Pascal"],answer:2,explanation:"Force is measured in Newtons (N), named after Sir Isaac Newton."},
-        {type:"short",question:"F = ma. If m = 5kg and a = 3 m/s², what is F in Newtons?",answer:"15",explanation:"F = 5 × 3 = 15 N."},
-        {type:"mcq",question:"A ball is thrown upward. At its highest point, its velocity is:",options:["Maximum","Minimum","Zero","Constant"],answer:2,explanation:"At the peak, all kinetic energy converts to potential energy, so velocity = 0."}
-        ]
-    },
-    {
-        name: "Electricity Basics",
-        difficulty: "easy",
-        description: "Circuits, current, voltage, and energy",
-        questions: [
-         {type:"mcq",question:"What is electricity?",options:["Flow of water","Flow of electrons","Light energy","Heat energy"],answer:1,explanation:"Electricity is the flow of electrons."},
-      {type:"mcq",question:"What unit measures current?",options:["Volt","Watt","Ampere","Ohm"],answer:2,explanation:"Current is measured in amperes."},
-      {type:"mcq",question:"What device measures voltage?",options:["Ammeter","Voltmeter","Thermometer","Barometer"],answer:1,explanation:"A voltmeter measures voltage."},
-      {type:"mcq",question:"What is resistance?",options:["Flow of charge","Opposition to current","Energy source","Light output"],answer:1,explanation:"Resistance opposes current."},
-      {type:"mcq",question:"Which is a good conductor?",options:["Wood","Plastic","Copper","Rubber"],answer:2,explanation:"Copper allows electricity to flow easily."},
-      {type:"mcq",question:"Which is an insulator?",options:["Iron","Copper","Plastic","Silver"],answer:2,explanation:"Plastic resists current."},
-      {type:"mcq",question:"Unit of resistance?",options:["Volt","Ohm","Amp","Watt"],answer:1,explanation:"Measured in ohms."},
-      {type:"mcq",question:"What provides energy in a circuit?",options:["Switch","Wire","Battery","Bulb"],answer:2,explanation:"Battery supplies energy."},
-      {type:"mcq",question:"What does a switch do?",options:["Measures current","Stops/starts current","Stores energy","Creates light"],answer:1,explanation:"It opens or closes the circuit."},
-      {type:"mcq",question:"What is a circuit?",options:["Broken wire","Path for electricity","Battery","Switch"],answer:1,explanation:"A complete path for current."},
+// ══════════════════ DEFAULT DATA ══════════════════
+var DEFAULT_DATA=[
+{subject:"Mathematics",icon:"➗",color:"#4f63f7",description:"Algebra, geometry, calculus and more",
+ notes:[
+  {title:"Key Concepts",content:"Algebra uses variables to represent unknown values. Geometry studies shapes and their properties. Calculus deals with rates of change and accumulation."},
+  {title:"Formulas to Remember",content:"Area of circle = πr² | Perimeter of square = 4s | Slope = rise/run (y=mx+b) | Pythagorean theorem: a²+b²=c²"},
+  {title:"Tips",content:"Always show your working. Check units. Substitute your answer back in to verify."}
+ ],
+ quizzes:[
+  {name:"Algebra Basics",difficulty:"easy",description:"Equations, variables and expressions",questions:[
+    {type:"mcq",question:"What is the value of x if 2x + 4 = 10?",options:["x = 2","x = 3","x = 4","x = 5"],answer:1,explanation:"2x = 10 - 4 = 6, so x = 3."},
+    {type:"mcq",question:"Simplify: 3(x + 4) − 2x",options:["x + 4","x + 12","5x + 12","x + 8"],answer:1,explanation:"3x + 12 − 2x = x + 12."},
+    {type:"mcq",question:"Which is a quadratic equation?",options:["3x + 1 = 0","x² + 2x − 3 = 0","2x³ = 8","5x = 10"],answer:1,explanation:"A quadratic has highest power of 2."},
+    {type:"short",question:"What is the slope of y = 4x − 7?",answer:"4",explanation:"In y = mx + b, m is the slope. Here m = 4."},
+    {type:"mcq",question:"If f(x) = x² − 1, what is f(3)?",options:["6","7","8","9"],answer:2,explanation:"f(3) = 9 − 1 = 8."}
+  ]},
+  {name:"Geometry",difficulty:"medium",description:"Shapes, angles, area and perimeter",questions:[
+    {type:"mcq",question:"Area of a circle with radius 5?",options:["10π","25π","15π","50π"],answer:1,explanation:"Area = πr² = 25π."},
+    {type:"mcq",question:"Sum of interior angles of a triangle?",options:["90°","180°","270°","360°"],answer:1,explanation:"All triangles sum to exactly 180°."},
+    {type:"short",question:"Perimeter of a square with side 7cm?",answer:"28",explanation:"Perimeter = 4 × 7 = 28 cm."},
+    {type:"mcq",question:"Triangle with legs 3 and 4 — hypotenuse?",options:["5","6","7","√7"],answer:0,explanation:"√(9+16) = √25 = 5."}
+  ]},
+  {name:"Calculus",difficulty:"hard",description:"Derivatives, integrals and limits",questions:[
+    {type:"mcq",question:"Derivative of x³?",options:["3x","3x²","x²","2x²"],answer:1,explanation:"Power rule: d/dx(x³) = 3x²."},
+    {type:"mcq",question:"∫2x dx = ?",options:["x + C","x² + C","2x² + C","2 + C"],answer:1,explanation:"∫2x dx = x² + C."},
+    {type:"short",question:"Limit of (x²−1)/(x−1) as x→1?",answer:"2",explanation:"Factor to x+1; as x→1 gives 2."}
+  ]}
+]},
 
-      {type:"mcq",question:"Closed circuit means:",options:["No current","Current flows","Battery dies","Wire melts"],answer:1,explanation:"Closed circuits allow flow."},
-      {type:"mcq",question:"Open circuit means:",options:["Current flows","No current","Battery charges","Light increases"],answer:1,explanation:"Path is broken."},
-      {type:"mcq",question:"What is voltage?",options:["Flow of charge","Push on electrons","Heat","Resistance"],answer:1,explanation:"Voltage pushes electrons."},
-      {type:"mcq",question:"Unit of power?",options:["Volt","Amp","Watt","Ohm"],answer:2,explanation:"Power is in watts."},
-      {type:"mcq",question:"Series circuit has:",options:["Multiple paths","One path","No path","Broken path"],answer:1,explanation:"Only one loop."},
-      {type:"mcq",question:"Parallel circuit has:",options:["One path","Multiple paths","No current","Broken wires"],answer:1,explanation:"Multiple paths."},
-      {type:"mcq",question:"Bulb breaks in series:",options:["Others stay on","All go off","Battery explodes","Nothing"],answer:1,explanation:"Circuit breaks."},
-      {type:"mcq",question:"Bulb breaks in parallel:",options:["All go off","Others stay on","Battery dies","Wire melts"],answer:1,explanation:"Other paths work."},
-      {type:"mcq",question:"Electron charge is:",options:["Positive","Negative","Neutral","None"],answer:1,explanation:"Electrons are negative."},
-      {type:"mcq",question:"Static electricity is:",options:["Moving charges","Still charges","Heat","Light"],answer:1,explanation:"Built-up charge."},
+{subject:"Science",icon:"🔬",color:"#16a34a",description:"Physics, chemistry and biology",
+ notes:[
+  {title:"Physics: Forces & Motion",content:"Newton's 1st Law (Inertia): objects stay at rest or in motion unless acted on by a force. 2nd Law: F=ma. 3rd Law: every action has an equal and opposite reaction. Force is measured in Newtons (N)."},
+  {title:"Chemistry Basics",content:"Atomic number = number of protons. Chemical formula of water = H₂O (2 hydrogen, 1 oxygen). Acids have pH < 7. Bases have pH > 7. Neutral = pH 7. Chemical symbols: Au = Gold, Fe = Iron, Na = Sodium."},
+  {title:"Electricity (Chapter 20)",content:"Electric charge: protons (+), electrons (-), neutrons (neutral). Like charges repel, opposite charges attract. Current (I) = flow of charge, measured in Amperes. Voltage (V) = electromotive force, measured in Volts. Resistance (R) measured in Ohms (Ω). Ohm's Law: V = IR. Power: P = VI, measured in Watts. Series circuit: one path, all components affect each other. Parallel circuit: multiple paths, components independent."},
+  {title:"Key Science Formulas",content:"F = ma | V = IR | P = VI | E = Pt | Series resistance: R_total = R1 + R2 + ... | Parallel adds paths (decreases total resistance)"}
+ ],
+ quizzes:[
+  {name:"Forces & Motion",difficulty:"easy",description:"Newton's laws and basic mechanics",questions:[
+    {type:"mcq",question:"Newton's First Law is the law of:",options:["Gravitation","Inertia","Action-Reaction","Acceleration"],answer:1,explanation:"Objects stay at rest or in motion unless acted on by a force."},
+    {type:"mcq",question:"SI unit of force?",options:["Joule","Watt","Newton","Pascal"],answer:2,explanation:"Force is measured in Newtons (N)."},
+    {type:"short",question:"F = ma. If m=5kg and a=3m/s², what is F in Newtons?",answer:"15",explanation:"F = 5 × 3 = 15 N."},
+    {type:"mcq",question:"Ball thrown upward — velocity at highest point?",options:["Maximum","Minimum","Zero","Constant"],answer:2,explanation:"At the peak, velocity = 0."}
+  ]},
+  {name:"Chemistry Fundamentals",difficulty:"medium",description:"Elements, compounds and reactions",questions:[
+    {type:"mcq",question:"Atomic number of Carbon?",options:["6","12","8","14"],answer:0,explanation:"Carbon has 6 protons, atomic number = 6."},
+    {type:"mcq",question:"Water (H₂O) is made of:",options:["2O 1H","1O 1H","1O 2H","2O 2H"],answer:2,explanation:"H₂O = 2 hydrogen + 1 oxygen."},
+    {type:"short",question:"Chemical symbol for Gold?",answer:"Au",explanation:"Au comes from the Latin 'Aurum'."},
+    {type:"mcq",question:"pH 7 is:",options:["Acidic","Basic","Neutral","Alkaline"],answer:2,explanation:"pH 7 is neutral."}
+  ]},
+  {name:"Electricity (Ch. 20)",difficulty:"medium",description:"Electric charge, current, circuits and power",questions:[
+    {type:"mcq",question:"Where are protons located in an atom?",options:["Electron cloud","Nucleus","Outer shell","Anywhere"],answer:1,explanation:"Protons are in the nucleus of the atom along with neutrons."},
+    {type:"mcq",question:"Electric current is measured in:",options:["Volts","Ohms","Amperes","Watts"],answer:2,explanation:"Current (I) is measured in Amperes (A)."},
+    {type:"mcq",question:"Ohm's Law states:",options:["V = P/I","I = V/R","P = VI","R = IV"],answer:1,explanation:"Ohm's Law: I = V/R (also written V = IR)."},
+    {type:"mcq",question:"Which is an example of an insulator?",options:["Copper","Silver","Rubber","Aluminum"],answer:2,explanation:"Rubber is an insulator. Copper, silver, and aluminum are conductors."},
+    {type:"mcq",question:"In a series circuit, if one bulb goes out:",options:["Others stay on","Others also go out","Voltage increases","Resistance decreases"],answer:1,explanation:"Series circuits have one path; a break stops all current flow."},
+    {type:"mcq",question:"Electric power is calculated by:",options:["P = IR","P = V/R","P = VI","P = V+I"],answer:2,explanation:"Power (P) = Voltage (V) × Current (I)."},
+    {type:"mcq",question:"What device protects a circuit by melting during overload?",options:["Switch","Voltmeter","Ammeter","Fuse"],answer:3,explanation:"Fuses melt to break the circuit safely during overloads."},
+    {type:"mcq",question:"Static electricity is the buildup of charges that:",options:["Flow continuously","Do not continuously flow","Only exist in metals","Are created from nothing"],answer:1,explanation:"'Static' means not moving — charges build up without continuous flow."},
+    {type:"short",question:"What law states charges are not created or destroyed, only transferred?",answer:"Law of Conservation of Charge",explanation:"The Law of Conservation of Charge means electrons are only transferred, never created or destroyed."},
+    {type:"mcq",question:"A 60-watt light bulb uses how many joules per second?",options:["6","60","600","6000"],answer:1,explanation:"1 Watt = 1 Joule/second, so 60W = 60 J/s."},
+    {type:"mcq",question:"Which particles make up an atom?",options:["Protons, neutrons, electrons","Atoms, ions, molecules","Cells, protons, electrons","Energy, matter, force"],answer:0,explanation:"Atoms are made of protons, neutrons, and electrons."},
 
-      {type:"mcq",question:"Fuse purpose?",options:["Stores energy","Protects circuit","Creates light","Measures voltage"],answer:1,explanation:"Stops excess current."},
-      {type:"mcq",question:"Short circuit is:",options:["Normal circuit","Low resistance path","Open circuit","Broken wire"],answer:1,explanation:"Too much current flows."},
-      {type:"mcq",question:"Energy unit?",options:["Watts","Joules","Volts","Amps"],answer:1,explanation:"Energy is in joules."},
-      {type:"mcq",question:"Power means:",options:["Energy over time","Voltage","Resistance","Current"],answer:0,explanation:"Rate of energy use."},
-      {type:"mcq",question:"Device that produces light?",options:["Motor","Bulb","Battery","Switch"],answer:1,explanation:"Bulbs emit light."},
-      {type:"mcq",question:"Motor converts energy into:",options:["Light","Motion","Heat","Sound"],answer:1,explanation:"Electrical → motion."},
-      {type:"mcq",question:"Conductor does what?",options:["Blocks flow","Allows flow","Stores energy","Creates voltage"],answer:1,explanation:"Lets current pass."},
-      {type:"mcq",question:"Insulator does what?",options:["Allows flow","Blocks flow","Creates energy","Measures current"],answer:1,explanation:"Stops current."},
-      {type:"mcq",question:"Current is:",options:["Voltage","Flow of charge","Resistance","Power"],answer:1,explanation:"Moving electrons."},
-      {type:"mcq",question:"Battery symbol looks like:",options:["Circle","Long & short lines","Zigzag","Triangle"],answer:1,explanation:"Standard symbol."},
+    {type:"mcq",question:"Where are electrons located?",options:["In the nucleus","In the electron cloud","In protons","In neutrons"],answer:1,explanation:"Electrons are found in the electron cloud outside the nucleus."},
 
-      {type:"short",question:"Name a conductor.",answer:"copper",explanation:"Common wire material."},
-      {type:"short",question:"Name an insulator.",answer:"plastic",explanation:"Stops current."},
-      {type:"short",question:"What pushes electrons?",answer:"voltage",explanation:"Voltage drives flow."},
-      {type:"short",question:"What flows in a circuit?",answer:"electrons",explanation:"They carry charge."},
-      {type:"short",question:"Device to control circuit?",answer:"switch",explanation:"Opens/closes path."},
-      {type:"short",question:"Unit of current?",answer:"ampere",explanation:"Measured in amps."},
-      {type:"short",question:"Unit of voltage?",answer:"volt",explanation:"Measured in volts."},
-      {type:"short",question:"Unit of resistance?",answer:"ohm",explanation:"Measured in ohms."},
-      {type:"short",question:"One-path circuit?",answer:"series",explanation:"Single loop."},
-      {type:"short",question:"Multi-path circuit?",answer:"parallel",explanation:"Multiple branches."}
-    ]
-  },
-      {
-        name: "Chemistry Fundamentals",
-        difficulty: "medium",
-        description: "Elements, compounds and reactions",
-        questions: [
-          {type:"mcq",question:"What is the atomic number of Carbon?",options:["6","12","8","14"],answer:0,explanation:"Carbon has 6 protons, so its atomic number is 6."},
-          {type:"mcq",question:"Water is made of:",options:["2 oxygen, 1 hydrogen","1 oxygen, 1 hydrogen","1 oxygen, 2 hydrogen","2 oxygen, 2 hydrogen"],answer:2,explanation:"The chemical formula H₂O means 2 hydrogen atoms and 1 oxygen atom."},
-          {type:"short",question:"What is the chemical symbol for Gold?",answer:"Au",explanation:"Gold's symbol Au comes from the Latin word 'Aurum'."},
-          {type:"mcq",question:"pH 7 is considered:",options:["Acidic","Basic","Neutral","Alkaline"],answer:2,explanation:"The pH scale goes from 0-14. pH 7 is neutral (like pure water)."}
-        ]
-      }
-    ]
-  },
-  {
-    subject: "History",
-    icon: "🏛️",
-    color: "#d4930a",
-    description: "World history, events and civilisations",
-    quizzes: [
-      {
-        name: "World War II",
-        difficulty: "medium",
-        description: "Key events, figures and outcomes",
-        questions: [
-          {type:"mcq",question:"In which year did World War II begin?",options:["1935","1937","1939","1941"],answer:2,explanation:"WWII began on September 1, 1939, when Germany invaded Poland."},
-          {type:"mcq",question:"Which operation was the Allied invasion of Normandy in 1944?",options:["Operation Barbarossa","Operation Overlord","Operation Market Garden","Operation Torch"],answer:1,explanation:"D-Day (June 6, 1944) was part of Operation Overlord."},
-          {type:"short",question:"Who was the Prime Minister of the UK during most of WWII?",answer:"Churchill",explanation:"Winston Churchill served as PM from May 1940 to July 1945."},
-          {type:"mcq",question:"The atomic bombs in 1945 were dropped on which two cities?",options:["Tokyo and Osaka","Hiroshima and Nagasaki","Kyoto and Nagasaki","Hiroshima and Tokyo"],answer:1,explanation:"The US dropped atomic bombs on Hiroshima (Aug 6) and Nagasaki (Aug 9) in 1945."}
-        ]
-      },
-      {
-        name: "Ancient Civilisations",
-        difficulty: "easy",
-        description: "Egypt, Rome, Greece and beyond",
-        questions: [
-          {type:"mcq",question:"The Great Pyramid of Giza was built for which pharaoh?",options:["Ramesses II","Tutankhamun","Khufu","Cleopatra"],answer:2,explanation:"The Great Pyramid was built as a tomb for Pharaoh Khufu around 2560 BCE."},
-          {type:"mcq",question:"Rome was traditionally founded in:",options:["776 BCE","509 BCE","753 BCE","264 BCE"],answer:2,explanation:"According to tradition, Rome was founded by Romulus in 753 BCE."},
-          {type:"short",question:"What was the name of the ancient Greek marketplace and civic centre?",answer:"Agora",explanation:"The agora was the central public space in ancient Greek city-states."}
-        ]
-      }
-    ]
-  },
-  {
-    subject: "English",
-    icon: "📖",
-    color: "#7c3aed",
-    description: "Grammar, literature and writing",
-    quizzes: [
-      {
-        name: "Grammar Essentials",
-        difficulty: "easy",
-        description: "Parts of speech, punctuation and syntax",
-        questions: [
-          {type:"mcq",question:"What part of speech is the word 'quickly'?",options:["Adjective","Noun","Adverb","Verb"],answer:2,explanation:"'Quickly' modifies a verb and is therefore an adverb."},
-          {type:"mcq",question:"Which sentence is grammatically correct?",options:["She don't know","They is coming","He doesn't like it","We was there"],answer:2,explanation:"'He doesn't like it' uses the correct third-person singular form."},
-          {type:"short",question:"What punctuation mark is used to show possession?",answer:"Apostrophe",explanation:"An apostrophe (') shows possession, e.g. 'Sarah's book'."},
-          {type:"mcq",question:"A simile compares two things using:",options:["Metaphor","Like or as","Personification","Alliteration"],answer:1,explanation:"Similes use 'like' or 'as' to compare, e.g. 'fast as lightning'."}
-        ]
-      }
-    ]
-  },
-  {
-    subject: "Geography",
-    icon: "🌍",
-    color: "#0891b2",
-    description: "Countries, capitals, landscapes and climate",
-    quizzes: [
-      {
-        name: "World Capitals",
-        difficulty: "easy",
-        description: "Test your knowledge of capital cities",
-        questions: [
-          {type:"mcq",question:"What is the capital of Australia?",options:["Sydney","Melbourne","Canberra","Brisbane"],answer:2,explanation:"Canberra is Australia's capital — chosen as a compromise between Sydney and Melbourne."},
-          {type:"mcq",question:"Which city is the capital of Japan?",options:["Osaka","Kyoto","Hiroshima","Tokyo"],answer:3,explanation:"Tokyo has been Japan's capital since 1869."},
-          {type:"short",question:"What is the capital of Brazil?",answer:"Brasília",explanation:"Brasília replaced Rio de Janeiro as Brazil's capital in 1960."},
-          {type:"mcq",question:"The capital of Canada is:",options:["Toronto","Ottawa","Vancouver","Montreal"],answer:1,explanation:"Ottawa is Canada's capital, located in Ontario."}
-        ]
-      }
-    ]
-  }
+    {type:"mcq",question:"What charge does a proton have?",options:["Negative","Positive","Neutral","No charge"],answer:1,explanation:"Protons have a positive charge."},
+
+    {type:"mcq",question:"What happens between opposite charges?",options:["They repel","They attract","They disappear","Nothing"],answer:1,explanation:"Opposite charges attract each other."},
+
+    {type:"mcq",question:"What is an electric field?",options:["A type of battery","A region where electric force acts","A wire","A current"],answer:1,explanation:"It is the region around a charged object where forces act."},
+
+    {type:"mcq",question:"Electric field lines point:",options:["Toward positive charges","Away from positive charges","In random directions","Nowhere"],answer:1,explanation:"They point away from positive and toward negative charges."},
+
+    {type:"mcq",question:"What is a neutral atom?",options:["More electrons","Equal protons and electrons","No protons","Only neutrons"],answer:1,explanation:"Equal charges cancel out."},
+
+    {type:"mcq",question:"What is an ion?",options:["Neutral atom","Charged atom","Battery","Circuit"],answer:1,explanation:"An ion is an atom with a net charge."},
+
+    {type:"mcq",question:"What is static electricity?",options:["Moving charges","Buildup of charges","Battery power","Heat"],answer:1,explanation:"Charges build up and do not flow."},
+
+    {type:"mcq",question:"Law of Conservation of Charge states:",options:["Charge disappears","Charge is created","Charge is transferred","Charge stops"],answer:2,explanation:"Charge is not created or destroyed, only transferred."},
+
+    {type:"mcq",question:"Charging by friction involves:",options:["Rubbing objects","Cooling objects","Heating objects","Breaking objects"],answer:0,explanation:"Rubbing transfers electrons."},
+
+    {type:"mcq",question:"Conduction is:",options:["No contact","Direct contact transfer","Heat transfer","Light transfer"],answer:1,explanation:"Charge moves through touching objects."},
+
+    {type:"mcq",question:"Induction requires:",options:["Touching","No contact","Heat","Water"],answer:1,explanation:"It works without direct contact."},
+
+    {type:"mcq",question:"Which is a conductor?",options:["Rubber","Glass","Copper","Wood"],answer:2,explanation:"Metals like copper conduct electricity well."},
+
+    {type:"mcq",question:"Which is an insulator?",options:["Silver","Aluminum","Plastic","Copper"],answer:2,explanation:"Plastic does not conduct well."},
+
+    {type:"mcq",question:"What device detects charge?",options:["Battery","Electroscope","Wire","Switch"],answer:1,explanation:"Electroscopes detect electric charge."},
+
+    {type:"mcq",question:"Lightning is an example of:",options:["Current","Resistance","Discharge","Voltage"],answer:2,explanation:"Lightning is a static discharge."},
+
+    {type:"mcq",question:"Electric current is:",options:["Stored energy","Flow of charges","Heat","Resistance"],answer:1,explanation:"It is the movement of electrons."},
+
+    {type:"mcq",question:"Current is measured in:",options:["Volts","Watts","Amps","Ohms"],answer:2,explanation:"Amperes measure current."},
+
+    {type:"mcq",question:"A complete path for current is called:",options:["Field","Battery","Circuit","Charge"],answer:2,explanation:"A circuit allows current to flow."},
+
+    {type:"mcq",question:"Voltage is:",options:["Flow","Push of charges","Resistance","Heat"],answer:1,explanation:"Voltage pushes charges through a circuit."},
+
+    {type:"mcq",question:"Resistance is measured in:",options:["Volts","Watts","Ohms","Amps"],answer:2,explanation:"Ohms measure resistance."},
+
+    {type:"mcq",question:"Longer wires have:",options:["Less resistance","More resistance","No resistance","Same resistance"],answer:1,explanation:"More material increases resistance."},
+
+    {type:"mcq",question:"Higher temperature causes:",options:["Lower resistance","Higher resistance","No change","No current"],answer:1,explanation:"Resistance increases with temperature."},
+
+    {type:"mcq",question:"Batteries convert:",options:["Electrical to chemical","Chemical to electrical","Heat to light","Light to sound"],answer:1,explanation:"Batteries produce electricity from chemical energy."},
+
+    {type:"mcq",question:"An electrochemical cell produces:",options:["Heat","Light","Electricity","Sound"],answer:2,explanation:"It converts chemical energy to electrical energy."},
+
+    {type:"mcq",question:"Electrolyte is:",options:["Metal","Liquid or paste conductor","Wire","Battery"],answer:1,explanation:"It allows charge movement."},
+
+    {type:"mcq",question:"Direct current flows:",options:["Back and forth","One direction","No direction","Random"],answer:1,explanation:"DC flows in one direction."},
+
+    {type:"mcq",question:"Ohm’s Law is:",options:["V=IR","I=V/R","R=V/I","All of these"],answer:3,explanation:"All are correct forms of Ohm’s Law."},
+
+    {type:"mcq",question:"A load is:",options:["Power source","Device using energy","Wire","Battery"],answer:1,explanation:"Loads use electrical energy."},
+
+    {type:"mcq",question:"A closed circuit is:",options:["Broken","Complete","Open","Off"],answer:1,explanation:"Current flows in a closed circuit."},
+
+    {type:"mcq",question:"A switch does what?",options:["Adds voltage","Opens/closes circuit","Adds resistance","Stores energy"],answer:1,explanation:"Switches control current flow."},
+
+    {type:"mcq",question:"Series circuit has:",options:["Multiple paths","One path","No path","Infinite paths"],answer:1,explanation:"Only one path for current."},
+
+    {type:"mcq",question:"Parallel circuit has:",options:["One path","Multiple paths","No current","Only resistance"],answer:1,explanation:"Multiple branches allow flow."},
+
+    {type:"mcq",question:"If one bulb goes out in series:",options:["Others stay on","All go out","Nothing happens","Voltage increases"],answer:1,explanation:"Circuit breaks completely."},
+
+    {type:"mcq",question:"If one bulb goes out in parallel:",options:["All go out","Others stay on","Voltage stops","Resistance zero"],answer:1,explanation:"Other branches still work."},
+
+    {type:"mcq",question:"Power formula is:",options:["P=VI","P=IR","P=V/R","P=I/R"],answer:0,explanation:"Power equals voltage times current."},
+
+    {type:"mcq",question:"Power is measured in:",options:["Volts","Amps","Watts","Ohms"],answer:2,explanation:"Watts measure power."},
+
+    {type:"mcq",question:"Energy formula is:",options:["E=Pt","E=VI","E=IR","E=V/R"],answer:0,explanation:"Energy equals power times time."},
+
+    {type:"mcq",question:"A kilowatt-hour measures:",options:["Power","Energy","Voltage","Current"],answer:1,explanation:"It measures energy usage."},
+
+    {type:"mcq",question:"Short circuits cause:",options:["Low current","High current","No current","No voltage"],answer:1,explanation:"Low resistance leads to high current."},
+
+    {type:"mcq",question:"Electric shock affects:",options:["Only skin","Muscles and organs","Only bones","Nothing"],answer:1,explanation:"It disrupts body signals."},
+
+    {type:"mcq",question:"Ground wire does:",options:["Adds power","Removes charge safely","Increases resistance","Stores energy"],answer:1,explanation:"It directs excess charge to the earth."},
+
+    {type:"mcq",question:"Fuses protect by:",options:["Cooling wires","Melting to stop current","Increasing voltage","Adding current"],answer:1,explanation:"They break the circuit safely."},
+
+    {type:"mcq",question:"Circuit breakers:",options:["Melt","Reset","Explode","Store energy"],answer:1,explanation:"They trip and can be reused."}
+  ]}
+]},
+
+{subject:"US History",icon:"🏛️",color:"#d4930a",description:"American history, politics and events",
+ notes:[
+  {title:"Early Republic — Washington's Presidency",content:"Washington set precedents: Cabinet system, two-term limit (informal), neutrality in foreign affairs. Judiciary Act of 1789 created the Supreme Court (6 justices), circuit courts, and district courts. Hamilton's economic plan: pay national/state debts, create a national bank, protective tariff to promote manufacturing. Whiskey Rebellion (1794) showed the federal government would enforce its laws. Farewell Address warned against permanent foreign alliances and political factions."},
+  {title:"Political Parties & Adams",content:"Factions formed: Federalists (Hamilton) vs. Democratic-Republicans (Jefferson/Madison). Newspapers were key in shaping public opinion. Election of 1796: Adams (Federalist) won presidency; Jefferson (opponent) became VP — caused conflict. XYZ Affair: France demanded bribes; increased anti-French sentiment. Alien and Sedition Acts: limited immigrants' rights and free speech to suppress Republican opposition. VA and KY Resolutions (Jefferson/Madison): argued states could nullify unconstitutional federal laws."},
+  {title:"Jefferson, Louisiana & Lewis/Clark",content:"Election of 1800: Jefferson won — first peaceful transfer of power between parties. Marbury v. Madison (1803): established judicial review — Supreme Court can strike down unconstitutional laws. Louisiana Purchase: bought from France (Napoleon) for ~$15 million; nearly doubled US size. Napoleon sold it because Haiti revolt ruined his North American plans and he needed war funds. Lewis & Clark Expedition (1804–06): explored Louisiana territory. Sacagawea served as translator, guide, and peace symbol. Found no all-water route to Pacific; used Missouri R. going west and Columbia R. going east. Pinckney Treaty (1795): Spain gave Americans rights to ship through New Orleans."},
+  {title:"War of 1812",content:"Causes: British impressment of American sailors, British support of Native Americans, War Hawks demanding war. Key events: Battle of Fallen Timbers (1794, before war), Battle of Horseshoe Bend, Battle of the Thames. Hartford Convention: New England states discussed secession (Federalists opposed the war). Treaty of Ghent (Dec. 1814): ended war, returned to pre-war status — 'nothing adjusted, nothing gained.' Battle of New Orleans: fought AFTER treaty was signed; made Andrew Jackson a hero. Francis Scott Key wrote 'Star-Spangled Banner' watching bombardment of Fort McHenry. Barbary Pirates: North African pirates (Tripoli, Tunis, Algiers) attacked US merchant ships."},
+  {title:"Era of Good Feelings & Monroe",content:"President Monroe's era called 'Era of Good Feelings' — one dominant party, sense of national unity. Adams-Onis Treaty: Spain ceded Florida to US; boundary with Spanish West settled. Monroe Doctrine (1823): warned European nations not to interfere with new Latin American nations; enforced by British navy. Sectionalism: loyalty to region over nation. Supreme Court cases: McCulloch v. MD (national bank supremacy), Gibbons v. Ogden (federal interstate commerce), Dartmouth College v. Woodward."},
+  {title:"Jackson & the Common Man",content:"Election of 1824: Jackson won most popular/electoral votes but no majority; House chose J.Q. Adams. Henry Clay made Secretary of State — Jacksonians called it 'Corrupt Bargain.' Election of 1828: Jackson won — first frontier/common man president. Spoils system: rewarding political supporters with government jobs. Bank War: Jackson believed Bank favored wealthy; vetoed re-charter in 1832; defeated Clay in re-election. Tariff of Abominations (1828): North liked it (protected manufacturing); South hated it (raised import prices). Nullification Crisis: South Carolina threatened to secede over tariffs. Panic of 1837: economic depression shortly after Jackson left office. Election of 1840: Whig Harrison defeated Democrat Van Buren; Harrison died one month into office. Indian Removal Act: Cherokee, Creek, Choctaw, Chickasaw, Seminole removed west. Trail of Tears: Cherokee forced march 1838-39, many died. Worcester v. Georgia: Supreme Court ruled states had no authority in Indian territories (Jackson ignored ruling). Seminole Wars: 3 wars over 40 years — fought hardest to resist removal."}
+ ],
+ quizzes:[
+  {name:"Washington & Early Republic",difficulty:"medium",description:"Washington's presidency, Hamilton's plan, and early politics",questions:[
+    {type:"mcq",question:"Which precedent did Washington set at the START of his first term?",options:["He created an alliance with Great Britain","He set up a Cabinet to head the executive depts.","He decided to run for a third term","He abolished the Supreme Court"],answer:1,explanation:"Washington established the Cabinet system to advise the president."},
+    {type:"mcq",question:"Which statement BEST expresses Washington's beliefs about foreign policy?",options:["The US should use military force when necessary","The US should support permanent alliances","The US should pursue neutrality and avoid entanglement in Europe","The US should take a more active world role"],answer:2,explanation:"Washington's Farewell Address warned against permanent foreign alliances."},
+    {type:"mcq",question:"Which action was NOT part of Hamilton's economic plan?",options:["Pay states' and national debts","Promote manufacturing with a protective tariff","Create a national bank","Encourage farming and agriculture"],answer:3,explanation:"Hamilton focused on manufacturing and commerce, not farming — that was Jefferson's view."},
+    {type:"mcq",question:"Which event proved the new federal government would act firmly during protest and crisis?",options:["Neutrality Proclamation","Whiskey Rebellion","Election of 1796","Jay's Treaty"],answer:1,explanation:"Washington sent troops to crush the Whiskey Rebellion, showing federal authority."},
+    {type:"mcq",question:"What did the Judiciary Act of 1789 create?",options:["Supreme Court of 6 Justices","3 Circuit Courts of Appeals","13 District Courts","All of these"],answer:3,explanation:"The Judiciary Act created all three levels of the federal court system."},
+    {type:"mcq",question:"Temporary opposing groups on specific issues but NOT fully formed political parties are called:",options:["Rivals","Parties","Factions","Sections"],answer:2,explanation:"Factions are informal groups — the predecessors to full political parties."},
+    {type:"mcq",question:"The results of the Election of 1796 caused problems because:",options:["It led to the War of 1812","The President and VP were from opposing parties","Washington was elected for a third term","All of the above"],answer:1,explanation:"Adams (Federalist) won presidency; Jefferson (Republican) became VP — they were political opponents."},
+    {type:"mcq",question:"Why were newspapers important to the growth of political parties?",options:["Newspapers doubled to meet demand","More Americans could read","Newspapers took sides in the rivalry","All of these"],answer:3,explanation:"All three factors made newspapers powerful tools in shaping political opinion."},
+    {type:"mcq",question:"Hamilton's debt plan was controversial because:",options:["Speculators would profit greatly","States didn't want debts paid","Bonds wouldn't be paid at full value","Federalists opposed paying debts"],answer:0,explanation:"Speculators who had bought bonds cheaply would make large profits when paid at full value."},
+    {type:"mcq",question:"Which 1789 event caused problems for Washington's neutrality policy?",options:["XYZ Affair","French Revolution","Whiskey Rebellion","Pinckney Treaty"],answer:1,explanation:"The French Revolution divided Americans — France was an ally but the violence alarmed many."},
+    {type:"mcq",question:"The Federalists passed the Alien and Sedition Acts to:",options:["Limit the growth and voting power of the Republican party","Increase immigration","Protect free speech of editors","All of the above"],answer:0,explanation:"The Acts targeted immigrants (who often voted Republican) and critics of the government."},
+    {type:"mcq",question:"The ideas of 'states' rights' and 'nullification' are best associated with the:",options:["XYZ Affair","Jay Treaty","VA and KY Resolutions","Whiskey Rebellion"],answer:2,explanation:"Jefferson and Madison wrote the Virginia and Kentucky Resolutions arguing states could nullify federal laws."},
+    {type:"mcq",question:"What was the result of the XYZ Affair?",options:["US-France relations improved","Britain attacked the US","Adams became more popular","It increased demands for war against France"],answer:3,explanation:"When France demanded bribes, Americans were outraged and many called for war."},
+    {type:"mcq",question:"What was most significant about the Election of 1800?",options:["It set the precedent of peaceful transfer of power between parties","John Adams served as Jefferson's VP","Aaron Burr was elected by the House","Adams was re-elected"],answer:0,explanation:"Jefferson's victory showed democracy could work — power transferred peacefully between rival parties."},
+    {type:"mcq",question:"In the case of Marbury v Madison, the Supreme Court:",options:["Ruled against Marbury","Declared part of the Judiciary Act unconstitutional","Established the power of judicial review","All of these"],answer:3,explanation:"All three outcomes occurred — this landmark case gave the Court the power of judicial review."}
+  ]},
+  {name:"War of 1812",difficulty:"medium",description:"Causes, battles, key figures and outcomes",questions:[
+    {type:"mcq",question:"New Orleans was important because it:",options:["Was controlled by the British","Allowed France to build an empire","Was the key port for Americans in the West to ship goods","Was the route used by British to supply forts"],answer:2,explanation:"Western American farmers needed New Orleans to export their goods to world markets."},
+    {type:"mcq",question:"The Pinckney Treaty:",options:["Was negotiated with Spain in 1795","Guaranteed Americans' rights through New Orleans","Stopped when France gained control","All of these"],answer:3,explanation:"All three statements about the Pinckney Treaty are correct."},
+    {type:"mcq",question:"The Louisiana Purchase was important because it:",options:["Almost doubled the size of the nation","Provided huge fertile farmland and resources","Gave the US control of the Mississippi River","All of these"],answer:3,explanation:"All three were major reasons the Louisiana Purchase was so significant."},
+    {type:"mcq",question:"What was the constitutional dilemma about the Louisiana Purchase?",options:["Could the US afford it?","Was purchasing additional land allowed by the Constitution?","Did Jefferson think it was a good idea?","Would the Supreme Court approve it?"],answer:1,explanation:"Jefferson worried the Constitution did not explicitly allow the president to buy foreign land."},
+    {type:"mcq",question:"Which statement about Canada during the War of 1812 is TRUE?",options:["The War Hawks' goal was to conquer Canada","Canadiens successfully fought American invasions","Canada was NOT interested in joining the US","All of these"],answer:3,explanation:"All three statements about Canada and the War of 1812 are true."},
+    {type:"mcq",question:"The Barbary Pirates:",options:["Were in North African cities of Tripoli, Tunis and Algiers","Attacked merchant ships in the Mediterranean","Were paid tribute by European nations","All of these"],answer:3,explanation:"All three statements about the Barbary Pirates are correct."},
+    {type:"mcq",question:"Sacagawea was important to Lewis & Clark because:",options:["She acted as a translator","She shared knowledge of herbs and plants","Her presence showed the party was peaceful","All of the above"],answer:3,explanation:"Sacagawea contributed in all three ways to the expedition's success."},
+    {type:"mcq",question:"Which was a result of the Embargo Act of 1807?",options:["It increased Jefferson's popularity with merchants","It badly hurt American shipping and trade","It increased profits from cotton and tobacco","It replaced the Nonintercourse Act"],answer:1,explanation:"The Embargo Act backfired — it hurt American trade far more than it hurt Britain or France."},
+    {type:"mcq",question:"All of these were causes of the War of 1812 EXCEPT:",options:["British impressment of American sailors","British support of Native Americans on frontier","Americans called War Hawks calling for war","British encouraging Barbary States to attack US ships"],answer:3,explanation:"The British did not encourage the Barbary Pirates to attack American ships."},
+    {type:"mcq",question:"The Hartford Convention was a meeting to:",options:["Discuss whether New England states should secede","Convince merchants the blockade would end","Organize resistance to Tecumseh","Negotiate peace with the British"],answer:0,explanation:"Federalists in New England met to discuss secession because they opposed the war."},
+    {type:"mcq",question:"One important result of the War of 1812 was:",options:["A successful US invasion of Canada","Increased national pride and unity — Era of Good Feelings","A British victory and re-establishment of colonial rule","A blockade of American ports"],answer:1,explanation:"Despite few military gains, the war boosted American nationalism and unity."},
+    {type:"mcq",question:"The Battle of New Orleans was important because it:",options:["Ended the war","Made Andrew Jackson a war hero","Convinced the British to sign the Treaty of Ghent","All of the above"],answer:1,explanation:"Jackson became a national hero, though the battle was fought after the Treaty of Ghent was already signed."},
+    {type:"mcq",question:"The Treaty of Ghent:",options:["Was signed in December 1814","Returned both countries to pre-war status","Ended the war weeks before the Battle of New Orleans","All of these"],answer:3,explanation:"All three statements about the Treaty of Ghent are correct."},
+    {type:"mcq",question:"Francis Scott Key wrote the Star-Spangled Banner while watching the:",options:["British bombardment of Fort McHenry in Baltimore","British burning of Washington and the White House","British attack on New Orleans","American Marines attacking Tripoli"],answer:0,explanation:"Key watched the all-night bombardment of Fort McHenry in Baltimore Harbor."},
+    {type:"mcq",question:"Which statement about the Lewis and Clark Expedition is FALSE?",options:["They used the Missouri River traveling north into the Rockies","Shoshone Indians agreed to sell horses to the expedition","The expedition found an all-water route to the Pacific","They used the Columbia River out of the Rockies to the Pacific"],answer:2,explanation:"No all-water route existed — they had to cross the Rocky Mountains on horseback."},
+    {type:"mcq",question:"Why did Napoleon sell Louisiana to the US?",options:["The revolt in Haiti ruined his North American empire plans","France needed money for wars in Europe","The Americans offered $30 million","A and B only"],answer:3,explanation:"Haiti's revolt and the need for war funds led Napoleon to sell Louisiana. The price was about $15 million, not $30 million."},
+    {type:"mcq",question:"The Treaty of Greenville resulted in Native Americans giving up most of:",options:["Ohio","Indiana","Illinois","Kentucky"],answer:0,explanation:"After the Battle of Fallen Timbers, Native Americans ceded most of the future state of Ohio."},
+    {type:"mcq",question:"'Nothing was adjusted, nothing was gained' is best associated with:",options:["Treaty of Greenville","Revolution in Haiti","Treaty of Ghent","Hartford Convention"],answer:2,explanation:"This phrase describes the Treaty of Ghent — the war ended with the status quo restored."},
+    {type:"mcq",question:"Which event occurred FIRST?",options:["Battle of New Orleans","Battle of Fallen Timbers","Battle of Horseshoe Bend","Battle of the Thames"],answer:1,explanation:"Battle of Fallen Timbers was 1794, before the War of 1812 even began."}
+  ]},
+  {name:"Jackson & Indian Removal",difficulty:"medium",description:"Jacksonian democracy, the Bank War, and removal of Native Americans",questions:[
+    {type:"mcq",question:"The Election of 1824 resulted in what Jacksonian Democrats called the 'Corrupt Bargain' because:",options:["Clay was made Secretary of State after helping Adams win","Jackson was denied the presidency despite winning popular vote","Adams appointed Clay who had helped him in the House","All of the above"],answer:3,explanation:"Jackson won the most votes but Adams won in the House; Clay's appointment as Secretary of State looked like a reward."},
+    {type:"mcq",question:"Loyalty to one's state or region rather than the entire nation is called:",options:["Regionalism","Patriotism","Sectionalism","Republicanism"],answer:2,explanation:"Sectionalism — loyalty to region over nation — was a growing problem in this era."},
+    {type:"mcq",question:"The Monroe Doctrine:",options:["Was announced by the US in 1823","Stated European nations must not interfere with new Latin American nations","Was actually enforced by Britain and its navy","All of these"],answer:3,explanation:"All three statements about the Monroe Doctrine are correct."},
+    {type:"mcq",question:"Which group saw increased voting rights during the Jacksonian Era?",options:["Women","African Americans","White Men","All of these"],answer:2,explanation:"Property requirements for voting were dropped — expanding rights for white men only."},
+    {type:"mcq",question:"Jackson's election in 1828 was significant because:",options:["He was the first President from the western frontier","He was the first from a common working class background","It showed the growing power of the 'common man' voter","All of the above"],answer:3,explanation:"All three statements about Jackson's 1828 election are correct."},
+    {type:"mcq",question:"Why did President Jackson oppose the Bank of the United States?",options:["He thought it granted too many loans","He believed the Bank was too powerful and favored the wealthy","He wanted his Cabinet to control it","He did not choose bank president Nicholas Biddle"],answer:1,explanation:"Jackson saw the Bank as a corrupt institution that benefited wealthy elites at the expense of ordinary Americans."},
+    {type:"mcq",question:"The practice of rewarding political supporters with government jobs became known as the:",options:["Kitchen cabinet","American system","Spoils system","Nullification Act"],answer:2,explanation:"'To the victor go the spoils' — Jackson rewarded his supporters with government positions."},
+    {type:"mcq",question:"The 'Nullification Crisis' was:",options:["The battle between Biddle and Jackson about the Bank","When South Carolina threatened to secede over tariffs","The problem with Great Britain during JQ Adams","All of the above"],answer:1,explanation:"South Carolina declared the Tariff of 1828 null and void and threatened secession."},
+    {type:"mcq",question:"Which statement about the 2nd Bank of the US is FALSE?",options:["It was chartered in 1816 with a 20-year charter","Its re-charter was vetoed by Jackson in 1832","It was viewed by most Americans as helpful to common workers","It helped keep the economy stable"],answer:2,explanation:"Most ordinary Americans viewed the Bank with suspicion — they thought it favored the wealthy."},
+    {type:"mcq",question:"In the case of Worcester v Georgia, the Supreme Court ruled that:",options:["Georgia could force the Cherokee to be removed","The Indian Removal Act was unconstitutional","No state had authority to enforce laws within Indian territories","Jackson must enforce the Indian Removal Act"],answer:2,explanation:"The Supreme Court ruled in favor of the Cherokee, but Jackson ignored the ruling."},
+    {type:"mcq",question:"Which effect or result of the Indian Removal Act is TRUE?",options:["Expulsion of thousands of Native Americans west","Slavery and cotton farming expanded into former Indian lands","Widespread suffering like the Trail of Tears","All of these"],answer:3,explanation:"All three were major effects of the Indian Removal Act."},
+    {type:"mcq",question:"Which tribe adopted European customs hoping to live in peace but was still forced to move west?",options:["Cherokee","Seminole","Choctaw","Shawnee"],answer:0,explanation:"The Cherokee adopted a written language, constitution, and European customs — yet were still removed."},
+    {type:"mcq",question:"Which tribe fought 3 wars over 40 years in Florida to resist removal?",options:["Cherokee","Seminole","Choctaw","Shawnee"],answer:1,explanation:"The Seminole Wars were the longest and costliest Indian wars the US fought."},
+    {type:"mcq",question:"Which tribe was forced on the Trail of Tears in the winter of 1838-39?",options:["Cherokee","Seminole","Creek","Choctaw"],answer:0,explanation:"The Cherokee were forcibly marched west; thousands died from cold, disease, and starvation."},
+    {type:"mcq",question:"Which statement about the Election of 1832 is FALSE?",options:["The Whig Clay defeated the Democrat Jackson","The Whigs used bank renewal to trap Jackson","Jackson defeated Clay by a large margin","Most common men supported Jackson's bank veto"],answer:0,explanation:"Jackson defeated Clay convincingly — Clay's strategy of forcing a bank vote backfired."},
+    {type:"mcq",question:"What attracted settlers to the Oregon region?",options:["Absence of Native Americans","Discovery of gold","Fertile lands, plentiful rain and mild climate","Freedom from religious persecution"],answer:2,explanation:"Oregon's fertile Willamette Valley and mild climate were the main draws for settlers."}
+  ]},
+  {name:"Westward Expansion",difficulty:"medium",description:"Oregon, Texas, Mexican War, Gold Rush and Manifest Destiny",questions:[
+    {type:"mcq",question:"What attracted settlers to the Oregon region?",options:["Absence of Native Americans","Discovery of gold","Fertile lands, plentiful rain and mild climate","Freedom from religious persecution"],answer:2,explanation:"Oregon's fertile Willamette Valley and mild climate were the main draws for settlers."},
+    {type:"mcq",question:"What was the key advantage of steamboat technology?",options:["It was not safe due to explosions","Moving upstream against current at faster speed","It was limited in how much it could carry","Most people refused to ride them"],answer:1,explanation:"Steamboats could move against river currents, revolutionizing upstream travel and trade."},
+    {type:"mcq",question:"Conflicts between American settlers in Texas and Mexico included:",options:["Religious differences (Protestant vs Catholic)","Fear Mexico would lose Texas to the USA","Mexico's opposition to slavery in Texas","All of these"],answer:3,explanation:"All three were major sources of conflict between Texas settlers and the Mexican government."},
+    {type:"mcq",question:"The 'Columbia' figure in the Manifest Destiny painting likely represents:",options:["The vision of American Manifest Destiny bringing progress to the West","The growth of Native American culture","The need for religious freedom in the West","The mystery and darkness of the West"],answer:0,explanation:"The allegorical figure represents America's belief in its destiny to expand westward."},
+    {type:"mcq",question:"What is the significance of the Alamo?",options:["Many Texans died defending it, inspiring Texas to fight for independence","Texan soldiers caught Mexico by surprise","It was where Santa Anna surrendered","Texans drove Mexicans out of Texas"],answer:0,explanation:"Though the defenders were killed, 'Remember the Alamo!' became a rallying cry for Texas independence."},
+    {type:"mcq",question:"The term 'Manifest Destiny' meant the United States would:",options:["Establish an overseas empire","Remove all Native Americans","Spread its culture and people across the continent to the Pacific","Develop a democracy including all people"],answer:2,explanation:"Manifest Destiny was the belief that American expansion to the Pacific was inevitable and divinely ordained."},
+    {type:"mcq",question:"How did the US and Britain settle their dispute over Oregon in 1846?",options:["US seized the land with military force","US and Britain divided the territory at 49° N by treaty","US bought Oregon from Britain for $15 million","Britain forced the US to sell all of Oregon"],answer:1,explanation:"The Oregon Treaty of 1846 divided the territory at the 49th parallel."},
+    {type:"mcq",question:"Why did the Mormons move west and establish Salt Lake City?",options:["The valley was rich in farmland","They were attacked by Native Americans","They wanted to practice religion without persecution","They wanted to separate from the US"],answer:2,explanation:"Mormons faced severe persecution in the East and Midwest; they sought a place to practice their faith freely."},
+    {type:"mcq",question:"Which statement about the California Gold Rush is FALSE?",options:["Many diverse groups from around the world moved there","It resulted in large permanent changes to California","Most Americans who rushed to California found gold and became rich","Some immigrant groups like the Chinese faced discrimination"],answer:2,explanation:"The vast majority of forty-niners did NOT find gold; merchants and suppliers often profited more."},
+    {type:"mcq",question:"The Treaty of Guadalupe Hidalgo:",options:["Ended the Mexican American War","Resulted in Mexico giving up the Mexican Cession","Resulted in many new states including California","All of these"],answer:3,explanation:"All three statements about the Treaty of Guadalupe Hidalgo are correct."},
+    {type:"mcq",question:"Which was an effect of the California Gold Rush?",options:["It brought enormous ethnic diversity to California","Chinese laborers faced prejudice and discrimination","About 100,000 Native Americans died during the Gold Rush","All of these"],answer:3,explanation:"All three were major effects of the California Gold Rush."},
+    {type:"mcq",question:"Which Mormon belief or practice resulted in conflict and persecution?",options:["Refusing to obey federal and state laws","Rejection of Christianity and the Bible","Polygamy — marriage to multiple spouses","All of these"],answer:2,explanation:"The practice of polygamy was the main source of conflict between Mormons and other Americans."},
+    {type:"mcq",question:"Which group was known as Spanish/Mexican and Indian cowhands who raised cattle?",options:["Mountain men","Missionaries","Vaqueros","Forty-Niners"],answer:2,explanation:"Vaqueros were the skilled cattle herders of the Southwest — the forerunners of the American cowboy."}
+  ]},
+  {name:"Full US History Unit",difficulty:"hard",description:"Washington, Early Republic, Jackson Era, and Westward Expansion",questions:[
+
+    {type:"mcq",question:"What precedent did George Washington set at the start of his presidency?",options:["Created alliances","Formed a Cabinet","Ran for 3rd term","Abolished courts"],answer:1,explanation:"Washington created a Cabinet to help run the executive branch."},
+
+    {type:"mcq",question:"What was Washington’s foreign policy belief?",options:["Use force often","Permanent alliances","Neutrality","Global expansion"],answer:2,explanation:"He believed the US should avoid foreign entanglements."},
+
+    {type:"mcq",question:"Which was NOT part of Hamilton’s plan?",options:["Pay debts","Tariffs","National bank","Promote farming"],answer:3,explanation:"Hamilton focused on industry, not agriculture."},
+
+    {type:"mcq",question:"Which event showed federal power?",options:["XYZ Affair","Whiskey Rebellion","Jay Treaty","Election"],answer:1,explanation:"The government crushed the rebellion."},
+
+    {type:"mcq",question:"What did the Judiciary Act of 1789 create?",options:["Only Supreme Court","Only local courts","Federal court system","Military courts"],answer:2,explanation:"It created a full federal court system."},
+
+    {type:"mcq",question:"Temporary political groups were called:",options:["Parties","Factions","States","Clubs"],answer:1,explanation:"Early groups were factions."},
+
+    {type:"mcq",question:"Why was the Election of 1796 unusual?",options:["War started","Opposing VP","3 terms","Tie"],answer:1,explanation:"President and VP were from different parties."},
+
+    {type:"mcq",question:"Why were newspapers important?",options:["Cheap","Funny","Influenced opinions","None"],answer:2,explanation:"They shaped political views."},
+
+    {type:"mcq",question:"Hamilton’s debt plan was controversial because:",options:["Too cheap","Speculators profited","No taxes","Too fast"],answer:1,explanation:"Investors made large profits."},
+
+    {type:"mcq",question:"Which event affected neutrality?",options:["XYZ Affair","French Revolution","Rebellion","Treaty"],answer:1,explanation:"It pressured US neutrality."},
+
+    {type:"mcq",question:"Alien and Sedition Acts were passed to:",options:["Help immigrants","Limit opposition","Free speech","Trade"],answer:1,explanation:"They targeted political opponents."},
+
+    {type:"mcq",question:"States’ rights ideas came from:",options:["Treaty","Rebellion","Resolutions","Court"],answer:2,explanation:"VA and KY Resolutions."},
+
+    {type:"mcq",question:"Result of XYZ Affair?",options:["Peace","War demand","Trade","Alliance"],answer:1,explanation:"People wanted war with France."},
+
+    {type:"mcq",question:"Why was Election of 1800 important?",options:["War","Peaceful transfer","Tie","New law"],answer:1,explanation:"First peaceful transfer of power."},
+
+    {type:"mcq",question:"Marbury v Madison established:",options:["Bank","Review","Taxes","Rights"],answer:1,explanation:"Judicial review."},
+
+    {type:"mcq",question:"The Corrupt Bargain involved:",options:["Jackson","Clay & Adams","War","Bank"],answer:1,explanation:"Clay supported Adams."},
+
+    {type:"mcq",question:"McCulloch v Maryland showed:",options:["State power","National supremacy","War","Trade"],answer:1,explanation:"Federal law is supreme."},
+
+    {type:"mcq",question:"Adams-Onís Treaty did what?",options:["War","Florida to US","Trade","Alliance"],answer:1,explanation:"Spain gave Florida to US."},
+
+    {type:"mcq",question:"Sectionalism means:",options:["Unity","State loyalty","War","Trade"],answer:1,explanation:"Loyalty to region."},
+
+    {type:"mcq",question:"Monroe Doctrine said:",options:["War","No Europe interference","Trade","Taxes"],answer:1,explanation:"Warned Europe to stay out."},
+
+    {type:"mcq",question:"Gibbons v Ogden ruled:",options:["States control","No monopoly","War","Trade"],answer:1,explanation:"States can't block interstate trade."},
+
+    {type:"mcq",question:"Era of Good Feelings under:",options:["Jefferson","Madison","Monroe","Adams"],answer:2,explanation:"Monroe presidency."},
+
+    {type:"mcq",question:"Voting expanded to:",options:["Women","All","White men","None"],answer:2,explanation:"More white men gained voting rights."},
+
+    {type:"mcq",question:"Jackson’s election showed:",options:["Elite rule","Common man power","War","Trade"],answer:1,explanation:"Rise of common voters."},
+
+    {type:"mcq",question:"New parties:",options:["Fed/Rep","Dem/Whig","Rep/Whig","None"],answer:1,explanation:"Democrats and Whigs formed."},
+
+    {type:"mcq",question:"Jackson opposed Bank because:",options:["Weak","Too powerful","Useless","Foreign"],answer:1,explanation:"Favored wealthy."},
+
+    {type:"mcq",question:"Spoils system is:",options:["War","Jobs for supporters","Taxes","Trade"],answer:1,explanation:"Political rewards."},
+
+    {type:"mcq",question:"Tariff of Abominations caused:",options:["Unity","Conflict","Peace","Trade"],answer:1,explanation:"North vs South conflict."},
+
+    {type:"mcq",question:"Nullification Crisis:",options:["War","SC vs tariffs","Bank","Election"],answer:1,explanation:"SC opposed tariffs."},
+
+    {type:"mcq",question:"Panic of 1837:",options:["War","Depression","Election","Bank"],answer:1,explanation:"Economic collapse."},
+
+    {type:"mcq",question:"Indian Removal Act caused:",options:["Peace","Trail of Tears","War","Trade"],answer:1,explanation:"Forced relocation."},
+
+    {type:"mcq",question:"Seminole tribe:",options:["Moved peacefully","Fought wars","Farmed","Traded"],answer:1,explanation:"Resisted removal."},
+
+    {type:"mcq",question:"Cherokee Trail of Tears:",options:["War","Migration","Forced march","Trade"],answer:2,explanation:"Deadly relocation."},
+
+    {type:"mcq",question:"Main cause of removal:",options:["Peace","Land demand","Trade","Religion"],answer:1,explanation:"Settlers wanted land."},
+
+    {type:"mcq",question:"Oregon settlers came for:",options:["Gold","Land","Religion","Trade"],answer:1,explanation:"Fertile land."},
+
+    {type:"mcq",question:"Steamboats helped by:",options:["Speed upstream","Cheap","Safe","Small"],answer:0,explanation:"Could go upstream."},
+
+    {type:"mcq",question:"Texas conflicts included:",options:["Religion","Slavery","Annexation fear","All"],answer:3,explanation:"All were causes."},
+
+    {type:"mcq",question:"Manifest Destiny means:",options:["Stay east","Expand west","Trade","War"],answer:1,explanation:"Expand to Pacific."},
+
+    {type:"mcq",question:"Oregon dispute solved by:",options:["War","49th parallel","Buy","Lose"],answer:1,explanation:"Divided at 49°."},
+
+    {type:"mcq",question:"Mormons moved for:",options:["Gold","Land","Religion","War"],answer:2,explanation:"Religious freedom."},
+
+    {type:"mcq",question:"Gold Rush FALSE:",options:["Diverse","Changed CA","All rich","Discrimination"],answer:2,explanation:"Most didn’t get rich."},
+
+    {type:"mcq",question:"Guadalupe Hidalgo:",options:["War","Ended war","Trade","Alliance"],answer:1,explanation:"Ended Mexican War."},
+
+    {type:"mcq",question:"Gold Rush effect:",options:["Diversity","Discrimination","Deaths","All"],answer:3,explanation:"All occurred."},
+
+    {type:"mcq",question:"Mormon conflict:",options:["Law","Bible","Polygamy","All"],answer:2,explanation:"Polygamy caused conflict."},
+
+    {type:"mcq",question:"Vaqueros were:",options:["Trappers","Farmers","Cowhands","Miners"],answer:2,explanation:"Cattle workers."}
+
+  ]}
+]},
+
+{subject:"English",icon:"📖",color:"#7c3aed",description:"Grammar, literature and writing",
+ notes:[
+  {title:"Parts of Speech",content:"Noun: person, place, thing, idea. Verb: action or state of being. Adjective: describes a noun. Adverb: describes a verb, adjective, or other adverb (often ends in -ly). Pronoun: replaces a noun. Preposition: shows relationship (in, on, at, by). Conjunction: joins words/phrases (and, but, or). Interjection: expressive word (oh! wow!)."},
+  {title:"Literary Devices",content:"Simile: compares using 'like' or 'as' — 'fast as lightning.' Metaphor: direct comparison — 'life is a journey.' Personification: giving human traits to non-human things. Alliteration: repetition of initial consonant sounds. Hyperbole: extreme exaggeration. Irony: saying the opposite of what is meant. Foreshadowing: hints at future events."},
+  {title:"Punctuation Rules",content:"Apostrophe ('): shows possession (Sarah's book) or contraction (don't). Comma (,): separates items in a list, joins independent clauses with conjunction. Semicolon (;): joins closely related independent clauses. Colon (:): introduces a list or explanation. Quotation marks: enclose direct speech or titles of short works."}
+ ],
+ quizzes:[
+  {name:"Grammar Essentials",difficulty:"easy",description:"Parts of speech and punctuation",questions:[
+    {type:"mcq",question:"'Quickly' is which part of speech?",options:["Adjective","Noun","Adverb","Verb"],answer:2,explanation:"'Quickly' modifies a verb — it is an adverb."},
+    {type:"mcq",question:"Which sentence is grammatically correct?",options:["She don't know","They is coming","He doesn't like it","We was there"],answer:2,explanation:"'He doesn't like it' uses the correct third-person singular form."},
+    {type:"short",question:"What punctuation shows possession?",answer:"Apostrophe",explanation:"An apostrophe (') shows possession, e.g. 'Sarah's book'."},
+    {type:"mcq",question:"A simile compares using:",options:["Metaphor","Like or as","Personification","Alliteration"],answer:1,explanation:"Similes use 'like' or 'as', e.g. 'fast as lightning'."}
+  ]}
+]},
+
+{subject:"Geography",icon:"🌍",color:"#0891b2",description:"Countries, capitals and landscapes",
+ notes:[
+  {title:"World Capitals",content:"Australia: Canberra (not Sydney or Melbourne). Japan: Tokyo. Brazil: Brasília (since 1960). Canada: Ottawa. USA: Washington D.C."},
+  {title:"Key Geographic Terms",content:"Continent: large landmass. Peninsula: land surrounded by water on three sides. Isthmus: narrow strip of land connecting two larger areas. Delta: where a river meets the sea. Plateau: flat elevated land. Archipelago: group of islands."}
+ ],
+ quizzes:[
+  {name:"World Capitals",difficulty:"easy",description:"Capital cities around the world",questions:[
+    {type:"mcq",question:"Capital of Australia?",options:["Sydney","Melbourne","Canberra","Brisbane"],answer:2,explanation:"Canberra — chosen as compromise between Sydney and Melbourne."},
+    {type:"mcq",question:"Capital of Japan?",options:["Osaka","Kyoto","Hiroshima","Tokyo"],answer:3,explanation:"Tokyo has been Japan's capital since 1869."},
+    {type:"short",question:"Capital of Brazil?",answer:"Brasilia",explanation:"Brasília replaced Rio de Janeiro as capital in 1960."},
+    {type:"mcq",question:"Capital of Canada?",options:["Toronto","Ottawa","Vancouver","Montreal"],answer:1,explanation:"Ottawa is Canada's capital, in Ontario."}
+  ]}
+]}
 ];
 
-// ══════════════════════════════════
-//  INIT
-// ══════════════════════════════════
-function init() {
-  const saved = localStorage.getItem('sp_subjects');
-  state.subjects = saved ? JSON.parse(saved) : DEFAULT_DATA;
-  renderHome();
-  updateNavStats();
+// ══════════════════ INIT ══════════════════
+function init(){
+  var saved=null;
+  try{saved=JSON.parse(localStorage.getItem('sp_subjects'));}catch(e){}
+  state.subjects=saved||DEFAULT_DATA;
+  renderHome();updateNavStats();
+}
+function saveSubjects(){try{localStorage.setItem('sp_subjects',JSON.stringify(state.subjects));}catch(e){}}
+function saveProgress(){
+  try{
+    localStorage.setItem('sp_progress',JSON.stringify(state.progress));
+    localStorage.setItem('sp_activity',JSON.stringify(state.activity.slice(0,20)));
+    localStorage.setItem('sp_xp',state.xp);
+    localStorage.setItem('sp_streak',state.streak);
+    localStorage.setItem('sp_answered',state.totalAnswered);
+    localStorage.setItem('sp_correct',state.totalCorrect);
+    localStorage.setItem('sp_quizzes',state.totalQuizzes);
+  }catch(e){}
 }
 
-function saveSubjects() {
-  localStorage.setItem('sp_subjects', JSON.stringify(state.subjects));
-}
-function saveProgress() {
-  localStorage.setItem('sp_progress', JSON.stringify(state.progress));
-  localStorage.setItem('sp_activity', JSON.stringify(state.activity.slice(0,20)));
-  localStorage.setItem('sp_xp', state.xp);
-  localStorage.setItem('sp_streak', state.streak);
-  localStorage.setItem('sp_answered', state.totalAnswered);
-  localStorage.setItem('sp_correct', state.totalCorrect);
-  localStorage.setItem('sp_quizzes', state.totalQuizzes);
-}
-
-// ══════════════════════════════════
-//  RENDER HOME
-// ══════════════════════════════════
-function renderHome() {
-  // stats bar
-  const acc = state.totalAnswered > 0 ? Math.round(state.totalCorrect / state.totalAnswered * 100) : 0;
-  document.getElementById('total-questions').textContent = state.totalAnswered;
-  document.getElementById('total-correct').textContent = acc + '%';
-  document.getElementById('total-subjects').textContent = state.subjects.length;
-  document.getElementById('total-quizzes').textContent = state.totalQuizzes;
-
-  // subject grid
-  const grid = document.getElementById('subject-grid');
-  grid.innerHTML = '';
-  state.subjects.forEach((s, si) => {
-    const progress = getSubjectProgress(si);
-    const card = document.createElement('div');
-    card.className = 'subject-card';
-    card.style.setProperty('--card-color', s.color);
-    card.innerHTML = `
-      <span class="subject-icon">${s.icon}</span>
-      <div class="subject-name">${s.subject}</div>
-      <div class="subject-count">${countQuestions(s)} questions · ${s.quizzes.length} quizzes</div>
-      <div class="subject-bar-wrap"><div class="subject-bar" style="width:${progress}%"></div></div>
-    `;
-    card.onclick = () => showSubject(si);
+// ══════════════════ RENDER HOME ══════════════════
+function renderHome(){
+  var acc=state.totalAnswered>0?Math.round(state.totalCorrect/state.totalAnswered*100):0;
+  document.getElementById('total-questions').textContent=state.totalAnswered;
+  document.getElementById('total-correct').textContent=acc+'%';
+  document.getElementById('total-subjects').textContent=state.subjects.length;
+  document.getElementById('total-quizzes').textContent=state.totalQuizzes;
+  var grid=document.getElementById('subject-grid');
+  grid.innerHTML='';
+  state.subjects.forEach(function(s,si){
+    var progress=getSubjectProgress(si);
+    var card=document.createElement('div');
+    card.className='subject-card';
+    card.style.setProperty('--card-color',s.color);
+    card.innerHTML='<span class="subject-icon">'+s.icon+'</span>'+
+      '<div class="subject-name">'+s.subject+'</div>'+
+      '<div class="subject-count">'+countQ(s)+' questions &middot; '+s.quizzes.length+' quizzes</div>'+
+      '<div class="subject-bar-wrap"><div class="subject-bar" style="width:'+progress+'%"></div></div>';
+    card.onclick=(function(i){return function(){showSubject(i);};})(si);
     grid.appendChild(card);
   });
-
-  // recent activity
-  const recent = document.getElementById('recent-list');
-  if (state.activity.length === 0) {
-    recent.innerHTML = '<div style="font-size:14px;color:var(--ink3);padding:12px 0">No activity yet — start a quiz!</div>';
-  } else {
-    recent.innerHTML = state.activity.slice(0,5).map(a => `
-      <div class="recent-item" onclick="showSubject(${a.si})">
-        <div class="recent-dot" style="background:${state.subjects[a.si]?.color||'#888'}"></div>
-        <div>
-          <div class="recent-name">${a.quizName}</div>
-          <div class="recent-meta">${a.subject} · ${a.date}</div>
-        </div>
-        <div class="recent-score" style="color:${a.score>=70?'var(--green)':a.score>=50?'var(--gold)':'var(--red)'}">${a.score}%</div>
-      </div>
-    `).join('');
+  var recent=document.getElementById('recent-list');
+  if(state.activity.length===0){
+    recent.innerHTML='<div style="font-size:14px;color:var(--ink3);padding:8px 0">No activity yet — start a quiz!</div>';
+  }else{
+    recent.innerHTML=state.activity.slice(0,5).map(function(a){
+      var col=(state.subjects[a.si]||{}).color||'#888';
+      var sc=a.score>=70?'var(--green)':a.score>=50?'var(--gold)':'var(--red)';
+      return '<div class="recent-item" onclick="showSubject('+a.si+')">' +
+        '<div class="recent-dot" style="background:'+col+'"></div>'+
+        '<div><div class="recent-name">'+a.quizName+'</div><div class="recent-meta">'+a.subject+' &middot; '+a.date+'</div></div>'+
+        '<div class="recent-score" style="color:'+sc+'">'+a.score+'%</div></div>';
+    }).join('');
   }
 }
-
-function getSubjectProgress(si) {
-  const s = state.subjects[si];
-  let done = 0, total = 0;
-  s.quizzes.forEach((q, qi) => {
-    total++;
-    const key = `${si}_${qi}`;
-    if (state.progress[key]) done++;
-  });
-  return total ? Math.round(done / total * 100) : 0;
+function getSubjectProgress(si){
+  var s=state.subjects[si],done=0,total=s.quizzes.length;
+  s.quizzes.forEach(function(q,qi){if(state.progress[si+'_'+qi])done++;});
+  return total?Math.round(done/total*100):0;
+}
+function countQ(s){return s.quizzes.reduce(function(sum,q){return sum+q.questions.length;},0);}
+function updateNavStats(){
+  document.getElementById('nav-xp').textContent=state.xp;
+  document.getElementById('nav-streak').textContent=state.streak;
 }
 
-function countQuestions(s) {
-  return s.quizzes.reduce((sum, q) => sum + q.questions.length, 0);
-}
-
-function updateNavStats() {
-  document.getElementById('nav-xp').textContent = state.xp;
-  document.getElementById('nav-streak').textContent = state.streak;
-}
-
-// ══════════════════════════════════
-//  SUBJECT SCREEN
-// ══════════════════════════════════
-let activeSubjectIdx = null;
-let activeDiffFilter = 'all';
-
-function showSubject(si) {
-  activeSubjectIdx = si;
-  activeDiffFilter = 'all';
-  const s = state.subjects[si];
-  document.getElementById('subj-icon').textContent = s.icon;
-  document.getElementById('subj-title').textContent = s.subject;
-  document.getElementById('subj-desc').textContent = s.description || '';
-  // reset diff pills
-  document.querySelectorAll('.diff-pill').forEach(p => p.classList.remove('active'));
+// ══════════════════ SUBJECT SCREEN ══════════════════
+var activeSubjectIdx=null;
+function showSubject(si){
+  activeSubjectIdx=si;
+  var s=state.subjects[si];
+  document.getElementById('subj-icon').textContent=s.icon;
+  document.getElementById('subj-title').textContent=s.subject;
+  document.getElementById('subj-desc').textContent=s.description||'';
+  document.querySelectorAll('.diff-pill').forEach(function(p){p.classList.remove('active');});
   document.querySelector('[data-diff="all"]').classList.add('active');
-  renderQuizGrid(si, 'all');
+  renderQuizGrid(si,'all');
   showScreen('screen-subject');
 }
-
-function filterDiff(diff, el) {
-  activeDiffFilter = diff;
-  document.querySelectorAll('.diff-pill').forEach(p => p.classList.remove('active'));
+function filterDiff(diff,el){
+  document.querySelectorAll('.diff-pill').forEach(function(p){p.classList.remove('active');});
   el.classList.add('active');
-  renderQuizGrid(activeSubjectIdx, diff);
+  renderQuizGrid(activeSubjectIdx,diff);
 }
-
-function renderQuizGrid(si, diff) {
-  const s = state.subjects[si];
-  const grid = document.getElementById('quiz-grid');
-  grid.innerHTML = '';
-  s.quizzes.filter(q => diff === 'all' || q.difficulty === diff).forEach((q, qi) => {
-    const realQi = s.quizzes.indexOf(q);
-    const key = `${si}_${realQi}`;
-    const prog = state.progress[key];
-    const card = document.createElement('div');
-    card.className = 'quiz-card';
-    card.innerHTML = `
-      <div class="quiz-card-top">
-        <div class="quiz-name">${q.name}</div>
-        <div class="quiz-badge badge-${q.difficulty}">${q.difficulty}</div>
-      </div>
-      <div class="quiz-desc">${q.description || ''}</div>
-      <div class="quiz-meta">
-        <span>📝 ${q.questions.length} questions</span>
-        ${prog ? `<span style="color:var(--green)">✓ Best: ${prog.best}%</span>` : '<span>Not attempted</span>'}
-      </div>
-      ${prog ? `<div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width:${prog.best}%"></div></div>` : ''}
-      <button class="start-btn" onclick="startQuiz(${si},${realQi})">Start quiz →</button>
-    `;
+function renderQuizGrid(si,diff){
+  var s=state.subjects[si];
+  var grid=document.getElementById('quiz-grid');
+  grid.innerHTML='';
+  s.quizzes.forEach(function(q,qi){
+    if(diff!=='all'&&q.difficulty!==diff)return;
+    var key=si+'_'+qi;
+    var prog=state.progress[key];
+    var card=document.createElement('div');
+    card.className='quiz-card';
+    card.innerHTML='<div class="quiz-card-top"><div class="quiz-name">'+q.name+'</div>'+
+      '<div class="quiz-badge badge-'+q.difficulty+'">'+q.difficulty+'</div></div>'+
+      '<div class="quiz-desc">'+(q.description||'')+'</div>'+
+      '<div class="quiz-meta"><span>&#128221; '+q.questions.length+' questions</span>'+
+      (prog?'<span style="color:var(--green)">&#10003; Best: '+prog.best+'%</span>':'<span>Not attempted</span>')+'</div>'+
+      (prog?'<div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width:'+prog.best+'%"></div></div>':'')+
+      '<div class="quiz-actions">'+
+        '<button class="start-btn" onclick="startQuiz('+si+','+qi+',false)">&#9654; Normal</button>'+
+        '<button class="inf-btn" onclick="startQuiz('+si+','+qi+',true)">&#8734; Infinite</button>'+
+      '</div>'+
+      '<button class="notes-btn" onclick="showNotes('+si+','+qi+')">&#128216; Notes &amp; Explanations</button>';
     grid.appendChild(card);
   });
-  if (grid.children.length === 0) {
-    grid.innerHTML = '<div style="font-size:14px;color:var(--ink3);padding:12px">No quizzes for this difficulty.</div>';
+  if(grid.children.length===0){
+    grid.innerHTML='<div style="font-size:14px;color:var(--ink3);padding:12px">No quizzes for this difficulty.</div>';
   }
 }
 
-// ══════════════════════════════════
-//  QUIZ ENGINE
-// ══════════════════════════════════
-function startQuiz(si, qi) {
-  const s = state.subjects[si];
-  const quiz = s.quizzes[qi];
-  state.session = shuffleQuestions([...quiz.questions]);
-  state.currentQ = 0;
-  state.answers = [];
-  state.elapsed = 0;
-  state.answered = false;
-  state.currentSubject = si;
-  state.currentQuiz = qi;
+// ══════════════════ NOTES SCREEN ══════════════════
+var notesSubjectIdx=null,notesQuizIdx=null;
+function showNotes(si,qi){
+  notesSubjectIdx=si;notesQuizIdx=qi;
+  var s=state.subjects[si];
+  var q=s.quizzes[qi];
+  document.getElementById('notes-title').textContent=q.name+' — Notes';
+  document.getElementById('notes-subtitle').textContent=s.subject+' · '+q.questions.length+' questions';
+  var body=document.getElementById('notes-body');
+  body.innerHTML='';
+  // Subject-level notes
+  var notes=s.notes||[];
+  if(notes.length>0){
+    notes.forEach(function(n){
+      var sec=document.createElement('div');
+      sec.className='notes-section';
+      sec.innerHTML='<h3>'+n.title+'</h3><p>'+n.content+'</p>';
+      body.appendChild(sec);
+    });
+  }
+  // Q&A Explanations
+  var expSec=document.createElement('div');
+  expSec.className='notes-section';
+  expSec.innerHTML='<h3>Question Explanations</h3>';
+  q.questions.forEach(function(qu,i){
+    var p=document.createElement('div');
+    p.style.cssText='margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)';
+    var ansText='';
+    if(qu.type==='mcq')ansText='<span style="color:var(--green);font-weight:600">&#10003; '+qu.options[qu.answer]+'</span>';
+    else ansText='<span style="color:var(--green);font-weight:600">&#10003; '+qu.answer+'</span>';
+    p.innerHTML='<div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:4px">'+(i+1)+'. '+qu.question+'</div>'+
+      '<div style="font-size:12px;margin-bottom:4px">'+ansText+'</div>'+
+      '<div style="font-size:12px;color:var(--ink3);line-height:1.55">'+qu.explanation+'</div>';
+    expSec.appendChild(p);
+  });
+  body.appendChild(expSec);
+  showScreen('screen-notes');
+}
+function startFromNotes(infinite){
+  startQuiz(notesSubjectIdx,notesQuizIdx,infinite);
+}
+function goBackToSubject(){
+  showSubject(activeSubjectIdx!==null?activeSubjectIdx:notesSubjectIdx);
+}
+
+// ══════════════════ QUIZ ENGINE ══════════════════
+function startQuiz(si,qi,infinite){
+  var quiz=state.subjects[si].quizzes[qi];
+  state.infiniteMode=!!infinite;
+  state.currentSubject=si;state.currentQuiz=qi;
+  state.answers=[];state.elapsed=0;state.answered=false;state.currentQ=0;
+  if(infinite){
+    // Build infinite pool — repeat questions endlessly
+    state.infPool=shuffle(quiz.questions.slice());
+    state.infIdx=0;
+    state.session=state.infPool;
+  }else{
+    state.session=shuffle(quiz.questions.slice());
+  }
   clearInterval(state.timerInterval);
-  state.timerInterval = setInterval(() => {
-    state.elapsed++;
-    updateTimer();
-  }, 1000);
+  state.timerInterval=setInterval(function(){state.elapsed++;updateTimer();},1000);
+  // Toggle UI
+  document.getElementById('mode-banner').classList.toggle('hidden',!infinite);
+  document.getElementById('normal-topbar').classList.toggle('hidden',infinite);
   showScreen('screen-quiz');
   renderQuestion();
 }
 
-function shuffleQuestions(qs) {
-  for (let i = qs.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [qs[i], qs[j]] = [qs[j], qs[i]];
-  }
-  return qs;
+function shuffle(arr){
+  var a=arr.slice();
+  for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}
+  return a;
 }
 
-function renderQuestion() {
-  const q = state.session[state.currentQ];
-  const total = state.session.length;
-  const idx = state.currentQ;
+function getInfQuestion(){
+  // When we reach the end of the pool, reshuffle and continue
+  if(state.infIdx>=state.infPool.length){
+    state.infPool=shuffle(state.subjects[state.currentSubject].quizzes[state.currentQuiz].questions.slice());
+    state.infIdx=0;
+  }
+  return state.infPool[state.infIdx];
+}
 
-  document.getElementById('q-progress').style.width = `${(idx / total) * 100}%`;
-  document.getElementById('q-counter').textContent = `${idx + 1} / ${total}`;
-  document.getElementById('q-category').textContent = state.subjects[state.currentSubject].subject;
-  document.getElementById('q-text').textContent = q.question;
+function renderQuestion(){
+  var q=state.infiniteMode?getInfQuestion():state.session[state.currentQ];
+  var total=state.session.length;
+  if(!state.infiniteMode){
+    document.getElementById('q-progress').style.width=(state.currentQ/total*100)+'%';
+    document.getElementById('q-counter').textContent=(state.currentQ+1)+' / '+total;
+  }else{
+    document.getElementById('inf-q-counter').textContent='Question '+(state.answers.length+1)+' answered so far: '+state.answers.filter(Boolean).length+' correct';
+  }
+  document.getElementById('q-category').textContent=state.subjects[state.currentSubject].subject;
+  document.getElementById('q-text').textContent=q.question;
   document.getElementById('explanation-box').classList.add('hidden');
   document.getElementById('btn-next').classList.add('hidden');
-  state.answered = false;
-
-  const list = document.getElementById('options-list');
-  list.innerHTML = '';
-
-  if (q.type === 'mcq') {
-    const letters = ['A','B','C','D'];
-    q.options.forEach((opt, i) => {
-      const btn = document.createElement('button');
-      btn.className = 'option-btn';
-      btn.innerHTML = `<div class="option-letter">${letters[i]}</div><span>${opt}</span>`;
-      btn.onclick = () => answerMCQ(i, q);
+  state.answered=false;
+  var list=document.getElementById('options-list');
+  list.innerHTML='';
+  if(q.type==='mcq'){
+    var letters=['A','B','C','D'];
+    q.options.forEach(function(opt,i){
+      var btn=document.createElement('button');
+      btn.className='option-btn';
+      btn.innerHTML='<div class="option-letter">'+letters[i]+'</div><span>'+opt+'</span>';
+      btn.onclick=(function(idx,question){return function(){answerMCQ(idx,question);};})(i,q);
       list.appendChild(btn);
     });
-  } else {
-    // short answer
-    list.innerHTML = `
-      <input class="short-input" id="short-input" type="text" placeholder="Type your answer..." />
-      <button class="check-btn" onclick="answerShort('${q.answer.toLowerCase().replace(/'/g,"\\'")}', document.getElementById('short-input').value)">Check answer</button>
-    `;
-    document.getElementById('short-input').addEventListener('keydown', e => {
-      if (e.key === 'Enter') answerShort(q.answer.toLowerCase(), document.getElementById('short-input').value);
-    });
+  }else{
+    var inp=document.createElement('input');
+    inp.className='short-input';inp.type='text';inp.placeholder='Type your answer...';inp.id='short-input';
+    var cb=document.createElement('button');
+    cb.className='check-btn';cb.textContent='Check answer';
+    cb.onclick=function(){answerShort(q.answer,document.getElementById('short-input').value,q);};
+    inp.addEventListener('keydown',function(e){if(e.key==='Enter')answerShort(q.answer,inp.value,q);});
+    list.appendChild(inp);list.appendChild(cb);
   }
 }
 
-function answerMCQ(chosen, q) {
-  if (state.answered) return;
-  state.answered = true;
-  const correct = q.answer;
-  const isCorrect = chosen === correct;
-  const btns = document.querySelectorAll('.option-btn');
-  btns.forEach((btn, i) => {
+function answerMCQ(chosen,q){
+  if(state.answered)return;
+  state.answered=true;
+  var correct=q.answer,isCorrect=chosen===correct;
+  document.querySelectorAll('.option-btn').forEach(function(btn,i){
     btn.classList.add('answered');
-    if (i === correct) btn.classList.add(i === chosen ? 'correct' : 'reveal');
-    else if (i === chosen) btn.classList.add('wrong');
+    if(i===correct)btn.classList.add(i===chosen?'correct':'reveal');
+    else if(i===chosen)btn.classList.add('wrong');
   });
-  recordAnswer(isCorrect, q.explanation);
+  recordAnswer(isCorrect,q.explanation,q);
 }
-
-function answerShort(expected, given) {
-  if (state.answered) return;
-  state.answered = true;
-  const isCorrect = given.trim().toLowerCase() === expected.toLowerCase();
-  const input = document.getElementById('short-input');
-  if (input) {
-    input.disabled = true;
-    input.style.borderColor = isCorrect ? 'var(--green)' : 'var(--red)';
-    input.style.background = isCorrect ? 'var(--green-light)' : 'var(--red-light)';
-  }
-  // find and disable button
-  const btn = document.querySelector('.check-btn');
-  if (btn) btn.disabled = true;
-
-  const q = state.session[state.currentQ];
-  recordAnswer(isCorrect, `Correct answer: "${q.answer}". ${q.explanation}`);
+function answerShort(expected,given,q){
+  if(state.answered)return;
+  state.answered=true;
+  var isCorrect=given.trim().toLowerCase()===expected.toLowerCase();
+  var inp=document.getElementById('short-input');
+  if(inp){inp.disabled=true;inp.style.borderColor=isCorrect?'var(--green)':'var(--red)';inp.style.background=isCorrect?'var(--green-light)':'var(--red-light)';}
+  var cb=document.querySelector('.check-btn');if(cb)cb.disabled=true;
+  recordAnswer(isCorrect,'Correct answer: "'+q.answer+'". '+q.explanation,q);
 }
-
-function recordAnswer(isCorrect, explanation) {
-  state.answers.push(isCorrect);
+function recordAnswer(isCorrect,explanation,q){
+  state.answers.push({correct:isCorrect,q:q});
   state.totalAnswered++;
-  if (isCorrect) state.totalCorrect++;
-  // show explanation
-  const expBox = document.getElementById('explanation-box');
-  document.getElementById('explanation-text').textContent = explanation;
-  expBox.classList.remove('hidden');
-  expBox.style.borderColor = isCorrect ? 'rgba(22,163,74,.3)' : 'rgba(220,38,38,.2)';
-  expBox.style.background = isCorrect ? 'var(--green-light)' : 'var(--red-light)';
-  expBox.querySelector('strong').style.color = isCorrect ? 'var(--green)' : 'var(--red)';
-  document.getElementById('btn-next').classList.remove('hidden');
-  document.getElementById('btn-next').textContent = state.currentQ < state.session.length - 1 ? 'Next →' : 'See results →';
+  if(isCorrect)state.totalCorrect++;
+  if(state.infiniteMode)state.infIdx++;
+  var box=document.getElementById('explanation-box');
+  document.getElementById('explanation-text').textContent=explanation;
+  box.classList.remove('hidden');
+  box.style.borderColor=isCorrect?'rgba(22,163,74,.3)':'rgba(220,38,38,.2)';
+  box.style.background=isCorrect?'var(--green-light)':'var(--red-light)';
+  box.querySelector('strong').style.color=isCorrect?'var(--green)':'var(--red)';
+  var nb=document.getElementById('btn-next');
+  nb.classList.remove('hidden');
+  if(state.infiniteMode){
+    nb.textContent='Next \u2192';
+    document.getElementById('inf-q-counter').textContent='Answered: '+(state.answers.length)+' | Correct: '+state.answers.filter(function(a){return a.correct;}).length;
+  }else{
+    nb.textContent=state.currentQ<state.session.length-1?'Next \u2192':'See results \u2192';
+  }
   saveProgress();
 }
-
-function nextQuestion() {
-  state.currentQ++;
-  if (state.currentQ >= state.session.length) {
-    finishQuiz();
-  } else {
+function nextQuestion(){
+  if(state.infiniteMode){
     renderQuestion();
+  }else{
+    state.currentQ++;
+    if(state.currentQ>=state.session.length)finishQuiz();
+    else renderQuestion();
   }
 }
-
-function updateTimer() {
-  const m = Math.floor(state.elapsed / 60);
-  const s = state.elapsed % 60;
-  const pill = document.getElementById('timer-pill');
-  pill.textContent = `⏱ ${m}:${s.toString().padStart(2,'0')}`;
-  pill.classList.toggle('danger', state.elapsed > 120);
-}
-
-function finishQuiz() {
+function stopInfinite(){
   clearInterval(state.timerInterval);
-  const correct = state.answers.filter(Boolean).length;
-  const total = state.answers.length;
-  const pct = Math.round(correct / total * 100);
-  const si = state.currentSubject;
-  const qi = state.currentQuiz;
-  const key = `${si}_${qi}`;
-  const prev = state.progress[key];
-  state.progress[key] = {
-    attempts: (prev?.attempts || 0) + 1,
-    best: Math.max(pct, prev?.best || 0),
-    last: pct,
-    lastDate: new Date().toLocaleDateString()
-  };
-  state.totalQuizzes++;
-  // XP
-  const xpEarned = correct * 10 + (pct === 100 ? 50 : 0);
-  state.xp += xpEarned;
-  // streak (simple: just increment)
-  state.streak++;
-  // activity
-  state.activity.unshift({
-    si, quizName: state.subjects[si].quizzes[qi].name,
-    subject: state.subjects[si].subject,
-    score: pct, date: new Date().toLocaleDateString()
-  });
-  saveProgress();
-  updateNavStats();
-  showResults(correct, total, pct, xpEarned);
+  finishQuiz();
 }
-
-function showResults(correct, total, pct, xpEarned) {
-  // ring color
-  const ring = document.getElementById('score-ring');
-  if (pct >= 80) {
-    ring.style.background = 'var(--green-light)';
-    ring.style.color = 'var(--green)';
-  } else if (pct >= 50) {
-    ring.style.background = 'var(--gold-light)';
-    ring.style.color = 'var(--gold)';
-  } else {
-    ring.style.background = 'var(--red-light)';
-    ring.style.color = 'var(--red)';
-  }
-  document.getElementById('score-pct').textContent = pct + '%';
-  document.getElementById('score-sub').textContent = correct + '/' + total + ' correct';
-  const messages = {
-    great: ['Outstanding!','Excellent work!','You nailed it!'],
-    good: ['Well done!','Good effort!','Solid performance!'],
-    low: ['Keep practising!','Don\'t give up!','Review and retry!']
-  };
-  const tier = pct >= 80 ? 'great' : pct >= 50 ? 'good' : 'low';
-  document.getElementById('results-title').textContent = messages[tier][Math.floor(Math.random()*3)];
-  document.getElementById('results-desc').textContent = `You earned +${xpEarned} XP. ${pct === 100 ? '🏆 Perfect score bonus!' : ''}`;
-  document.getElementById('res-correct').textContent = correct;
-  document.getElementById('res-wrong').textContent = total - correct;
-  const m = Math.floor(state.elapsed/60), s = state.elapsed%60;
-  document.getElementById('res-time').textContent = m > 0 ? `${m}m ${s}s` : `${s}s`;
-  // review
-  const review = document.getElementById('review-list');
-  review.innerHTML = '<div style="font-family:\'Fraunces\',serif;font-size:18px;margin-bottom:12px;color:var(--ink)">Answer review</div>';
-  state.session.forEach((q, i) => {
-    const ok = state.answers[i];
-    const div = document.createElement('div');
-    div.className = 'review-item';
-    div.innerHTML = `
-      <div class="review-q">${i+1}. ${q.question}</div>
-      <span class="review-status ${ok?'review-correct':'review-wrong'}">${ok?'✓ Correct':'✗ Wrong'}</span>
-      ${!ok && q.type==='mcq' ? `<div class="review-answer">Correct: ${q.options[q.answer]}</div>` : ''}
-      ${!ok && q.type==='short' ? `<div class="review-answer">Correct: ${q.answer}</div>` : ''}
-      <div class="review-exp">${q.explanation}</div>
-    `;
+function updateTimer(){
+  var m=Math.floor(state.elapsed/60),s=state.elapsed%60;
+  var pill=document.getElementById('timer-pill');
+  pill.textContent='\u23F1 '+m+':'+(s<10?'0':'')+s;
+  pill.classList.toggle('danger',state.elapsed>120);
+}
+function finishQuiz(){
+  clearInterval(state.timerInterval);
+  var correct=state.answers.filter(function(a){return a.correct;}).length;
+  var total=state.answers.length;
+  if(total===0){goHome();return;}
+  var pct=Math.round(correct/total*100);
+  var si=state.currentSubject,qi=state.currentQuiz,key=si+'_'+qi;
+  var prev=state.progress[key]||{};
+  state.progress[key]={attempts:(prev.attempts||0)+1,best:Math.max(pct,prev.best||0),last:pct,lastDate:new Date().toLocaleDateString()};
+  if(!state.infiniteMode)state.totalQuizzes++;
+  var xp=correct*10+(pct===100?50:0);
+  state.xp+=xp;state.streak++;
+  state.activity.unshift({si:si,quizName:state.subjects[si].quizzes[qi].name,subject:state.subjects[si].subject,score:pct,date:new Date().toLocaleDateString()});
+  saveProgress();updateNavStats();
+  showResults(correct,total,pct,xp);
+}
+function showResults(correct,total,pct,xpEarned){
+  var ring=document.getElementById('score-ring');
+  if(pct>=80){ring.style.background='var(--green-light)';ring.style.color='var(--green)';}
+  else if(pct>=50){ring.style.background='var(--gold-light)';ring.style.color='var(--gold)';}
+  else{ring.style.background='var(--red-light)';ring.style.color='var(--red)';}
+  document.getElementById('score-pct').textContent=pct+'%';
+  document.getElementById('score-sub').textContent=correct+'/'+total+' correct';
+  var msgs={great:['Outstanding!','Excellent work!','You nailed it!'],good:['Well done!','Good effort!','Solid performance!'],low:['Keep practising!','Review and retry!','Almost there!']};
+  var tier=pct>=80?'great':pct>=50?'good':'low';
+  document.getElementById('results-title').textContent=msgs[tier][Math.floor(Math.random()*3)];
+  var modeLabel=state.infiniteMode?' (Infinite Mode)':'';
+  document.getElementById('results-desc').textContent='You earned +'+xpEarned+' XP.'+modeLabel+(pct===100?' Perfect score bonus!':'');
+  document.getElementById('res-correct').textContent=correct;
+  document.getElementById('res-wrong').textContent=total-correct;
+  var m=Math.floor(state.elapsed/60),s=state.elapsed%60;
+  document.getElementById('res-time').textContent=m>0?m+'m '+s+'s':s+'s';
+  var review=document.getElementById('review-list');
+  review.innerHTML='<div style="font-family:Fraunces,serif;font-size:18px;margin-bottom:10px;color:var(--ink)">Answer review</div>';
+  state.answers.forEach(function(a,i){
+    var ok=a.correct,q=a.q;
+    var div=document.createElement('div');
+    div.className='review-item';
+    div.innerHTML='<div class="review-q">'+(i+1)+'. '+q.question+'</div>'+
+      '<span class="review-status '+(ok?'review-correct':'review-wrong')+'">'+(ok?'&#10003; Correct':'&#10007; Wrong')+'</span>'+
+      (!ok&&q.type==='mcq'?'<div class="review-answer">Correct: '+q.options[q.answer]+'</div>':'')+
+      (!ok&&q.type==='short'?'<div class="review-answer">Correct: '+q.answer+'</div>':'')+
+      '<div class="review-exp">'+q.explanation+'</div>';
     review.appendChild(div);
   });
   showScreen('screen-results');
 }
-
-function retryQuiz() {
-  startQuiz(state.currentSubject, state.currentQuiz);
+function retryQuiz(){startQuiz(state.currentSubject,state.currentQuiz,state.infiniteMode);}
+function nextRecommended(){
+  var s=state.subjects[state.currentSubject];
+  var next=state.currentQuiz+1;
+  if(next<s.quizzes.length)startQuiz(state.currentSubject,next,false);
+  else showSubject(state.currentSubject);
 }
 
-function nextRecommended() {
-  const s = state.subjects[state.currentSubject];
-  const next = state.currentQuiz + 1;
-  if (next < s.quizzes.length) {
-    startQuiz(state.currentSubject, next);
-  } else {
-    showSubject(state.currentSubject);
-  }
-}
-
-// ══════════════════════════════════
-//  NAVIGATION
-// ══════════════════════════════════
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+// ══════════════════ NAVIGATION ══════════════════
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
   document.getElementById(id).classList.add('active');
-  window.scrollTo(0, 0);
+  window.scrollTo(0,0);
 }
+function goHome(){clearInterval(state.timerInterval);renderHome();showScreen('screen-home');}
+function confirmQuit(){if(confirm('Quit this quiz? Progress will be lost.')){clearInterval(state.timerInterval);showSubject(state.currentSubject);}}
+function showQuickStart(){if(state.subjects.length>0)showSubject(0);}
 
-function goHome() {
-  clearInterval(state.timerInterval);
-  renderHome();
-  showScreen('screen-home');
-}
-
-function confirmQuit() {
-  if (confirm('Quit this quiz? Your progress will be lost.')) {
-    clearInterval(state.timerInterval);
-    showSubject(state.currentSubject);
-  }
-}
-
-function showQuickStart() {
-  if (state.subjects.length > 0) showSubject(0);
-}
-
-// ══════════════════════════════════
-//  JSON IMPORT
-// ══════════════════════════════════
-function openImport() {
-  document.getElementById('modal-bg').classList.remove('hidden');
-}
-function closeImport() {
-  document.getElementById('modal-bg').classList.add('hidden');
-  document.getElementById('json-input').value = '';
-}
-function importJSON() {
-  const raw = document.getElementById('json-input').value.trim();
-  if (!raw) { showToast('Please paste JSON first'); return; }
-  try {
-    const data = JSON.parse(raw);
-    const arr = Array.isArray(data) ? data : [data];
-    // validate minimal structure
-    arr.forEach(s => {
-      if (!s.subject || !Array.isArray(s.quizzes)) throw new Error('Invalid structure');
-    });
-    // merge with existing (by subject name)
-    arr.forEach(newSubj => {
-      const existing = state.subjects.find(s => s.subject === newSubj.subject);
-      if (existing) {
-        newSubj.quizzes.forEach(nq => {
-          if (!existing.quizzes.find(eq => eq.name === nq.name)) existing.quizzes.push(nq);
+// ══════════════════ JSON IMPORT ══════════════════
+function openImport(){document.getElementById('modal-bg').classList.remove('hidden');}
+function closeImport(){document.getElementById('modal-bg').classList.add('hidden');document.getElementById('json-input').value='';}
+function importJSON(){
+  var raw=document.getElementById('json-input').value.trim();
+  if(!raw){showToast('Please paste JSON first');return;}
+  try{
+    var data=JSON.parse(raw);
+    var arr=Array.isArray(data)?data:[data];
+    arr.forEach(function(s){if(!s.subject||!Array.isArray(s.quizzes))throw new Error('Invalid');});
+    arr.forEach(function(newSubj){
+      var existing=null;
+      state.subjects.forEach(function(s){if(s.subject===newSubj.subject)existing=s;});
+      if(existing){
+        newSubj.quizzes.forEach(function(nq){
+          if(!existing.quizzes.find(function(eq){return eq.name===nq.name;}))existing.quizzes.push(nq);
         });
-      } else {
+        if(newSubj.notes)existing.notes=(existing.notes||[]).concat(newSubj.notes);
+      }else{
         state.subjects.push(newSubj);
       }
     });
     saveSubjects();
     closeImport();
     renderHome();
-    showToast(`✓ Imported ${arr.length} subject(s) successfully`);
-  } catch(e) {
-    showToast('Invalid JSON — check format and try again');
-  }
+    // If subject screen is visible, refresh it
+    if(activeSubjectIdx!==null)renderQuizGrid(activeSubjectIdx,'all');
+    showToast('Imported '+arr.length+' subject(s) — changes applied immediately!');
+  }catch(e){showToast('Invalid JSON — check format and try again');}
+}
+function loadSample(){
+  var s=[{"subject":"My Subject","icon":"🎯","color":"#4f63f7","description":"A brief description",
+    "notes":[{"title":"Key Notes","content":"Write your study notes here. They appear on the notes page."}],
+    "quizzes":[{"name":"Quiz Name","difficulty":"easy","description":"Quiz description",
+      "questions":[
+        {"type":"mcq","question":"What is 2 + 2?","options":["3","4","5","6"],"answer":1,"explanation":"2 + 2 equals 4."},
+        {"type":"short","question":"What colour is the sky?","answer":"blue","explanation":"Blue due to Rayleigh scattering."}
+      ]}]}];
+  document.getElementById('json-input').value=JSON.stringify(s,null,2);
 }
 
-function loadSample() {
-  const sample = [
-    {
-      "subject": "My Subject",
-      "icon": "🎯",
-      "color": "#4f63f7",
-      "description": "A brief description",
-      "quizzes": [
-        {
-          "name": "Quiz Name",
-          "difficulty": "easy",
-          "description": "Quiz description",
-          "questions": [
-            {
-              "type": "mcq",
-              "question": "What is 2 + 2?",
-              "options": ["3","4","5","6"],
-              "answer": 1,
-              "explanation": "2 + 2 equals 4."
-            },
-            {
-              "type": "short",
-              "question": "What colour is the sky?",
-              "answer": "blue",
-              "explanation": "The sky appears blue due to Rayleigh scattering."
-            }
-          ]
-        }
-      ]
-    }
-  ];
-  document.getElementById('json-input').value = JSON.stringify(sample, null, 2);
+// ══════════════════ TOAST ══════════════════
+function showToast(msg){
+  var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},3000);
 }
 
-// ══════════════════════════════════
-//  TOAST
-// ══════════════════════════════════
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
-
-// ══════════════════════════════════
-//  BOOT
-// ══════════════════════════════════
 init();
 </script>
 </body>
