@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyPath — Learn Smarter</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#12111a;--ink2:#3f3d52;--ink3:#9896aa;
+  --paper:#f5f4f0;--surface:#ffffff;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
+  --accent:#4f63f7;--accent-light:#eceffe;
+  --gold:#d4930a;--gold-light:#fff7e6;
+  --green:#16a34a;--green-light:#dcfce7;
+  --red:#dc2626;--red-light:#fee2e2;
+  --radius:14px;--radius-sm:8px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;overflow-x:hidden}
+h1,h2,h3,.display{font-family:'Fraunces',serif}
+.hidden{display:none!important}
+button{font-family:'DM Sans',sans-serif;cursor:pointer;border:none;outline:none}
+
+/* ── NAV ── */
+nav{
+  position:sticky;top:0;z-index:200;
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;
+}
+.logo{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:6px}
+.logo em{font-style:normal;color:var(--accent)}
+.nav-right{display:flex;align-items:center;gap:12px}
+.pill{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:13px;font-weight:500;color:var(--ink2);
+  padding:4px 12px;border-radius:20px;border:1px solid var(--border2);
+  background:var(--surface);
+}
+.pill b{color:var(--ink);font-weight:600}
+
+/* ── SCREENS ── */
+.screen{display:none;animation:fadeUp .3s ease}
+.screen.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── HOME ── */
+.hero{
+  background:var(--ink);color:#fff;
+  padding:56px 28px 48px;position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 80% at 80% 50%,#4f63f720 0%,transparent 70%);
+}
+.hero-tag{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#9896ff;margin-bottom:14px}
+.hero h1{font-size:clamp(28px,5vw,46px);line-height:1.15;margin-bottom:14px;max-width:520px}
+.hero p{font-size:15px;color:#c4c2d0;max-width:440px;line-height:1.7;margin-bottom:32px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn-primary{
+  background:var(--accent);color:#fff;
+  border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;
+  transition:transform .15s,box-shadow .15s;
+}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px #4f63f740}
+.btn-ghost{
+  background:transparent;color:#fff;border:1px solid rgba(255,255,255,.2);
+  border-radius:10px;padding:12px 24px;font-size:14px;font-weight:500;
+  transition:background .15s;
+}
+.btn-ghost:hover{background:rgba(255,255,255,.08)}
+.hero-deco{
+  position:absolute;right:28px;top:50%;transform:translateY(-50%);
+  width:160px;height:160px;opacity:.07;
+  font-size:160px;line-height:1;user-select:none;display:none;
+}
+@media(min-width:640px){.hero-deco{display:block}}
+
+/* stats bar */
+.stats-bar{
+  display:flex;gap:0;border-bottom:1px solid var(--border);
+  background:var(--surface);overflow-x:auto;
+}
+.stat-item{
+  flex:1;min-width:110px;padding:18px 20px;border-right:1px solid var(--border);
+  display:flex;flex-direction:column;gap:2px;
+}
+.stat-item:last-child{border-right:none}
+.stat-num{font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:var(--ink)}
+.stat-label{font-size:12px;color:var(--ink3)}
+
+/* section */
+.section{padding:32px 28px}
+.section-title{font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:18px}
+
+/* subject grid */
+.subject-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
+.subject-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px 18px;cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s;
+  position:relative;overflow:hidden;
+}
+.subject-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.1);border-color:var(--border2)}
+.subject-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--card-color)}
+.subject-icon{font-size:28px;margin-bottom:10px;display:block}
+.subject-name{font-family:'Fraunces',serif;font-size:15px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.subject-count{font-size:12px;color:var(--ink3)}
+.subject-bar-wrap{margin-top:12px;height:4px;background:#eee;border-radius:4px;overflow:hidden}
+.subject-bar{height:100%;border-radius:4px;background:var(--card-color);transition:width .6s ease}
+
+/* recent */
+.recent-list{display:flex;flex-direction:column;gap:10px}
+.recent-item{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;
+  transition:background .15s;
+}
+.recent-item:hover{background:#fafafa}
+.recent-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.recent-name{font-size:14px;font-weight:500;color:var(--ink)}
+.recent-meta{font-size:12px;color:var(--ink3);margin-top:2px}
+.recent-score{margin-left:auto;font-size:13px;font-weight:600;color:var(--ink2)}
+
+/* ── SUBJECT SCREEN ── */
+.back-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  background:none;color:var(--ink3);font-size:13px;font-weight:500;
+  padding:8px 0;margin:16px 28px 0;
+  transition:color .15s;
+}
+.back-btn:hover{color:var(--ink)}
+.subject-header{padding:24px 28px;border-bottom:1px solid var(--border);background:var(--surface)}
+.subject-header-top{display:flex;align-items:flex-start;gap:16px;margin-bottom:16px}
+.subject-big-icon{font-size:48px}
+.subject-header h2{font-size:26px;margin-bottom:4px}
+.subject-header p{font-size:14px;color:var(--ink3)}
+.difficulty-pills{display:flex;gap:8px;margin-top:4px}
+.diff-pill{
+  padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;
+  border:1.5px solid transparent;transition:all .15s;
+}
+.diff-pill.active{border-color:currentColor}
+.diff-easy{color:#16a34a;background:#dcfce7}
+.diff-medium{color:#d4930a;background:#fff7e6}
+.diff-hard{color:#dc2626;background:#fee2e2}
+
+.quiz-grid{padding:24px 28px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.quiz-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s;
+  display:flex;flex-direction:column;gap:8px;
+}
+.quiz-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.1);border-color:var(--accent)}
+.quiz-card-top{display:flex;align-items:flex-start;justify-content:space-between}
+.quiz-name{font-family:'Fraunces',serif;font-size:15px;font-weight:600;color:var(--ink)}
+.quiz-badge{
+  font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;
+}
+.badge-easy{color:#16a34a;background:#dcfce7}
+.badge-medium{color:#d4930a;background:#fff7e6}
+.badge-hard{color:#dc2626;background:#fee2e2}
+.quiz-desc{font-size:13px;color:var(--ink3);line-height:1.5}
+.quiz-meta{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink3);margin-top:4px}
+.quiz-progress-bar{height:3px;background:#eee;border-radius:3px;overflow:hidden}
+.quiz-progress-fill{height:100%;background:var(--accent);border-radius:3px}
+.start-btn{
+  margin-top:8px;background:var(--accent);color:#fff;
+  border-radius:8px;padding:9px;font-size:13px;font-weight:600;
+  transition:opacity .15s;
+}
+.start-btn:hover{opacity:.88}
+
+/* ── QUIZ SCREEN ── */
+.quiz-topbar{
+  padding:14px 28px;background:var(--surface);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.progress-track{flex:1;height:6px;background:#eee;border-radius:6px;overflow:hidden}
+.progress-fill{height:100%;background:var(--accent);border-radius:6px;transition:width .4s ease}
+.quiz-counter{font-size:13px;font-weight:500;color:var(--ink3);white-space:nowrap}
+.timer-pill{
+  display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600;
+  padding:5px 12px;border-radius:20px;background:var(--ink);color:#fff;
+}
+.timer-pill.danger{background:var(--red);animation:pulse .8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+
+.question-body{max-width:700px;margin:0 auto;padding:36px 28px}
+.q-category{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+.q-text{font-family:'Fraunces',serif;font-size:clamp(18px,3vw,24px);line-height:1.45;color:var(--ink);margin-bottom:32px}
+.options-list{display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+.option-btn{
+  display:flex;align-items:center;gap:14px;
+  background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--radius-sm);
+  padding:14px 18px;font-size:15px;font-weight:500;color:var(--ink);text-align:left;
+  transition:border-color .15s,background .15s,transform .1s;cursor:pointer;
+  position:relative;overflow:hidden;
+}
+.option-btn:hover:not(.answered){border-color:var(--accent);background:var(--accent-light)}
+.option-btn.correct{border-color:var(--green);background:var(--green-light);color:var(--green)}
+.option-btn.wrong{border-color:var(--red);background:var(--red-light);color:var(--red)}
+.option-btn.reveal{border-color:var(--green);background:var(--green-light);color:var(--green)}
+.option-letter{
+  width:28px;height:28px;border-radius:50%;border:1.5px solid currentColor;
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;
+  flex-shrink:0;
+}
+.option-btn.correct .option-letter,.option-btn.reveal .option-letter{background:var(--green);color:#fff;border-color:var(--green)}
+.option-btn.wrong .option-letter{background:var(--red);color:#fff;border-color:var(--red)}
+
+.explanation-box{
+  background:var(--accent-light);border:1px solid rgba(79,99,247,.2);
+  border-radius:var(--radius-sm);padding:16px;margin-bottom:24px;
+  font-size:14px;color:var(--ink2);line-height:1.65;
+}
+.explanation-box strong{font-weight:600;color:var(--accent);display:block;margin-bottom:4px}
+.quiz-nav{display:flex;gap:10px;justify-content:flex-end}
+.btn-next{
+  background:var(--ink);color:#fff;border-radius:8px;
+  padding:12px 28px;font-size:14px;font-weight:600;
+  transition:opacity .15s;
+}
+.btn-next:hover{opacity:.82}
+
+/* short answer */
+.short-input{
+  width:100%;border:1.5px solid var(--border2);border-radius:var(--radius-sm);
+  padding:12px 16px;font-size:15px;font-family:'DM Sans',sans-serif;color:var(--ink);
+  background:var(--surface);outline:none;margin-bottom:10px;
+  transition:border-color .15s;
+}
+.short-input:focus{border-color:var(--accent)}
+.check-btn{
+  background:var(--accent);color:#fff;border-radius:8px;
+  padding:10px 22px;font-size:14px;font-weight:600;margin-bottom:16px;
+  transition:opacity .15s;
+}
+.check-btn:hover{opacity:.88}
+
+/* ── RESULTS ── */
+.results-body{max-width:600px;margin:0 auto;padding:48px 28px;text-align:center}
+.score-ring{
+  width:140px;height:140px;border-radius:50%;margin:0 auto 28px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:'Fraunces',serif;
+}
+.score-pct{font-size:38px;font-weight:700;line-height:1}
+.score-sub{font-size:13px;font-weight:500;margin-top:2px}
+.results-title{font-size:26px;margin-bottom:8px}
+.results-desc{font-size:15px;color:var(--ink3);margin-bottom:32px}
+.results-breakdown{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:36px;
+}
+.breakdown-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:16px 12px;
+}
+.breakdown-num{font-family:'Fraunces',serif;font-size:24px;font-weight:700}
+.breakdown-label{font-size:12px;color:var(--ink3);margin-top:2px}
+.results-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn-outline{
+  background:var(--surface);color:var(--ink);border:1.5px solid var(--border2);
+  border-radius:8px;padding:12px 24px;font-size:14px;font-weight:600;
+  transition:background .15s;
+}
+.btn-outline:hover{background:var(--paper)}
+
+/* review */
+.review-list{text-align:left;margin-top:32px;display:flex;flex-direction:column;gap:12px}
+.review-item{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:16px;
+}
+.review-q{font-size:14px;font-weight:500;color:var(--ink);margin-bottom:8px}
+.review-status{font-size:12px;font-weight:600;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:6px}
+.review-correct{color:var(--green);background:var(--green-light)}
+.review-wrong{color:var(--red);background:var(--red-light)}
+.review-answer{font-size:13px;color:var(--ink2)}
+.review-exp{font-size:12px;color:var(--ink3);margin-top:4px;line-height:1.5}
+
+/* ── IMPORT MODAL ── */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.modal{
+  background:var(--surface);border-radius:var(--radius);
+  padding:28px;width:100%;max-width:500px;
+  animation:fadeUp .25s ease;
+}
+.modal h3{font-family:'Fraunces',serif;font-size:20px;margin-bottom:8px}
+.modal p{font-size:14px;color:var(--ink3);margin-bottom:16px;line-height:1.6}
+.modal textarea{
+  width:100%;height:200px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);
+  padding:12px;font-family:'DM Mono',monospace,sans-serif;font-size:12px;
+  line-height:1.6;resize:vertical;outline:none;
+  transition:border-color .15s;background:var(--paper);
+}
+.modal textarea:focus{border-color:var(--accent)}
+.modal-actions{display:flex;gap:10px;margin-top:14px;justify-content:flex-end}
+.modal-cancel{background:none;border:1.5px solid var(--border2);color:var(--ink);border-radius:8px;padding:10px 20px;font-size:14px;font-weight:500;transition:background .15s}
+.modal-cancel:hover{background:var(--paper)}
+.modal-import{background:var(--accent);color:#fff;border-radius:8px;padding:10px 20px;font-size:14px;font-weight:600;transition:opacity .15s}
+.modal-import:hover{opacity:.88}
+.sample-link{color:var(--accent);cursor:pointer;font-size:13px;text-decoration:underline}
+
+/* toast */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--ink);color:#fff;border-radius:10px;padding:12px 20px;
+  font-size:14px;font-weight:500;z-index:999;transition:transform .3s ease;
+  white-space:nowrap;pointer-events:none;
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Study<em>Path</em></div>
+  <div class="nav-right">
+    <div class="pill"><span class="icon">🔥</span> Streak: <b id="nav-streak">0</b></div>
+    <div class="pill"><span class="icon">⭐</span> XP: <b id="nav-xp">0</b></div>
+    <button class="btn-primary" style="padding:8px 16px;font-size:13px" onclick="openImport()">+ Import JSON</button>
+  </div>
+</nav>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ── SCREEN: HOME ── -->
+<div class="screen active" id="screen-home">
+  <div class="hero">
+    <div class="hero-tag">Your personal study companion</div>
+    <h1>Learn smarter.<br>Track your progress.</h1>
+    <p>Practice questions across every subject, get instant feedback, and watch your skills grow — one quiz at a time.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="showQuickStart()">Start practising →</button>
+      <button class="btn-ghost" onclick="openImport()">Import questions</button>
+    </div>
+    <div class="hero-deco">📚</div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-item"><div class="stat-num" id="total-questions">0</div><div class="stat-label">Questions answered</div></div>
+    <div class="stat-item"><div class="stat-num" id="total-correct">0%</div><div class="stat-label">Accuracy</div></div>
+    <div class="stat-item"><div class="stat-num" id="total-subjects">0</div><div class="stat-label">Subjects</div></div>
+    <div class="stat-item"><div class="stat-num" id="total-quizzes">0</div><div class="stat-label">Quizzes completed</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Subjects</div>
+    <div class="subject-grid" id="subject-grid"></div>
+  </div>
+
+  <div class="section" id="recent-section" style="padding-top:0">
+    <div class="section-title">Recent activity</div>
+    <div class="recent-list" id="recent-list">
+      <div style="font-size:14px;color:var(--ink3);padding:12px 0">No activity yet — start a quiz!</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SCREEN: SUBJECT ── -->
+<div class="screen" id="screen-subject">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div class="subject-header">
+    <div class="subject-header-top">
+      <div class="subject-big-icon" id="subj-icon"></div>
+      <div>
+        <h2 id="subj-title"></h2>
+        <p id="subj-desc"></p>
+        <div class="difficulty-pills" style="margin-top:10px">
+          <div class="diff-pill diff-easy active" onclick="filterDiff('all',this)" data-diff="all">All</div>
+          <div class="diff-pill diff-easy" onclick="filterDiff('easy',this)" data-diff="easy">Easy</div>
+          <div class="diff-pill diff-medium" onclick="filterDiff('medium',this)" data-diff="medium">Medium</div>
+          <div class="diff-pill diff-hard" onclick="filterDiff('hard',this)" data-diff="hard">Hard</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="quiz-grid" id="quiz-grid"></div>
+</div>
+
+<!-- ── SCREEN: QUIZ ── -->
+<div class="screen" id="screen-quiz">
+  <div class="quiz-topbar">
+    <button class="back-btn" style="margin:0" onclick="confirmQuit()">← Quit</button>
+    <div class="progress-track"><div class="progress-fill" id="q-progress"></div></div>
+    <div class="quiz-counter" id="q-counter">1 / 10</div>
+    <div class="timer-pill" id="timer-pill">⏱ 0:00</div>
+  </div>
+  <div class="question-body">
+    <div class="q-category" id="q-category"></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="options-list" id="options-list"></div>
+    <div class="explanation-box hidden" id="explanation-box">
+      <strong>Explanation</strong>
+      <span id="explanation-text"></span>
+    </div>
+    <div class="quiz-nav">
+      <button class="btn-next hidden" id="btn-next" onclick="nextQuestion()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SCREEN: RESULTS ── -->
+<div class="screen" id="screen-results">
+  <div class="results-body">
+    <div class="score-ring" id="score-ring">
+      <div class="score-pct" id="score-pct">0%</div>
+      <div class="score-sub" id="score-sub">Score</div>
+    </div>
+    <h2 class="results-title" id="results-title">Quiz complete!</h2>
+    <p class="results-desc" id="results-desc"></p>
+    <div class="results-breakdown">
+      <div class="breakdown-card">
+        <div class="breakdown-num" id="res-correct" style="color:var(--green)">0</div>
+        <div class="breakdown-label">Correct</div>
+      </div>
+      <div class="breakdown-card">
+        <div class="breakdown-num" id="res-wrong" style="color:var(--red)">0</div>
+        <div class="breakdown-label">Wrong</div>
+      </div>
+      <div class="breakdown-card">
+        <div class="breakdown-num" id="res-time">0s</div>
+        <div class="breakdown-label">Time taken</div>
+      </div>
+    </div>
+    <div class="results-actions">
+      <button class="btn-outline" onclick="goHome()">← Home</button>
+      <button class="btn-outline" onclick="retryQuiz()">Retry quiz</button>
+      <button class="btn-primary" onclick="nextRecommended()">Next quiz →</button>
+    </div>
+    <div class="review-list" id="review-list"></div>
+  </div>
+</div>
+
+<!-- IMPORT MODAL -->
+<div class="modal-bg hidden" id="modal-bg">
+  <div class="modal">
+    <h3>Import questions via JSON</h3>
+    <p>Paste your JSON below. <span class="sample-link" onclick="loadSample()">Load sample format</span> to see the structure.</p>
+    <textarea id="json-input" placeholder='[{"subject":"Math","icon":"➕","color":"#4f63f7","quizzes":[...]}]'></textarea>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeImport()">Cancel</button>
+      <button class="modal-import" onclick="importJSON()">Import</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════
+//  STATE
+// ══════════════════════════════════
+let state = {
+  subjects: [],
+  progress: JSON.parse(localStorage.getItem('sp_progress') || '{}'),
+  activity: JSON.parse(localStorage.getItem('sp_activity') || '[]'),
+  xp: +localStorage.getItem('sp_xp') || 0,
+  streak: +localStorage.getItem('sp_streak') || 0,
+  totalAnswered: +localStorage.getItem('sp_answered') || 0,
+  totalCorrect: +localStorage.getItem('sp_correct') || 0,
+  totalQuizzes: +localStorage.getItem('sp_quizzes') || 0,
+  // current quiz session
+  session: null,
+  currentQ: 0,
+  answers: [],
+  timerInterval: null,
+  elapsed: 0,
+  answered: false,
+  currentSubject: null,
+  currentQuiz: null,
+};
+
+// ══════════════════════════════════
+//  DEFAULT DATA
+// ══════════════════════════════════
+const DEFAULT_DATA = [
+  {
+    subject: "Mathematics",
+    icon: "➗",
+    color: "#4f63f7",
+    description: "Algebra, geometry, calculus and more",
+    quizzes: [
+      {
+        name: "Algebra Basics",
+        difficulty: "easy",
+        description: "Equations, variables and expressions",
+        questions: [
+          {type:"mcq",question:"What is the value of x if 2x + 4 = 10?",options:["x = 2","x = 3","x = 4","x = 5"],answer:1,explanation:"2x = 10 - 4 = 6, so x = 3."},
+          {type:"mcq",question:"Simplify: 3(x + 4) − 2x",options:["x + 4","x + 12","5x + 12","x + 8"],answer:1,explanation:"3x + 12 − 2x = x + 12."},
+          {type:"mcq",question:"Which of the following is a quadratic equation?",options:["3x + 1 = 0","x² + 2x − 3 = 0","2x³ = 8","5x = 10"],answer:1,explanation:"A quadratic equation has the highest power of x as 2."},
+          {type:"short",question:"What is the slope of the line y = 4x − 7?",answer:"4",explanation:"In the form y = mx + b, m is the slope. Here m = 4."},
+          {type:"mcq",question:"If f(x) = x² − 1, what is f(3)?",options:["6","7","8","9"],answer:2,explanation:"f(3) = 3² − 1 = 9 − 1 = 8."}
+        ]
+      },
+      {
+        name: "Geometry",
+        difficulty: "medium",
+        description: "Shapes, angles, area and perimeter",
+        questions: [
+          {type:"mcq",question:"What is the area of a circle with radius 5?",options:["10π","25π","15π","50π"],answer:1,explanation:"Area = πr² = π × 25 = 25π."},
+          {type:"mcq",question:"The sum of interior angles of a triangle is:",options:["90°","180°","270°","360°"],answer:1,explanation:"All triangles have interior angles summing to exactly 180°."},
+          {type:"short",question:"What is the perimeter of a square with side 7cm?",answer:"28",explanation:"Perimeter = 4 × side = 4 × 7 = 28 cm."},
+          {type:"mcq",question:"A right-angled triangle has legs of 3 and 4. What is the hypotenuse?",options:["5","6","7","√7"],answer:0,explanation:"By Pythagoras: √(9+16) = √25 = 5."}
+        ]
+      },
+      {
+        name: "Calculus",
+        difficulty: "hard",
+        description: "Derivatives, integrals and limits",
+        questions: [
+          {type:"mcq",question:"What is the derivative of x³?",options:["3x","3x²","x²","2x²"],answer:1,explanation:"Using the power rule: d/dx(xⁿ) = nxⁿ⁻¹. So d/dx(x³) = 3x²."},
+          {type:"mcq",question:"What is ∫2x dx?",options:["x + C","x² + C","2x² + C","2 + C"],answer:1,explanation:"∫2x dx = 2 × x²/2 + C = x² + C."},
+          {type:"short",question:"What is the limit of (x²−1)/(x−1) as x → 1?",answer:"2",explanation:"Factor: (x−1)(x+1)/(x−1) = x+1. As x→1: 1+1 = 2."}
+        ]
+      }
+    ]
+  },
+  {
+    subject: "Science",
+    icon: "🔬",
+    color: "#16a34a",
+    description: "Physics, chemistry, biology and earth science",
+    quizzes: [
+    {
+        name: "Forces & Motion",
+        difficulty: "easy",
+        description: "Newton's laws and basic mechanics",
+        questions: [
+        {type:"mcq",question:"Newton's First Law is also known as the law of:",options:["Gravitation","Inertia","Action-Reaction","Acceleration"],answer:1,explanation:"Newton's First Law states that objects stay at rest or in motion unless acted upon by a force — this is inertia."},
+        {type:"mcq",question:"What is the SI unit of force?",options:["Joule","Watt","Newton","Pascal"],answer:2,explanation:"Force is measured in Newtons (N), named after Sir Isaac Newton."},
+        {type:"short",question:"F = ma. If m = 5kg and a = 3 m/s², what is F in Newtons?",answer:"15",explanation:"F = 5 × 3 = 15 N."},
+        {type:"mcq",question:"A ball is thrown upward. At its highest point, its velocity is:",options:["Maximum","Minimum","Zero","Constant"],answer:2,explanation:"At the peak, all kinetic energy converts to potential energy, so velocity = 0."}
+        ]
+    },
+    {
+        name: "Electricity Basics",
+        difficulty: "easy",
+        description: "Circuits, current, voltage, and energy",
+        questions: [
+         {type:"mcq",question:"What is electricity?",options:["Flow of water","Flow of electrons","Light energy","Heat energy"],answer:1,explanation:"Electricity is the flow of electrons."},
+      {type:"mcq",question:"What unit measures current?",options:["Volt","Watt","Ampere","Ohm"],answer:2,explanation:"Current is measured in amperes."},
+      {type:"mcq",question:"What device measures voltage?",options:["Ammeter","Voltmeter","Thermometer","Barometer"],answer:1,explanation:"A voltmeter measures voltage."},
+      {type:"mcq",question:"What is resistance?",options:["Flow of charge","Opposition to current","Energy source","Light output"],answer:1,explanation:"Resistance opposes current."},
+      {type:"mcq",question:"Which is a good conductor?",options:["Wood","Plastic","Copper","Rubber"],answer:2,explanation:"Copper allows electricity to flow easily."},
+      {type:"mcq",question:"Which is an insulator?",options:["Iron","Copper","Plastic","Silver"],answer:2,explanation:"Plastic resists current."},
+      {type:"mcq",question:"Unit of resistance?",options:["Volt","Ohm","Amp","Watt"],answer:1,explanation:"Measured in ohms."},
+      {type:"mcq",question:"What provides energy in a circuit?",options:["Switch","Wire","Battery","Bulb"],answer:2,explanation:"Battery supplies energy."},
+      {type:"mcq",question:"What does a switch do?",options:["Measures current","Stops/starts current","Stores energy","Creates light"],answer:1,explanation:"It opens or closes the circuit."},
+      {type:"mcq",question:"What is a circuit?",options:["Broken wire","Path for electricity","Battery","Switch"],answer:1,explanation:"A complete path for current."},
+
+      {type:"mcq",question:"Closed circuit means:",options:["No current","Current flows","Battery dies","Wire melts"],answer:1,explanation:"Closed circuits allow flow."},
+      {type:"mcq",question:"Open circuit means:",options:["Current flows","No current","Battery charges","Light increases"],answer:1,explanation:"Path is broken."},
+      {type:"mcq",question:"What is voltage?",options:["Flow of charge","Push on electrons","Heat","Resistance"],answer:1,explanation:"Voltage pushes electrons."},
+      {type:"mcq",question:"Unit of power?",options:["Volt","Amp","Watt","Ohm"],answer:2,explanation:"Power is in watts."},
+      {type:"mcq",question:"Series circuit has:",options:["Multiple paths","One path","No path","Broken path"],answer:1,explanation:"Only one loop."},
+      {type:"mcq",question:"Parallel circuit has:",options:["One path","Multiple paths","No current","Broken wires"],answer:1,explanation:"Multiple paths."},
+      {type:"mcq",question:"Bulb breaks in series:",options:["Others stay on","All go off","Battery explodes","Nothing"],answer:1,explanation:"Circuit breaks."},
+      {type:"mcq",question:"Bulb breaks in parallel:",options:["All go off","Others stay on","Battery dies","Wire melts"],answer:1,explanation:"Other paths work."},
+      {type:"mcq",question:"Electron charge is:",options:["Positive","Negative","Neutral","None"],answer:1,explanation:"Electrons are negative."},
+      {type:"mcq",question:"Static electricity is:",options:["Moving charges","Still charges","Heat","Light"],answer:1,explanation:"Built-up charge."},
+
+      {type:"mcq",question:"Fuse purpose?",options:["Stores energy","Protects circuit","Creates light","Measures voltage"],answer:1,explanation:"Stops excess current."},
+      {type:"mcq",question:"Short circuit is:",options:["Normal circuit","Low resistance path","Open circuit","Broken wire"],answer:1,explanation:"Too much current flows."},
+      {type:"mcq",question:"Energy unit?",options:["Watts","Joules","Volts","Amps"],answer:1,explanation:"Energy is in joules."},
+      {type:"mcq",question:"Power means:",options:["Energy over time","Voltage","Resistance","Current"],answer:0,explanation:"Rate of energy use."},
+      {type:"mcq",question:"Device that produces light?",options:["Motor","Bulb","Battery","Switch"],answer:1,explanation:"Bulbs emit light."},
+      {type:"mcq",question:"Motor converts energy into:",options:["Light","Motion","Heat","Sound"],answer:1,explanation:"Electrical → motion."},
+      {type:"mcq",question:"Conductor does what?",options:["Blocks flow","Allows flow","Stores energy","Creates voltage"],answer:1,explanation:"Lets current pass."},
+      {type:"mcq",question:"Insulator does what?",options:["Allows flow","Blocks flow","Creates energy","Measures current"],answer:1,explanation:"Stops current."},
+      {type:"mcq",question:"Current is:",options:["Voltage","Flow of charge","Resistance","Power"],answer:1,explanation:"Moving electrons."},
+      {type:"mcq",question:"Battery symbol looks like:",options:["Circle","Long & short lines","Zigzag","Triangle"],answer:1,explanation:"Standard symbol."},
+
+      {type:"short",question:"Name a conductor.",answer:"copper",explanation:"Common wire material."},
+      {type:"short",question:"Name an insulator.",answer:"plastic",explanation:"Stops current."},
+      {type:"short",question:"What pushes electrons?",answer:"voltage",explanation:"Voltage drives flow."},
+      {type:"short",question:"What flows in a circuit?",answer:"electrons",explanation:"They carry charge."},
+      {type:"short",question:"Device to control circuit?",answer:"switch",explanation:"Opens/closes path."},
+      {type:"short",question:"Unit of current?",answer:"ampere",explanation:"Measured in amps."},
+      {type:"short",question:"Unit of voltage?",answer:"volt",explanation:"Measured in volts."},
+      {type:"short",question:"Unit of resistance?",answer:"ohm",explanation:"Measured in ohms."},
+      {type:"short",question:"One-path circuit?",answer:"series",explanation:"Single loop."},
+      {type:"short",question:"Multi-path circuit?",answer:"parallel",explanation:"Multiple branches."}
+    ]
+  },
+      {
+        name: "Chemistry Fundamentals",
+        difficulty: "medium",
+        description: "Elements, compounds and reactions",
+        questions: [
+          {type:"mcq",question:"What is the atomic number of Carbon?",options:["6","12","8","14"],answer:0,explanation:"Carbon has 6 protons, so its atomic number is 6."},
+          {type:"mcq",question:"Water is made of:",options:["2 oxygen, 1 hydrogen","1 oxygen, 1 hydrogen","1 oxygen, 2 hydrogen","2 oxygen, 2 hydrogen"],answer:2,explanation:"The chemical formula H₂O means 2 hydrogen atoms and 1 oxygen atom."},
+          {type:"short",question:"What is the chemical symbol for Gold?",answer:"Au",explanation:"Gold's symbol Au comes from the Latin word 'Aurum'."},
+          {type:"mcq",question:"pH 7 is considered:",options:["Acidic","Basic","Neutral","Alkaline"],answer:2,explanation:"The pH scale goes from 0-14. pH 7 is neutral (like pure water)."}
+        ]
+      }
+    ]
+  },
+  {
+    subject: "History",
+    icon: "🏛️",
+    color: "#d4930a",
+    description: "World history, events and civilisations",
+    quizzes: [
+      {
+        name: "World War II",
+        difficulty: "medium",
+        description: "Key events, figures and outcomes",
+        questions: [
+          {type:"mcq",question:"In which year did World War II begin?",options:["1935","1937","1939","1941"],answer:2,explanation:"WWII began on September 1, 1939, when Germany invaded Poland."},
+          {type:"mcq",question:"Which operation was the Allied invasion of Normandy in 1944?",options:["Operation Barbarossa","Operation Overlord","Operation Market Garden","Operation Torch"],answer:1,explanation:"D-Day (June 6, 1944) was part of Operation Overlord."},
+          {type:"short",question:"Who was the Prime Minister of the UK during most of WWII?",answer:"Churchill",explanation:"Winston Churchill served as PM from May 1940 to July 1945."},
+          {type:"mcq",question:"The atomic bombs in 1945 were dropped on which two cities?",options:["Tokyo and Osaka","Hiroshima and Nagasaki","Kyoto and Nagasaki","Hiroshima and Tokyo"],answer:1,explanation:"The US dropped atomic bombs on Hiroshima (Aug 6) and Nagasaki (Aug 9) in 1945."}
+        ]
+      },
+      {
+        name: "Ancient Civilisations",
+        difficulty: "easy",
+        description: "Egypt, Rome, Greece and beyond",
+        questions: [
+          {type:"mcq",question:"The Great Pyramid of Giza was built for which pharaoh?",options:["Ramesses II","Tutankhamun","Khufu","Cleopatra"],answer:2,explanation:"The Great Pyramid was built as a tomb for Pharaoh Khufu around 2560 BCE."},
+          {type:"mcq",question:"Rome was traditionally founded in:",options:["776 BCE","509 BCE","753 BCE","264 BCE"],answer:2,explanation:"According to tradition, Rome was founded by Romulus in 753 BCE."},
+          {type:"short",question:"What was the name of the ancient Greek marketplace and civic centre?",answer:"Agora",explanation:"The agora was the central public space in ancient Greek city-states."}
+        ]
+      }
+    ]
+  },
+  {
+    subject: "English",
+    icon: "📖",
+    color: "#7c3aed",
+    description: "Grammar, literature and writing",
+    quizzes: [
+      {
+        name: "Grammar Essentials",
+        difficulty: "easy",
+        description: "Parts of speech, punctuation and syntax",
+        questions: [
+          {type:"mcq",question:"What part of speech is the word 'quickly'?",options:["Adjective","Noun","Adverb","Verb"],answer:2,explanation:"'Quickly' modifies a verb and is therefore an adverb."},
+          {type:"mcq",question:"Which sentence is grammatically correct?",options:["She don't know","They is coming","He doesn't like it","We was there"],answer:2,explanation:"'He doesn't like it' uses the correct third-person singular form."},
+          {type:"short",question:"What punctuation mark is used to show possession?",answer:"Apostrophe",explanation:"An apostrophe (') shows possession, e.g. 'Sarah's book'."},
+          {type:"mcq",question:"A simile compares two things using:",options:["Metaphor","Like or as","Personification","Alliteration"],answer:1,explanation:"Similes use 'like' or 'as' to compare, e.g. 'fast as lightning'."}
+        ]
+      }
+    ]
+  },
+  {
+    subject: "Geography",
+    icon: "🌍",
+    color: "#0891b2",
+    description: "Countries, capitals, landscapes and climate",
+    quizzes: [
+      {
+        name: "World Capitals",
+        difficulty: "easy",
+        description: "Test your knowledge of capital cities",
+        questions: [
+          {type:"mcq",question:"What is the capital of Australia?",options:["Sydney","Melbourne","Canberra","Brisbane"],answer:2,explanation:"Canberra is Australia's capital — chosen as a compromise between Sydney and Melbourne."},
+          {type:"mcq",question:"Which city is the capital of Japan?",options:["Osaka","Kyoto","Hiroshima","Tokyo"],answer:3,explanation:"Tokyo has been Japan's capital since 1869."},
+          {type:"short",question:"What is the capital of Brazil?",answer:"Brasília",explanation:"Brasília replaced Rio de Janeiro as Brazil's capital in 1960."},
+          {type:"mcq",question:"The capital of Canada is:",options:["Toronto","Ottawa","Vancouver","Montreal"],answer:1,explanation:"Ottawa is Canada's capital, located in Ontario."}
+        ]
+      }
+    ]
+  }
+];
+
+// ══════════════════════════════════
+//  INIT
+// ══════════════════════════════════
+function init() {
+  const saved = localStorage.getItem('sp_subjects');
+  state.subjects = saved ? JSON.parse(saved) : DEFAULT_DATA;
+  renderHome();
+  updateNavStats();
+}
+
+function saveSubjects() {
+  localStorage.setItem('sp_subjects', JSON.stringify(state.subjects));
+}
+function saveProgress() {
+  localStorage.setItem('sp_progress', JSON.stringify(state.progress));
+  localStorage.setItem('sp_activity', JSON.stringify(state.activity.slice(0,20)));
+  localStorage.setItem('sp_xp', state.xp);
+  localStorage.setItem('sp_streak', state.streak);
+  localStorage.setItem('sp_answered', state.totalAnswered);
+  localStorage.setItem('sp_correct', state.totalCorrect);
+  localStorage.setItem('sp_quizzes', state.totalQuizzes);
+}
+
+// ══════════════════════════════════
+//  RENDER HOME
+// ══════════════════════════════════
+function renderHome() {
+  // stats bar
+  const acc = state.totalAnswered > 0 ? Math.round(state.totalCorrect / state.totalAnswered * 100) : 0;
+  document.getElementById('total-questions').textContent = state.totalAnswered;
+  document.getElementById('total-correct').textContent = acc + '%';
+  document.getElementById('total-subjects').textContent = state.subjects.length;
+  document.getElementById('total-quizzes').textContent = state.totalQuizzes;
+
+  // subject grid
+  const grid = document.getElementById('subject-grid');
+  grid.innerHTML = '';
+  state.subjects.forEach((s, si) => {
+    const progress = getSubjectProgress(si);
+    const card = document.createElement('div');
+    card.className = 'subject-card';
+    card.style.setProperty('--card-color', s.color);
+    card.innerHTML = `
+      <span class="subject-icon">${s.icon}</span>
+      <div class="subject-name">${s.subject}</div>
+      <div class="subject-count">${countQuestions(s)} questions · ${s.quizzes.length} quizzes</div>
+      <div class="subject-bar-wrap"><div class="subject-bar" style="width:${progress}%"></div></div>
+    `;
+    card.onclick = () => showSubject(si);
+    grid.appendChild(card);
+  });
+
+  // recent activity
+  const recent = document.getElementById('recent-list');
+  if (state.activity.length === 0) {
+    recent.innerHTML = '<div style="font-size:14px;color:var(--ink3);padding:12px 0">No activity yet — start a quiz!</div>';
+  } else {
+    recent.innerHTML = state.activity.slice(0,5).map(a => `
+      <div class="recent-item" onclick="showSubject(${a.si})">
+        <div class="recent-dot" style="background:${state.subjects[a.si]?.color||'#888'}"></div>
+        <div>
+          <div class="recent-name">${a.quizName}</div>
+          <div class="recent-meta">${a.subject} · ${a.date}</div>
+        </div>
+        <div class="recent-score" style="color:${a.score>=70?'var(--green)':a.score>=50?'var(--gold)':'var(--red)'}">${a.score}%</div>
+      </div>
+    `).join('');
+  }
+}
+
+function getSubjectProgress(si) {
+  const s = state.subjects[si];
+  let done = 0, total = 0;
+  s.quizzes.forEach((q, qi) => {
+    total++;
+    const key = `${si}_${qi}`;
+    if (state.progress[key]) done++;
+  });
+  return total ? Math.round(done / total * 100) : 0;
+}
+
+function countQuestions(s) {
+  return s.quizzes.reduce((sum, q) => sum + q.questions.length, 0);
+}
+
+function updateNavStats() {
+  document.getElementById('nav-xp').textContent = state.xp;
+  document.getElementById('nav-streak').textContent = state.streak;
+}
+
+// ══════════════════════════════════
+//  SUBJECT SCREEN
+// ══════════════════════════════════
+let activeSubjectIdx = null;
+let activeDiffFilter = 'all';
+
+function showSubject(si) {
+  activeSubjectIdx = si;
+  activeDiffFilter = 'all';
+  const s = state.subjects[si];
+  document.getElementById('subj-icon').textContent = s.icon;
+  document.getElementById('subj-title').textContent = s.subject;
+  document.getElementById('subj-desc').textContent = s.description || '';
+  // reset diff pills
+  document.querySelectorAll('.diff-pill').forEach(p => p.classList.remove('active'));
+  document.querySelector('[data-diff="all"]').classList.add('active');
+  renderQuizGrid(si, 'all');
+  showScreen('screen-subject');
+}
+
+function filterDiff(diff, el) {
+  activeDiffFilter = diff;
+  document.querySelectorAll('.diff-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderQuizGrid(activeSubjectIdx, diff);
+}
+
+function renderQuizGrid(si, diff) {
+  const s = state.subjects[si];
+  const grid = document.getElementById('quiz-grid');
+  grid.innerHTML = '';
+  s.quizzes.filter(q => diff === 'all' || q.difficulty === diff).forEach((q, qi) => {
+    const realQi = s.quizzes.indexOf(q);
+    const key = `${si}_${realQi}`;
+    const prog = state.progress[key];
+    const card = document.createElement('div');
+    card.className = 'quiz-card';
+    card.innerHTML = `
+      <div class="quiz-card-top">
+        <div class="quiz-name">${q.name}</div>
+        <div class="quiz-badge badge-${q.difficulty}">${q.difficulty}</div>
+      </div>
+      <div class="quiz-desc">${q.description || ''}</div>
+      <div class="quiz-meta">
+        <span>📝 ${q.questions.length} questions</span>
+        ${prog ? `<span style="color:var(--green)">✓ Best: ${prog.best}%</span>` : '<span>Not attempted</span>'}
+      </div>
+      ${prog ? `<div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width:${prog.best}%"></div></div>` : ''}
+      <button class="start-btn" onclick="startQuiz(${si},${realQi})">Start quiz →</button>
+    `;
+    grid.appendChild(card);
+  });
+  if (grid.children.length === 0) {
+    grid.innerHTML = '<div style="font-size:14px;color:var(--ink3);padding:12px">No quizzes for this difficulty.</div>';
+  }
+}
+
+// ══════════════════════════════════
+//  QUIZ ENGINE
+// ══════════════════════════════════
+function startQuiz(si, qi) {
+  const s = state.subjects[si];
+  const quiz = s.quizzes[qi];
+  state.session = shuffleQuestions([...quiz.questions]);
+  state.currentQ = 0;
+  state.answers = [];
+  state.elapsed = 0;
+  state.answered = false;
+  state.currentSubject = si;
+  state.currentQuiz = qi;
+  clearInterval(state.timerInterval);
+  state.timerInterval = setInterval(() => {
+    state.elapsed++;
+    updateTimer();
+  }, 1000);
+  showScreen('screen-quiz');
+  renderQuestion();
+}
+
+function shuffleQuestions(qs) {
+  for (let i = qs.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [qs[i], qs[j]] = [qs[j], qs[i]];
+  }
+  return qs;
+}
+
+function renderQuestion() {
+  const q = state.session[state.currentQ];
+  const total = state.session.length;
+  const idx = state.currentQ;
+
+  document.getElementById('q-progress').style.width = `${(idx / total) * 100}%`;
+  document.getElementById('q-counter').textContent = `${idx + 1} / ${total}`;
+  document.getElementById('q-category').textContent = state.subjects[state.currentSubject].subject;
+  document.getElementById('q-text').textContent = q.question;
+  document.getElementById('explanation-box').classList.add('hidden');
+  document.getElementById('btn-next').classList.add('hidden');
+  state.answered = false;
+
+  const list = document.getElementById('options-list');
+  list.innerHTML = '';
+
+  if (q.type === 'mcq') {
+    const letters = ['A','B','C','D'];
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `<div class="option-letter">${letters[i]}</div><span>${opt}</span>`;
+      btn.onclick = () => answerMCQ(i, q);
+      list.appendChild(btn);
+    });
+  } else {
+    // short answer
+    list.innerHTML = `
+      <input class="short-input" id="short-input" type="text" placeholder="Type your answer..." />
+      <button class="check-btn" onclick="answerShort('${q.answer.toLowerCase().replace(/'/g,"\\'")}', document.getElementById('short-input').value)">Check answer</button>
+    `;
+    document.getElementById('short-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') answerShort(q.answer.toLowerCase(), document.getElementById('short-input').value);
+    });
+  }
+}
+
+function answerMCQ(chosen, q) {
+  if (state.answered) return;
+  state.answered = true;
+  const correct = q.answer;
+  const isCorrect = chosen === correct;
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach((btn, i) => {
+    btn.classList.add('answered');
+    if (i === correct) btn.classList.add(i === chosen ? 'correct' : 'reveal');
+    else if (i === chosen) btn.classList.add('wrong');
+  });
+  recordAnswer(isCorrect, q.explanation);
+}
+
+function answerShort(expected, given) {
+  if (state.answered) return;
+  state.answered = true;
+  const isCorrect = given.trim().toLowerCase() === expected.toLowerCase();
+  const input = document.getElementById('short-input');
+  if (input) {
+    input.disabled = true;
+    input.style.borderColor = isCorrect ? 'var(--green)' : 'var(--red)';
+    input.style.background = isCorrect ? 'var(--green-light)' : 'var(--red-light)';
+  }
+  // find and disable button
+  const btn = document.querySelector('.check-btn');
+  if (btn) btn.disabled = true;
+
+  const q = state.session[state.currentQ];
+  recordAnswer(isCorrect, `Correct answer: "${q.answer}". ${q.explanation}`);
+}
+
+function recordAnswer(isCorrect, explanation) {
+  state.answers.push(isCorrect);
+  state.totalAnswered++;
+  if (isCorrect) state.totalCorrect++;
+  // show explanation
+  const expBox = document.getElementById('explanation-box');
+  document.getElementById('explanation-text').textContent = explanation;
+  expBox.classList.remove('hidden');
+  expBox.style.borderColor = isCorrect ? 'rgba(22,163,74,.3)' : 'rgba(220,38,38,.2)';
+  expBox.style.background = isCorrect ? 'var(--green-light)' : 'var(--red-light)';
+  expBox.querySelector('strong').style.color = isCorrect ? 'var(--green)' : 'var(--red)';
+  document.getElementById('btn-next').classList.remove('hidden');
+  document.getElementById('btn-next').textContent = state.currentQ < state.session.length - 1 ? 'Next →' : 'See results →';
+  saveProgress();
+}
+
+function nextQuestion() {
+  state.currentQ++;
+  if (state.currentQ >= state.session.length) {
+    finishQuiz();
+  } else {
+    renderQuestion();
+  }
+}
+
+function updateTimer() {
+  const m = Math.floor(state.elapsed / 60);
+  const s = state.elapsed % 60;
+  const pill = document.getElementById('timer-pill');
+  pill.textContent = `⏱ ${m}:${s.toString().padStart(2,'0')}`;
+  pill.classList.toggle('danger', state.elapsed > 120);
+}
+
+function finishQuiz() {
+  clearInterval(state.timerInterval);
+  const correct = state.answers.filter(Boolean).length;
+  const total = state.answers.length;
+  const pct = Math.round(correct / total * 100);
+  const si = state.currentSubject;
+  const qi = state.currentQuiz;
+  const key = `${si}_${qi}`;
+  const prev = state.progress[key];
+  state.progress[key] = {
+    attempts: (prev?.attempts || 0) + 1,
+    best: Math.max(pct, prev?.best || 0),
+    last: pct,
+    lastDate: new Date().toLocaleDateString()
+  };
+  state.totalQuizzes++;
+  // XP
+  const xpEarned = correct * 10 + (pct === 100 ? 50 : 0);
+  state.xp += xpEarned;
+  // streak (simple: just increment)
+  state.streak++;
+  // activity
+  state.activity.unshift({
+    si, quizName: state.subjects[si].quizzes[qi].name,
+    subject: state.subjects[si].subject,
+    score: pct, date: new Date().toLocaleDateString()
+  });
+  saveProgress();
+  updateNavStats();
+  showResults(correct, total, pct, xpEarned);
+}
+
+function showResults(correct, total, pct, xpEarned) {
+  // ring color
+  const ring = document.getElementById('score-ring');
+  if (pct >= 80) {
+    ring.style.background = 'var(--green-light)';
+    ring.style.color = 'var(--green)';
+  } else if (pct >= 50) {
+    ring.style.background = 'var(--gold-light)';
+    ring.style.color = 'var(--gold)';
+  } else {
+    ring.style.background = 'var(--red-light)';
+    ring.style.color = 'var(--red)';
+  }
+  document.getElementById('score-pct').textContent = pct + '%';
+  document.getElementById('score-sub').textContent = correct + '/' + total + ' correct';
+  const messages = {
+    great: ['Outstanding!','Excellent work!','You nailed it!'],
+    good: ['Well done!','Good effort!','Solid performance!'],
+    low: ['Keep practising!','Don\'t give up!','Review and retry!']
+  };
+  const tier = pct >= 80 ? 'great' : pct >= 50 ? 'good' : 'low';
+  document.getElementById('results-title').textContent = messages[tier][Math.floor(Math.random()*3)];
+  document.getElementById('results-desc').textContent = `You earned +${xpEarned} XP. ${pct === 100 ? '🏆 Perfect score bonus!' : ''}`;
+  document.getElementById('res-correct').textContent = correct;
+  document.getElementById('res-wrong').textContent = total - correct;
+  const m = Math.floor(state.elapsed/60), s = state.elapsed%60;
+  document.getElementById('res-time').textContent = m > 0 ? `${m}m ${s}s` : `${s}s`;
+  // review
+  const review = document.getElementById('review-list');
+  review.innerHTML = '<div style="font-family:\'Fraunces\',serif;font-size:18px;margin-bottom:12px;color:var(--ink)">Answer review</div>';
+  state.session.forEach((q, i) => {
+    const ok = state.answers[i];
+    const div = document.createElement('div');
+    div.className = 'review-item';
+    div.innerHTML = `
+      <div class="review-q">${i+1}. ${q.question}</div>
+      <span class="review-status ${ok?'review-correct':'review-wrong'}">${ok?'✓ Correct':'✗ Wrong'}</span>
+      ${!ok && q.type==='mcq' ? `<div class="review-answer">Correct: ${q.options[q.answer]}</div>` : ''}
+      ${!ok && q.type==='short' ? `<div class="review-answer">Correct: ${q.answer}</div>` : ''}
+      <div class="review-exp">${q.explanation}</div>
+    `;
+    review.appendChild(div);
+  });
+  showScreen('screen-results');
+}
+
+function retryQuiz() {
+  startQuiz(state.currentSubject, state.currentQuiz);
+}
+
+function nextRecommended() {
+  const s = state.subjects[state.currentSubject];
+  const next = state.currentQuiz + 1;
+  if (next < s.quizzes.length) {
+    startQuiz(state.currentSubject, next);
+  } else {
+    showSubject(state.currentSubject);
+  }
+}
+
+// ══════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function goHome() {
+  clearInterval(state.timerInterval);
+  renderHome();
+  showScreen('screen-home');
+}
+
+function confirmQuit() {
+  if (confirm('Quit this quiz? Your progress will be lost.')) {
+    clearInterval(state.timerInterval);
+    showSubject(state.currentSubject);
+  }
+}
+
+function showQuickStart() {
+  if (state.subjects.length > 0) showSubject(0);
+}
+
+// ══════════════════════════════════
+//  JSON IMPORT
+// ══════════════════════════════════
+function openImport() {
+  document.getElementById('modal-bg').classList.remove('hidden');
+}
+function closeImport() {
+  document.getElementById('modal-bg').classList.add('hidden');
+  document.getElementById('json-input').value = '';
+}
+function importJSON() {
+  const raw = document.getElementById('json-input').value.trim();
+  if (!raw) { showToast('Please paste JSON first'); return; }
+  try {
+    const data = JSON.parse(raw);
+    const arr = Array.isArray(data) ? data : [data];
+    // validate minimal structure
+    arr.forEach(s => {
+      if (!s.subject || !Array.isArray(s.quizzes)) throw new Error('Invalid structure');
+    });
+    // merge with existing (by subject name)
+    arr.forEach(newSubj => {
+      const existing = state.subjects.find(s => s.subject === newSubj.subject);
+      if (existing) {
+        newSubj.quizzes.forEach(nq => {
+          if (!existing.quizzes.find(eq => eq.name === nq.name)) existing.quizzes.push(nq);
+        });
+      } else {
+        state.subjects.push(newSubj);
+      }
+    });
+    saveSubjects();
+    closeImport();
+    renderHome();
+    showToast(`✓ Imported ${arr.length} subject(s) successfully`);
+  } catch(e) {
+    showToast('Invalid JSON — check format and try again');
+  }
+}
+
+function loadSample() {
+  const sample = [
+    {
+      "subject": "My Subject",
+      "icon": "🎯",
+      "color": "#4f63f7",
+      "description": "A brief description",
+      "quizzes": [
+        {
+          "name": "Quiz Name",
+          "difficulty": "easy",
+          "description": "Quiz description",
+          "questions": [
+            {
+              "type": "mcq",
+              "question": "What is 2 + 2?",
+              "options": ["3","4","5","6"],
+              "answer": 1,
+              "explanation": "2 + 2 equals 4."
+            },
+            {
+              "type": "short",
+              "question": "What colour is the sky?",
+              "answer": "blue",
+              "explanation": "The sky appears blue due to Rayleigh scattering."
+            }
+          ]
+        }
+      ]
+    }
+  ];
+  document.getElementById('json-input').value = JSON.stringify(sample, null, 2);
+}
+
+// ══════════════════════════════════
+//  TOAST
+// ══════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ══════════════════════════════════
+//  BOOT
+// ══════════════════════════════════
+init();
+</script>
+</body>
+</html>
