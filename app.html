@@ -1,1 +1,2537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyPath — App</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import {
+    getFirestore, collection, getDocs, addDoc, setDoc, getDoc,
+    deleteDoc, doc, serverTimestamp, onSnapshot, query, orderBy
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+  const firebaseConfig = {
+    apiKey: "AIzaSyBIwbw2bt5a2ZaoU1vMwSlJGnJm2UkE0Go",
+    authDomain: "quiz-app-ae916.firebaseapp.com",
+    projectId: "quiz-app-ae916",
+    storageBucket: "quiz-app-ae916.firebasestorage.app",
+    messagingSenderId: "914881410677",
+    appId: "1:914881410677:web:c157d0afa2f01500dc2a3c",
+    measurementId: "G-19V50C0XZV"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  window._db = db;
+  window._fbFns = { collection, getDocs, addDoc, setDoc, getDoc, deleteDoc, doc, serverTimestamp, onSnapshot, query, orderBy };
+  window._fbReady = true;
+
+  // ── Real-time: platform doc (subjects metadata, notes, quizzes metadata, teach) ──
+  onSnapshot(doc(db, 'platform', 'data'), (snap) => {
+    if (snap.exists()) {
+      window._onPlatformUpdate && window._onPlatformUpdate(snap.data());
+    }
+  });
+
+  // ── Real-time: questions collection ──
+  const q = query(collection(db, "questions"), orderBy("createdAt","asc"));
+  onSnapshot(q, (snapshot) => {
+    snapshot.docChanges().forEach((change) => {
+      if (change.type === "added") {
+        const d = change.doc.data();
+        d._docId = change.doc.id;
+        window._injectFirebaseQuestion && window._injectFirebaseQuestion(d);
+      }
+      if (change.type === "removed") {
+        const d = change.doc.data();
+        d._docId = change.doc.id;
+        window._removeFirebaseQuestion && window._removeFirebaseQuestion(d);
+      }
+    });
+  });
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#12111a;--ink2:#3f3d52;--ink3:#9896aa;
+  --paper:#f5f4f0;--surface:#ffffff;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
+  --accent:#4f63f7;--accent-light:#eceffe;
+  --gold:#d4930a;--gold-light:#fff7e6;
+  --green:#16a34a;--green-light:#dcfce7;
+  --red:#dc2626;--red-light:#fee2e2;
+  --purple:#7c3aed;--purple-light:#ede9fe;
+  --teal:#0891b2;--teal-light:#e0f7fa;
+  --orange:#ea580c;--orange-light:#fff0e8;
+  --radius:16px;--radius-sm:10px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;overflow-x:hidden}
+h1,h2,h3{font-family:'Fraunces',serif}
+.hidden{display:none!important}
+button{font-family:'DM Sans',sans-serif;cursor:pointer;border:none;outline:none}
+/* NAV */
+nav{position:sticky;top:0;z-index:300;background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:0 20px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.logo{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--ink);white-space:nowrap;cursor:pointer}
+.logo em{font-style:normal;color:var(--accent)}
+.nav-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:500;color:var(--ink2);padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--surface)}
+.pill b{color:var(--ink);font-weight:700}
+.learner-badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:5px 13px;border-radius:20px;border:1.5px solid;cursor:pointer;transition:opacity .15s}
+.learner-badge:hover{opacity:.8}
+.nav-btn{border-radius:9px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:opacity .15s}
+.nav-btn:hover{opacity:.88}
+.nav-btn-accent{background:var(--accent);color:#fff}
+.nav-btn-dark{background:var(--ink);color:#fff}
+.nav-btn-ghost{background:none;color:var(--ink);border:1.5px solid var(--border2)}
+/* SCREENS */
+.screen{display:none;animation:fadeUp .3s ease}
+.screen.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+/* HERO */
+.hero{background:var(--ink);color:#fff;padding:48px 28px 42px;overflow:hidden;position:relative}
+.hero-bg-dot{position:absolute;inset:0;opacity:.2;background-image:radial-gradient(circle,#5060ff 1px,transparent 1px);background-size:32px 32px}
+.hero-tag{position:relative;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#9896ff;margin-bottom:14px;display:inline-block}
+.hero h1{position:relative;font-size:clamp(24px,5vw,44px);line-height:1.2;margin-bottom:12px;max-width:500px}
+.hero p{position:relative;font-size:15px;color:#c4c2d0;max-width:440px;line-height:1.7;margin-bottom:28px}
+.hero-actions{position:relative;display:flex;gap:10px;flex-wrap:wrap}
+.btn-primary{background:var(--accent);color:#fff;border-radius:10px;padding:11px 22px;font-size:14px;font-weight:600;transition:transform .15s,opacity .15s;border:none;cursor:pointer}
+.btn-primary:hover{transform:translateY(-1px);opacity:.9}
+.btn-ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.28);border-radius:10px;padding:11px 22px;font-size:14px;font-weight:500;cursor:pointer}
+.btn-ghost:hover{background:rgba(255,255,255,.08)}
+/* STYLE BANNER */
+.style-banner{padding:14px 24px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.style-banner-left{display:flex;align-items:center;gap:12px;flex:1}
+.style-icon-big{font-size:32px}
+.style-info strong{font-size:15px;display:block}
+.style-info small{font-size:12px;color:var(--ink3)}
+/* STATS */
+.stats-bar{display:flex;border-bottom:1px solid var(--border);background:var(--surface);overflow-x:auto}
+.stat-item{flex:1;min-width:90px;padding:16px 18px;border-right:1px solid var(--border);display:flex;flex-direction:column;gap:3px}
+.stat-item:last-child{border-right:none}
+.stat-num{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--ink)}
+.stat-label{font-size:11px;color:var(--ink3)}
+/* SECTIONS */
+.section{padding:28px 24px}
+.section-title{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:16px}
+/* SUBJECT GRID */
+.subject-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px}
+.subject-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 16px;cursor:pointer;transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden}
+.subject-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,.12)}
+.subject-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--card-color)}
+.subject-icon{font-size:42px;margin-bottom:12px;display:block;line-height:1}
+.subject-name{font-family:'Fraunces',serif;font-size:16px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.subject-count{font-size:12px;color:var(--ink3)}
+.subject-bar-wrap{margin-top:10px;height:4px;background:#eee;border-radius:4px;overflow:hidden}
+.subject-bar{height:100%;border-radius:4px;background:var(--card-color)}
+/* RECENT */
+.recent-list{display:flex;flex-direction:column;gap:8px}
+.recent-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background .15s}
+.recent-item:hover{background:#fafafa}
+.recent-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.recent-name{font-size:14px;font-weight:500;color:var(--ink)}
+.recent-meta{font-size:12px;color:var(--ink3);margin-top:2px}
+.recent-score{margin-left:auto;font-size:13px;font-weight:700}
+/* BACK BTN */
+.back-btn{display:inline-flex;align-items:center;gap:6px;background:none;color:var(--ink3);font-size:13px;font-weight:500;padding:8px 0;margin:16px 24px 0;cursor:pointer;border:none;transition:color .15s}
+.back-btn:hover{color:var(--ink)}
+/* SUBJECT SCREEN */
+.subject-header{padding:22px 28px;border-bottom:1px solid var(--border);background:var(--surface)}
+.subject-header-top{display:flex;align-items:flex-start;gap:16px;margin-bottom:14px}
+.subject-big-icon{font-size:56px;line-height:1;flex-shrink:0}
+.subject-header h2{font-size:24px;margin-bottom:4px}
+.subject-header p{font-size:14px;color:var(--ink3)}
+.diff-pills{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.diff-pill{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid transparent;transition:all .15s}
+.diff-pill.active{border-color:currentColor}
+.diff-all{color:var(--ink2);background:#eee}
+.diff-easy{color:#16a34a;background:#dcfce7}
+.diff-medium{color:#d4930a;background:#fff7e6}
+.diff-hard{color:#dc2626;background:#fee2e2}
+/* QUIZ GRID */
+.quiz-grid{padding:20px 24px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.quiz-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;gap:7px;transition:transform .15s,box-shadow .15s,border-color .15s}
+.quiz-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.1);border-color:var(--accent)}
+.quiz-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.quiz-name{font-family:'Fraunces',serif;font-size:15px;font-weight:600;color:var(--ink)}
+.quiz-badge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.badge-easy{color:#16a34a;background:#dcfce7}
+.badge-medium{color:#d4930a;background:#fff7e6}
+.badge-hard{color:#dc2626;background:#fee2e2}
+.quiz-desc{font-size:12px;color:var(--ink3);line-height:1.5}
+.quiz-meta{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink3)}
+.quiz-progress-bar{height:3px;background:#eee;border-radius:3px;overflow:hidden}
+.quiz-progress-fill{height:100%;background:var(--accent);border-radius:3px}
+/* QUIZ ACTIONS — row 1: normal + inf, row 2: notes */
+.quiz-actions{display:flex;flex-direction:column;gap:7px;margin-top:8px}
+.quiz-actions-row{display:flex;gap:7px}
+.qbtn{flex:1;border-radius:8px;padding:9px 8px;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.qbtn:hover{opacity:.85}
+.qbtn-quiz{background:var(--accent);color:#fff}
+.qbtn-inf{background:var(--ink);color:#fff}
+.qbtn-notes{width:100%;background:none;border:1.5px solid var(--border2);color:var(--ink2);border-radius:8px;padding:8px;font-size:13px;font-weight:500;cursor:pointer;transition:background .15s}
+.qbtn-notes:hover{background:var(--paper)}
+/* NOTES */
+.notes-header{padding:20px 28px;border-bottom:1px solid var(--border);background:var(--surface)}
+.notes-header h2{font-size:22px;margin-bottom:4px}
+.notes-header p{font-size:14px;color:var(--ink3)}
+.notes-actions{display:flex;gap:9px;margin-top:12px;flex-wrap:wrap}
+.notes-body{max-width:820px;margin:0 auto;padding:28px 24px}
+.notes-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:14px}
+.notes-section h3{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:9px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.notes-section p,.notes-section li{font-size:13px;color:var(--ink2);line-height:1.8}
+.notes-section ul{padding-left:18px;margin-top:6px}
+/* LEARNER QUIZ */
+.lq-body{max-width:620px;margin:0 auto;padding:40px 24px}
+.lq-header{text-align:center;margin-bottom:30px}
+.lq-header h2{font-size:28px;margin-bottom:8px}
+.lq-header p{font-size:14px;color:var(--ink3);line-height:1.6}
+.lq-prog-bar{height:4px;background:#eee;border-radius:4px;overflow:hidden;margin-bottom:22px}
+.lq-prog-fill{height:100%;background:var(--accent);border-radius:4px;transition:width .4s}
+.lq-question{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:14px}
+.lq-q-num{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+.lq-q-text{font-family:'Fraunces',serif;font-size:18px;color:var(--ink);margin-bottom:16px;line-height:1.4}
+.lq-opts{display:flex;flex-direction:column;gap:8px}
+.lq-opt{display:flex;align-items:flex-start;gap:11px;background:var(--paper);border:1.5px solid var(--border2);border-radius:var(--radius-sm);padding:12px 16px;cursor:pointer;transition:all .15s;font-size:14px;color:var(--ink2);text-align:left;width:100%}
+.lq-opt:hover{border-color:var(--accent);background:var(--accent-light)}
+.lq-opt.selected{border-color:var(--accent);background:var(--accent-light);color:var(--accent);font-weight:500}
+.lq-opt-letter{width:24px;height:24px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;color:var(--ink3)}
+.lq-opt.selected .lq-opt-letter{background:var(--accent);color:#fff}
+.lq-actions{display:flex;gap:9px;justify-content:flex-end;margin-top:18px}
+/* LEARNER RESULT */
+.lr-body{max-width:560px;margin:0 auto;padding:40px 24px;text-align:center}
+.lr-icon{font-size:68px;margin-bottom:14px}
+.lr-title{font-size:28px;margin-bottom:8px}
+.lr-desc{font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:26px;max-width:420px;margin-left:auto;margin-right:auto}
+.lr-traits{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:26px;text-align:left}
+.lr-trait{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:13px}
+.lr-trait-title{font-weight:600;font-size:13px;margin-bottom:3px}
+.lr-trait-desc{font-size:12px;color:var(--ink3);line-height:1.5}
+.lr-actions{display:flex;gap:9px;justify-content:center;flex-wrap:wrap}
+/* MODE BANNER */
+.mode-banner{background:var(--ink);color:#fff;padding:9px 24px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:500}
+.mode-tag{background:rgba(255,255,255,.15);padding:3px 11px;border-radius:20px;font-size:12px;font-weight:600}
+.stop-inf-btn{background:var(--red);color:#fff;border:none;border-radius:8px;padding:6px 16px;font-size:12px;font-weight:600;cursor:pointer}
+/* QUIZ TOPBAR */
+.quiz-topbar{padding:11px 22px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.progress-track{flex:1;height:6px;background:#eee;border-radius:6px;overflow:hidden}
+.progress-fill{height:100%;background:var(--accent);border-radius:6px;transition:width .4s}
+.quiz-counter{font-size:13px;font-weight:500;color:var(--ink3);white-space:nowrap}
+.timer-pill{display:flex;align-items:center;gap:4px;font-size:13px;font-weight:600;padding:5px 12px;border-radius:20px;background:var(--ink);color:#fff;white-space:nowrap}
+.timer-pill.danger{background:var(--red);animation:pulse .8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+/* STYLE CONTEXT BOX */
+.style-context{border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:16px;font-size:13px;line-height:1.6;display:flex;gap:11px;align-items:flex-start}
+.style-context-icon{font-size:22px;flex-shrink:0}
+.style-context-text strong{display:block;font-size:12px;font-weight:600;margin-bottom:2px}
+/* QUESTION BODY */
+.question-body{max-width:680px;margin:0 auto;padding:32px 24px}
+.q-category{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:5px}
+.q-text{font-family:'Fraunces',serif;font-size:clamp(17px,3vw,23px);line-height:1.45;color:var(--ink);margin-bottom:26px}
+.options-list{display:flex;flex-direction:column;gap:9px;margin-bottom:22px}
+.option-btn{display:flex;align-items:center;gap:12px;background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--radius-sm);padding:13px 16px;font-size:15px;font-weight:500;color:var(--ink);text-align:left;transition:border-color .15s,background .15s;cursor:pointer;width:100%}
+.option-btn:hover:not(.answered){border-color:var(--accent);background:var(--accent-light)}
+.option-btn.correct{border-color:var(--green);background:var(--green-light);color:var(--green)}
+.option-btn.wrong{border-color:var(--red);background:var(--red-light);color:var(--red)}
+.option-btn.reveal{border-color:var(--green);background:var(--green-light);color:var(--green)}
+.option-letter{width:28px;height:28px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.option-btn.correct .option-letter,.option-btn.reveal .option-letter{background:var(--green);color:#fff;border-color:var(--green)}
+.option-btn.wrong .option-letter{background:var(--red);color:#fff;border-color:var(--red)}
+.explanation-box{border-radius:var(--radius-sm);padding:14px;margin-bottom:22px;font-size:14px;line-height:1.65}
+.explanation-box strong{font-weight:600;display:block;margin-bottom:4px}
+.exp-style-tip{margin-top:9px;padding:9px 12px;border-radius:7px;font-size:12px;line-height:1.6;font-style:italic}
+.quiz-nav{display:flex;gap:9px;justify-content:flex-end}
+.btn-next{background:var(--ink);color:#fff;border-radius:9px;padding:11px 26px;font-size:14px;font-weight:600;border:none;cursor:pointer}
+.btn-next:hover{opacity:.82}
+.short-input{width:100%;border:1.5px solid var(--border2);border-radius:var(--radius-sm);padding:12px 16px;font-size:15px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--surface);outline:none;margin-bottom:10px;transition:border-color .15s}
+.short-input:focus{border-color:var(--accent)}
+.check-btn{background:var(--accent);color:#fff;border-radius:9px;padding:10px 22px;font-size:14px;font-weight:600;margin-bottom:14px;border:none;cursor:pointer}
+/* TEACH MODE */
+.teach-topbar{padding:11px 22px;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px}
+.teach-body{max-width:720px;margin:0 auto;padding:26px 24px}
+.teach-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+.teach-card h3{font-size:18px;margin-bottom:13px;color:var(--ink)}
+.teach-core{font-size:14px;color:var(--ink2);line-height:1.8;margin-bottom:14px}
+.teach-style-block{border-radius:var(--radius-sm);padding:15px;margin-bottom:14px}
+.teach-style-block .tsb-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;display:block}
+.teach-style-block p,.teach-style-block pre{font-size:13px;color:var(--ink2);line-height:1.8;white-space:pre-wrap}
+.practice-box{background:var(--paper);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:16px;margin-top:10px}
+.practice-box h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--ink3);margin-bottom:9px}
+.practice-q{font-size:13px;color:var(--ink);margin-bottom:8px;font-weight:500}
+.practice-input{width:100%;border:1.5px solid var(--border2);border-radius:7px;padding:9px 12px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:8px}
+.practice-input:focus{border-color:var(--purple)}
+.practice-check{background:var(--purple);color:#fff;border-radius:7px;padding:8px 18px;font-size:13px;font-weight:600;border:none;cursor:pointer}
+.practice-result{font-size:12px;margin-top:7px;padding:8px;border-radius:7px}
+.teach-nav{display:flex;gap:9px;margin-top:16px}
+.btn-teach-next{flex:1;background:var(--purple);color:#fff;border-radius:8px;padding:12px;font-size:14px;font-weight:600;border:none;cursor:pointer}
+.btn-teach-quiz{flex:1;background:var(--ink);color:#fff;border-radius:8px;padding:12px;font-size:14px;font-weight:600;border:none;cursor:pointer}
+/* RESULTS */
+.results-body{max-width:580px;margin:0 auto;padding:44px 24px;text-align:center}
+.score-ring{width:130px;height:130px;border-radius:50%;margin:0 auto 24px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Fraunces',serif}
+.score-pct{font-size:36px;font-weight:700;line-height:1}
+.score-sub{font-size:12px;font-weight:500;margin-top:2px}
+.results-title{font-size:24px;margin-bottom:8px}
+.results-desc{font-size:15px;color:var(--ink3);margin-bottom:28px;line-height:1.6}
+.results-breakdown{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px}
+.breakdown-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 8px}
+.breakdown-num{font-family:'Fraunces',serif;font-size:24px;font-weight:700}
+.breakdown-label{font-size:11px;color:var(--ink3);margin-top:2px}
+.results-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn-outline{background:var(--surface);color:var(--ink);border:1.5px solid var(--border2);border-radius:9px;padding:11px 22px;font-size:14px;font-weight:600;cursor:pointer}
+.btn-outline:hover{background:var(--paper)}
+.review-list{text-align:left;margin-top:28px;display:flex;flex-direction:column;gap:10px}
+.review-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px}
+.review-q{font-size:14px;font-weight:500;color:var(--ink);margin-bottom:6px}
+.review-status{font-size:12px;font-weight:600;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:5px}
+.review-correct{color:#16a34a;background:#dcfce7}
+.review-wrong{color:#dc2626;background:#fee2e2}
+.review-answer{font-size:13px;color:var(--ink2);margin-top:2px}
+.review-exp{font-size:12px;color:var(--ink3);margin-top:4px;line-height:1.5}
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--surface);border-radius:var(--radius);padding:26px;width:100%;max-width:540px;animation:fadeUp .25s ease;max-height:92vh;overflow-y:auto}
+.modal h3{font-family:'Fraunces',serif;font-size:20px;margin-bottom:7px}
+.modal p{font-size:14px;color:var(--ink3);margin-bottom:14px;line-height:1.6}
+.modal-actions{display:flex;gap:9px;margin-top:14px;justify-content:flex-end}
+.modal-cancel{background:none;border:1.5px solid var(--border2);color:var(--ink);border-radius:9px;padding:9px 18px;font-size:14px;font-weight:500;cursor:pointer}
+.modal-confirm{background:var(--accent);color:#fff;border-radius:9px;padding:9px 18px;font-size:14px;font-weight:600;border:none;cursor:pointer}
+/* FORM FIELDS */
+.form-row{display:flex;flex-direction:column;gap:5px;margin-bottom:13px}
+.form-row label{font-size:12px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em}
+.form-input{border:1.5px solid var(--border2);border-radius:var(--radius-sm);padding:10px 14px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s;width:100%;background:var(--surface);color:var(--ink)}
+.form-input:focus{border-color:var(--accent)}
+select.form-input{cursor:pointer}
+.opt-inputs{display:flex;flex-direction:column;gap:7px;margin-top:4px}
+.opt-row{display:flex;gap:8px;align-items:center}
+.opt-letter{font-size:13px;font-weight:700;color:var(--ink3);width:18px;flex-shrink:0}
+.opt-input{flex:1;border:1.5px solid var(--border2);border-radius:7px;padding:8px 11px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none}
+.opt-input:focus{border-color:var(--accent)}
+.opt-correct-radio{cursor:pointer;width:16px;height:16px}
+.answer-hint{font-size:11px;color:var(--ink3);margin-top:4px}
+/* PASSWORD MODAL */
+.pw-modal{max-width:380px}
+.pw-modal h3{font-size:20px;margin-bottom:6px}
+.pw-error{color:var(--red);font-size:13px;margin-top:6px;display:none}
+/* ADD Q MODAL */
+.add-q-modal{max-width:580px}
+.add-q-modal h3{margin-bottom:16px}
+.subject-quiz-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.subject-quiz-row select{flex:1;min-width:130px}
+/* FIREBASE STATUS */
+.fb-status{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 10px;border-radius:20px;background:var(--green-light);color:var(--green);font-weight:600}
+.fb-status.offline{background:var(--red-light);color:var(--red)}
+.fb-status.loading{background:var(--gold-light);color:var(--gold)}
+/* TOAST */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;border-radius:11px;padding:11px 20px;font-size:14px;font-weight:500;z-index:999;transition:transform .3s;pointer-events:none;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+/* CONTACT BANNER */
+.contact-banner{background:var(--accent-light);border-top:1px solid var(--accent);border-bottom:1px solid var(--accent);padding:12px 24px;text-align:center;font-size:13px;color:var(--ink2)}
+.contact-banner strong{color:var(--ink)}
+.contact-banner a{color:var(--accent);font-weight:600;text-decoration:none}
+.contact-banner a:hover{text-decoration:underline}
+/* MANAGE QUESTIONS LIST */
+.mq-list{display:flex;flex-direction:column;gap:8px;max-height:350px;overflow-y:auto;margin-top:10px}
+.mq-row{background:var(--paper);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 14px;display:flex;align-items:flex-start;gap:10px}
+.mq-num{font-size:12px;font-weight:600;color:var(--ink3);width:26px;flex-shrink:0;padding-top:1px}
+.mq-content{flex:1;min-width:0}
+.mq-q{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:3px;word-break:break-word}
+.mq-meta{font-size:11px;color:var(--ink3);display:flex;gap:8px;flex-wrap:wrap}
+.mq-firebase-tag{font-size:10px;font-weight:600;background:var(--accent-light);color:var(--accent);padding:1px 6px;border-radius:10px}
+.mq-del-btn{background:var(--red-light);color:var(--red);border:1px solid var(--red);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;flex-shrink:0;white-space:nowrap}
+.mq-del-btn:hover{background:var(--red);color:#fff}
+/* EMOJI PICKER */
+.emoji-picker{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;max-height:120px;overflow-y:auto;background:var(--paper);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px}
+.emoji-btn{font-size:22px;padding:4px;border-radius:6px;cursor:pointer;background:none;border:1.5px solid transparent;transition:border-color .1s,background .1s;line-height:1}
+.emoji-btn:hover,.emoji-btn.selected{border-color:var(--accent);background:var(--accent-light)}
+/* COLOR SWATCHES */
+.color-swatches{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.color-swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:border-color .1s,transform .1s}
+.color-swatch:hover,.color-swatch.selected{border-color:var(--ink);transform:scale(1.15)}
+/* TABS in manage modal */
+.modal-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px}
+.modal-tab{flex:1;padding:10px;font-size:13px;font-weight:600;color:var(--ink3);background:none;border:none;border-bottom:2.5px solid transparent;cursor:pointer;transition:color .15s,border-color .15s}
+.modal-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo" onclick="goHome()">Study<em>Path</em></div>
+  <div class="nav-right">
+    <div id="fb-status-badge" class="fb-status loading">⏳ Connecting...</div>
+    <div id="learner-badge-wrap"></div>
+    <div class="pill">🔥 <b id="nav-streak">0</b></div>
+    <div class="pill">⭐ <b id="nav-xp">0</b></div>
+    <button class="nav-btn nav-btn-accent" onclick="openAddQ()">+ Add Question</button>
+    <button class="nav-btn nav-btn-dark" onclick="openManageModal()">⚙️ Manage</button>
+    <button class="nav-btn nav-btn-ghost" onclick="window.location.href='index.html'">← Home</button>
+  </div>
+</nav>
+<div class="toast" id="toast"></div>
+
+<!-- ══ HOME ══ -->
+<div class="screen active" id="screen-home">
+  <div class="hero">
+    <div class="hero-bg-dot"></div>
+    <div class="hero-tag">Your personal study companion</div>
+    <h1>Learn smarter.<br>Study your way.</h1>
+    <p>Quizzes, teach mode, and real-time questions — all adapted to how YOUR brain works best.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="showQuickStart()">Start practising →</button>
+      <button class="btn-ghost" onclick="showScreen('screen-learner-quiz')">🧠 Find my learning style</button>
+    </div>
+  </div>
+  <div id="style-banner-wrap"></div>
+  <!-- Contact banner -->
+  <div class="contact-banner">
+    💬 Want more questions for a subject or topic? Email <a href="/cdn-cgi/l/email-protection#20121013104b494c4c414441436041564f4e0e4b11120e43540e5553"><span class="__cf_email__" data-cfemail="75474546451e1c1919141114163514031a1b5b1e44475b16015b0006">[email&#160;protected]</span></a> and I'll add them to the platform!
+  </div>
+  <div class="stats-bar">
+    <div class="stat-item"><div class="stat-num" id="total-questions">0</div><div class="stat-label">Questions answered</div></div>
+    <div class="stat-item"><div class="stat-num" id="total-correct">0%</div><div class="stat-label">Accuracy</div></div>
+    <div class="stat-item"><div class="stat-num" id="total-subjects">0</div><div class="stat-label">Subjects</div></div>
+    <div class="stat-item"><div class="stat-num" id="total-quizzes">0</div><div class="stat-label">Quizzes done</div></div>
+  </div>
+  <div class="section">
+    <div class="section-title">Subjects</div>
+    <div class="subject-grid" id="subject-grid"></div>
+  </div>
+  <div class="section" style="padding-top:0">
+    <div class="section-title">Recent activity</div>
+    <div class="recent-list" id="recent-list"><div style="font-size:13px;color:var(--ink3);padding:6px 0">No activity yet — start a quiz!</div></div>
+  </div>
+</div>
+
+<!-- ══ LEARNER QUIZ ══ -->
+<div class="screen" id="screen-learner-quiz">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div class="lq-body">
+    <div class="lq-header">
+      <h2>🧠 Find your learning style</h2>
+      <p>Answer 8 quick questions and every quiz, lesson, and explanation will be personalised just for you. Saved in your browser.</p>
+    </div>
+    <div class="lq-prog-bar"><div class="lq-prog-fill" id="lq-prog-fill"></div></div>
+    <div id="lq-container"></div>
+    <div class="lq-actions">
+      <button class="btn-outline" id="lq-prev-btn" onclick="lqPrev()">← Back</button>
+      <button class="btn-primary" id="lq-next-btn" onclick="lqNext()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LEARNER RESULT ══ -->
+<div class="screen" id="screen-learner-result">
+  <button class="back-btn" onclick="goHome()">← Home</button>
+  <div class="lr-body">
+    <div class="lr-icon" id="lr-icon"></div>
+    <h2 class="lr-title" id="lr-title"></h2>
+    <p class="lr-desc" id="lr-desc"></p>
+    <div class="lr-traits" id="lr-traits"></div>
+    <div class="lr-actions">
+      <button class="btn-primary" onclick="showQuickStart()">Start studying →</button>
+      <button class="btn-outline" onclick="resetLearnerStyle()">🔄 Retake quiz</button>
+      <button class="btn-outline" onclick="goHome()">← Home</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SUBJECT ══ -->
+<div class="screen" id="screen-subject">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div class="subject-header">
+    <div class="subject-header-top">
+      <div class="subject-big-icon" id="subj-icon"></div>
+      <div>
+        <h2 id="subj-title"></h2>
+        <p id="subj-desc"></p>
+        <div class="diff-pills">
+          <div class="diff-pill diff-all active" onclick="filterDiff('all',this)" data-diff="all">All</div>
+          <div class="diff-pill diff-easy" onclick="filterDiff('easy',this)" data-diff="easy">Easy</div>
+          <div class="diff-pill diff-medium" onclick="filterDiff('medium',this)" data-diff="medium">Medium</div>
+          <div class="diff-pill diff-hard" onclick="filterDiff('hard',this)" data-diff="hard">Hard</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="quiz-grid" id="quiz-grid"></div>
+</div>
+
+<!-- ══ NOTES ══ -->
+<div class="screen" id="screen-notes">
+  <button class="back-btn" onclick="goBackToSubject()">← Back to quizzes</button>
+  <div class="notes-header">
+    <h2 id="notes-title"></h2>
+    <p id="notes-subtitle"></p>
+    <div class="notes-actions">
+      <button class="btn-primary" onclick="startFromNotes(false)">▶ Quiz</button>
+      <button class="btn-primary" style="background:var(--ink)" onclick="startFromNotes(true)">∞ Infinite</button>
+      <button class="btn-primary" style="background:var(--purple)" onclick="startTeachMode()">📚 Teach me</button>
+    </div>
+  </div>
+  <div class="notes-body" id="notes-body"></div>
+</div>
+
+<!-- ══ TEACH ══ -->
+<div class="screen" id="screen-teach">
+  <div class="teach-topbar">
+    <span id="teach-style-label" style="font-weight:600"></span>
+    <span id="teach-prog-label" style="font-size:12px;opacity:.8"></span>
+    <button class="stop-inf-btn" onclick="goBackToSubject()">✕ Exit</button>
+  </div>
+  <div class="teach-body" id="teach-body"></div>
+</div>
+
+<!-- ══ QUIZ ══ -->
+<div class="screen" id="screen-quiz">
+  <div id="mode-banner" class="mode-banner hidden">
+    <div style="display:flex;align-items:center;gap:9px">
+      <span class="mode-tag">∞ Infinite Mode</span>
+      <span id="inf-q-counter" style="font-size:12px"></span>
+    </div>
+    <button class="stop-inf-btn" onclick="stopInfinite()">■ Stop & Results</button>
+  </div>
+  <div class="quiz-topbar" id="normal-topbar">
+    <button class="back-btn" style="margin:0" onclick="confirmQuit()">← Quit</button>
+    <div class="progress-track"><div class="progress-fill" id="q-progress"></div></div>
+    <div class="quiz-counter" id="q-counter">1/10</div>
+    <div class="timer-pill" id="timer-pill">⏱ 0:00</div>
+  </div>
+  <div class="question-body">
+    <div class="q-category" id="q-category"></div>
+    <div id="style-context-box"></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="options-list" id="options-list"></div>
+    <div class="explanation-box hidden" id="explanation-box">
+      <strong id="exp-label">Explanation</strong>
+      <span id="explanation-text"></span>
+      <div id="exp-style-tip" class="exp-style-tip hidden"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="btn-next hidden" id="btn-next" onclick="nextQuestion()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ RESULTS ══ -->
+<div class="screen" id="screen-results">
+  <div class="results-body">
+    <div class="score-ring" id="score-ring">
+      <div class="score-pct" id="score-pct">0%</div>
+      <div class="score-sub" id="score-sub">Score</div>
+    </div>
+    <h2 class="results-title" id="results-title">Quiz complete!</h2>
+    <p class="results-desc" id="results-desc"></p>
+    <div class="results-breakdown">
+      <div class="breakdown-card"><div class="breakdown-num" id="res-correct" style="color:var(--green)">0</div><div class="breakdown-label">Correct</div></div>
+      <div class="breakdown-card"><div class="breakdown-num" id="res-wrong" style="color:var(--red)">0</div><div class="breakdown-label">Wrong</div></div>
+      <div class="breakdown-card"><div class="breakdown-num" id="res-time">0s</div><div class="breakdown-label">Time</div></div>
+    </div>
+    <div class="results-actions">
+      <button class="btn-outline" onclick="goHome()">← Home</button>
+      <button class="btn-outline" onclick="retryQuiz()">Retry</button>
+      <button class="btn-primary" onclick="nextRecommended()">Next quiz →</button>
+    </div>
+    <div class="review-list" id="review-list"></div>
+    <div style="margin-top:20px;background:var(--accent-light);border:1.5px solid var(--accent);border-radius:var(--radius-sm);padding:13px 16px;font-size:13px;color:var(--ink2);text-align:center;line-height:1.6">
+      💬 Want more questions on this topic? Email <a href="/cdn-cgi/l/email-protection#e6d4d6d5d68d8f8a8a87828785a687908988c88dd7d4c88592c89395" style="color:var(--accent);font-weight:600"><span class="__cf_email__" data-cfemail="a391939093c8cacfcfc2c7c2c0e3c2d5cccd8dc892918dc0d78dd6d0">[email&#160;protected]</span></a>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PASSWORD MODAL ══ -->
+<div class="modal-bg hidden" id="pw-modal-bg">
+  <div class="modal pw-modal">
+    <h3>🔒 Creator Access</h3>
+    <p>Enter the creator password to add questions to the platform. Questions you add will be shared with all users.</p>
+    <div class="form-row">
+      <label>Password</label>
+      <input type="password" id="pw-input" class="form-input" placeholder="Enter password..." onkeydown="if(event.key==='Enter')checkPassword()">
+    </div>
+    <div class="pw-error" id="pw-error">❌ Incorrect password. Please try again.</div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closePWModal()">Cancel</button>
+      <button class="modal-confirm" onclick="checkPassword()">Unlock →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD QUESTION MODAL ══ -->
+<div class="modal-bg hidden" id="addq-modal-bg">
+  <div class="modal add-q-modal">
+    <h3>➕ Add Question to Platform</h3>
+    <p>This question will be saved to Firebase and shared with all StudyPath users instantly.</p>
+
+    <div class="subject-quiz-row">
+      <div class="form-row" style="flex:1;margin-bottom:0">
+        <label>Subject</label>
+        <select id="aq-subject" class="form-input" onchange="aqSubjectChanged()"></select>
+      </div>
+      <div class="form-row" style="flex:1;margin-bottom:0">
+        <label>Quiz</label>
+        <select id="aq-quiz" class="form-input"></select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label>Question Type</label>
+      <select id="aq-type" class="form-input" onchange="aqToggleType()">
+        <option value="mcq">Multiple Choice (MCQ)</option>
+        <option value="short">Short Answer</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Question Text</label>
+      <textarea id="aq-question" class="form-input" rows="2" placeholder="Type the question..."></textarea>
+    </div>
+
+    <div id="aq-mcq-fields">
+      <div class="form-row">
+        <label>Options — click the radio button (●) to mark correct</label>
+        <div class="opt-inputs">
+          <div class="opt-row"><span class="opt-letter">A</span><input type="text" class="opt-input" id="aq-opt-0" placeholder="Option A"><input type="radio" name="aq-correct" value="0" class="opt-correct-radio" title="Mark as correct"></div>
+          <div class="opt-row"><span class="opt-letter">B</span><input type="text" class="opt-input" id="aq-opt-1" placeholder="Option B"><input type="radio" name="aq-correct" value="1" class="opt-correct-radio" title="Mark as correct"></div>
+          <div class="opt-row"><span class="opt-letter">C</span><input type="text" class="opt-input" id="aq-opt-2" placeholder="Option C"><input type="radio" name="aq-correct" value="2" class="opt-correct-radio" title="Mark as correct"></div>
+          <div class="opt-row"><span class="opt-letter">D</span><input type="text" class="opt-input" id="aq-opt-3" placeholder="Option D"><input type="radio" name="aq-correct" value="3" class="opt-correct-radio" title="Mark as correct"></div>
+        </div>
+        <div class="answer-hint">The radio button on the right of each row marks it as the correct answer</div>
+      </div>
+    </div>
+
+    <div id="aq-short-fields" class="hidden">
+      <div class="form-row">
+        <label>Correct Answer</label>
+        <input type="text" id="aq-short-answer" class="form-input" placeholder="Exact correct answer...">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label>Difficulty</label>
+      <select id="aq-difficulty" class="form-input">
+        <option value="easy">Easy</option>
+        <option value="medium" selected>Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Explanation (shown after answering)</label>
+      <textarea id="aq-explanation" class="form-input" rows="2" placeholder="Why is this the correct answer?"></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeAddQModal()">Cancel</button>
+      <button class="modal-confirm" id="aq-submit-btn" onclick="submitQuestion()">🚀 Add to Platform</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MANAGE MODAL (password protected, 6 tabs) ══ -->
+<div class="modal-bg hidden" id="manage-modal-bg">
+  <div class="modal" style="max-width:740px;max-height:90vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;position:sticky;top:0;background:var(--surface);z-index:10;padding-bottom:10px;border-bottom:1px solid var(--border)">
+      <h3 style="margin:0">⚙️ Creator Tools</h3>
+      <button class="modal-cancel" onclick="closeManageModal()" style="padding:6px 14px;font-size:13px;background:var(--ink);color:#fff;border-radius:8px">✕ Close</button>
+    </div>
+    <!-- Tabs — scrollable row -->
+    <div class="modal-tabs" style="overflow-x:auto;white-space:nowrap;display:flex;border-bottom:1px solid var(--border);margin-bottom:16px">
+      <button class="modal-tab active" id="mt-questions" onclick="switchManageTab('questions',this)">📝 Add Q</button>
+      <button class="modal-tab" id="mt-import" onclick="switchManageTab('import',this)">📥 Import JSON</button>
+      <button class="modal-tab" id="mt-manage-q" onclick="switchManageTab('manage-q',this)">🗑 Manage Q</button>
+      <button class="modal-tab" id="mt-subjects" onclick="switchManageTab('subjects',this)">📚 Subjects</button>
+      <button class="modal-tab" id="mt-quizzes" onclick="switchManageTab('quizzes',this)">🗂 Quizzes</button>
+      <button class="modal-tab" id="mt-notes" onclick="switchManageTab('notes',this)">📄 Notes</button>
+      <button class="modal-tab" id="mt-teach" onclick="switchManageTab('teach',this)">🧑‍🏫 Teach</button>
+    </div>
+
+    <!-- ── ADD QUESTION TAB (stays open after submit) ── -->
+    <div class="tab-panel active" id="manage-tab-questions">
+      <div style="background:var(--green-light);border:1px solid var(--green);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--green)">
+        ✅ This panel stays open so you can add multiple questions in a row. Click <strong>Close</strong> above when done.
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <div class="form-row" style="margin-bottom:0;flex:1;min-width:140px">
+          <label>Subject</label>
+          <select id="mq-add-subject" class="form-input" onchange="mqAddSubjectChanged()"></select>
+        </div>
+        <div class="form-row" style="margin-bottom:0;flex:1;min-width:140px">
+          <label>Quiz</label>
+          <select id="mq-add-quiz" class="form-input"></select>
+        </div>
+        <div class="form-row" style="margin-bottom:0;width:100px">
+          <label>Type</label>
+          <select id="mq-add-type" class="form-input" onchange="mqAddToggleType()">
+            <option value="mcq">MCQ</option>
+            <option value="short">Short</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Question</label>
+        <textarea id="mq-add-question" class="form-input" rows="2" placeholder="Enter the question..."></textarea>
+      </div>
+      <div id="mq-add-mcq-fields">
+        <div class="form-row">
+          <label>Options (● = correct answer)</label>
+          <div class="opt-inputs">
+            <div class="opt-row"><span class="opt-letter">A</span><input type="text" class="opt-input" id="mq-opt-0" placeholder="Option A"><input type="radio" name="mq-correct" value="0" class="opt-correct-radio"></div>
+            <div class="opt-row"><span class="opt-letter">B</span><input type="text" class="opt-input" id="mq-opt-1" placeholder="Option B"><input type="radio" name="mq-correct" value="1" class="opt-correct-radio"></div>
+            <div class="opt-row"><span class="opt-letter">C</span><input type="text" class="opt-input" id="mq-opt-2" placeholder="Option C"><input type="radio" name="mq-correct" value="2" class="opt-correct-radio"></div>
+            <div class="opt-row"><span class="opt-letter">D</span><input type="text" class="opt-input" id="mq-opt-3" placeholder="Option D"><input type="radio" name="mq-correct" value="3" class="opt-correct-radio"></div>
+          </div>
+        </div>
+      </div>
+      <div id="mq-add-short-fields" class="hidden">
+        <div class="form-row">
+          <label>Correct Answer</label>
+          <input type="text" id="mq-add-short" class="form-input" placeholder="Exact correct answer...">
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Explanation</label>
+        <textarea id="mq-add-explanation" class="form-input" rows="2" placeholder="Why is this the correct answer?"></textarea>
+      </div>
+      <div id="mq-add-status" style="font-size:13px;color:var(--green);margin-bottom:8px;min-height:20px"></div>
+      <button class="modal-confirm" id="mq-add-submit" onclick="submitQuestionFromManager()" style="width:100%;padding:12px;font-size:14px">🚀 Add Question (stays open)</button>
+    </div>
+
+    <!-- ── JSON IMPORT TAB ── -->
+    <div class="tab-panel" id="manage-tab-import">
+      <div style="background:var(--purple-light);border:1px solid var(--purple);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--purple);line-height:1.6">
+        <strong>How it works:</strong> Select the quiz you want to import into, paste a JSON array of questions, hit Import. Each question is saved to Firebase individually — exactly as if you added it manually. You can delete them one by one from the <em>Manage Q</em> tab.
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <div class="form-row" style="margin-bottom:0;flex:1;min-width:140px">
+          <label>Subject</label>
+          <select id="imp-subject" class="form-input" onchange="impSubjectChanged()"></select>
+        </div>
+        <div class="form-row" style="margin-bottom:0;flex:1;min-width:140px">
+          <label>Quiz</label>
+          <select id="imp-quiz" class="form-input"></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Paste JSON array of questions</label>
+        <textarea id="imp-json" class="form-input" rows="8" style="font-family:monospace;font-size:12px" placeholder='[
+  {
+    "type": "mcq",
+    "question": "What is 2+2?",
+    "options": ["1","2","3","4"],
+    "answer": 3,
+    "explanation": "Basic addition."
+  },
+  {
+    "type": "short",
+    "question": "What colour is the sky?",
+    "answer": "blue",
+    "explanation": "Blue due to Rayleigh scattering."
+  }
+]'></textarea>
+      </div>
+      <div id="imp-status" style="font-size:13px;min-height:20px;margin-bottom:8px"></div>
+      <button class="modal-confirm" id="imp-submit" onclick="importJSONQuestions()" style="width:100%;padding:12px;font-size:14px">📥 Import to Firebase</button>
+    </div>
+
+    <!-- ── MANAGE QUESTIONS TAB ── -->
+    <div class="tab-panel" id="manage-tab-manage-q">
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:flex-end">
+        <div class="form-row" style="margin-bottom:0;flex:1;min-width:140px">
+          <label>Subject</label>
+          <select id="mq-subject-sel" class="form-input" onchange="mqSubjectChanged()"></select>
+        </div>
+        <div class="form-row" style="margin-bottom:0;flex:1;min-width:140px">
+          <label>Quiz</label>
+          <select id="mq-quiz-sel" class="form-input" onchange="renderMQList()"></select>
+        </div>
+      </div>
+      <div id="mq-list" class="mq-list"></div>
+      <div style="margin-top:10px;font-size:12px;color:var(--ink3);text-align:center">
+        💡 Need more questions? Email <a href="/cdn-cgi/l/email-protection#b183818281dad8ddddd0d5d0d2f1d0c7dedf9fda80839fd2c59fc4c2" style="color:var(--accent);font-weight:600"><span class="__cf_email__" data-cfemail="d6e4e6e5e6bdbfbabab7b2b7b596b7a0b9b8f8bde7e4f8b5a2f8a3a5">[email&#160;protected]</span></a>
+      </div>
+    </div>
+
+    <!-- ── SUBJECTS TAB ── -->
+    <div class="tab-panel" id="manage-tab-subjects">
+      <p style="font-size:13px;color:var(--ink3);margin-bottom:12px">Click a subject to edit it. Delete removes the entire subject and all its quizzes.</p>
+      <div id="subject-edit-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px"></div>
+      <div style="background:var(--accent-light);border:1.5px solid var(--accent);border-radius:var(--radius-sm);padding:16px">
+        <div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:12px">➕ Create New Subject</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <div class="form-row" style="flex:1;min-width:130px;margin-bottom:0">
+            <label>Subject Name</label>
+            <input type="text" id="new-subj-name" class="form-input" placeholder="e.g. Biology">
+          </div>
+          <div class="form-row" style="flex:1;min-width:130px;margin-bottom:0">
+            <label>Description</label>
+            <input type="text" id="new-subj-desc" class="form-input" placeholder="Brief description...">
+          </div>
+        </div>
+        <div class="form-row" style="margin-top:10px;margin-bottom:0">
+          <label>Emoji Icon — <span id="new-subj-emoji-preview" style="font-size:20px">📗</span></label>
+          <div class="emoji-picker" id="new-subj-emoji-picker"></div>
+        </div>
+        <div class="form-row" style="margin-top:10px;margin-bottom:0">
+          <label>Colour</label>
+          <div class="color-swatches" id="new-subj-color-swatches"></div>
+        </div>
+        <button class="modal-confirm" style="margin-top:14px;width:100%" onclick="createNewSubject()">✓ Create Subject</button>
+      </div>
+    </div>
+
+    <!-- ── QUIZZES TAB ── -->
+    <div class="tab-panel" id="manage-tab-quizzes">
+      <p style="font-size:13px;color:var(--ink3);margin-bottom:12px">Create new quizzes or delete existing ones.</p>
+      <!-- Existing quizzes with delete -->
+      <div id="quiz-manage-list" style="display:flex;flex-direction:column;gap:7px;margin-bottom:16px;max-height:220px;overflow-y:auto"></div>
+      <!-- Create new quiz -->
+      <div style="background:var(--accent-light);border:1.5px solid var(--accent);border-radius:var(--radius-sm);padding:16px">
+        <div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:12px">➕ Create New Quiz</div>
+        <div class="form-row">
+          <label>Subject</label>
+          <select id="new-quiz-subject-sel" class="form-input"></select>
+        </div>
+        <div class="form-row">
+          <label>Quiz Name</label>
+          <input type="text" id="new-quiz-name" class="form-input" placeholder="e.g. Chapter 5 Review">
+        </div>
+        <div class="form-row">
+          <label>Description</label>
+          <input type="text" id="new-quiz-desc" class="form-input" placeholder="What's covered...">
+        </div>
+        <div class="form-row" style="margin-bottom:0">
+          <label>Difficulty</label>
+          <select id="new-quiz-diff" class="form-input">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
+        <button class="modal-confirm" style="margin-top:14px;width:100%" onclick="createNewQuiz()">✓ Create Quiz</button>
+      </div>
+    </div>
+
+    <!-- ── NOTES TAB ── -->
+    <div class="tab-panel" id="manage-tab-notes">
+      <p style="font-size:13px;color:var(--ink3);margin-bottom:12px">Edit, add, or delete subject notes. Notes appear on the Notes page for each quiz.</p>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <div class="form-row" style="margin-bottom:0;flex:1;min-width:160px">
+          <label>Subject</label>
+          <select id="notes-subject-sel" class="form-input" onchange="renderNotesEditor()"></select>
+        </div>
+      </div>
+      <div id="notes-editor-list" style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px"></div>
+      <!-- Add new note -->
+      <div style="background:var(--teal-light);border:1.5px solid var(--teal);border-radius:var(--radius-sm);padding:14px">
+        <div style="font-size:13px;font-weight:600;color:var(--teal);margin-bottom:10px">➕ Add New Note Section</div>
+        <div class="form-row">
+          <label>Note Title</label>
+          <input type="text" id="new-note-title" class="form-input" placeholder="e.g. Key Formulas">
+        </div>
+        <div class="form-row" style="margin-bottom:0">
+          <label>Note Content</label>
+          <textarea id="new-note-content" class="form-input" rows="4" placeholder="Write the note content..."></textarea>
+        </div>
+        <button class="modal-confirm" style="margin-top:12px;width:100%;background:var(--teal)" onclick="addNewNote()">✓ Add Note</button>
+      </div>
+    </div>
+
+    <!-- ── TEACH TAB ── -->
+    <div class="tab-panel" id="manage-tab-teach">
+      <p style="font-size:13px;color:var(--ink3);margin-bottom:12px">Edit Teach Mode concept cards. Each concept has a core explanation plus four style-specific versions (Visual, Auditory, Read/Write, Kinesthetic) and an optional practice question.</p>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <div class="form-row" style="margin-bottom:0;flex:1;min-width:160px">
+          <label>Subject</label>
+          <select id="teach-subject-sel" class="form-input" onchange="renderTeachEditor()"></select>
+        </div>
+      </div>
+      <div id="teach-editor-list" style="display:flex;flex-direction:column;gap:12px;margin-bottom:14px"></div>
+      <!-- Add new concept -->
+      <div style="background:var(--purple-light);border:1.5px solid var(--purple);border-radius:var(--radius-sm);padding:14px">
+        <div style="font-size:13px;font-weight:600;color:var(--purple);margin-bottom:10px">➕ Add New Teach Concept</div>
+        <div class="form-row"><label>Title</label><input type="text" id="new-teach-title" class="form-input" placeholder="e.g. Newton's Laws"></div>
+        <div class="form-row"><label>Core Explanation (shown to all)</label><textarea id="new-teach-core" class="form-input" rows="2" placeholder="The main explanation of the concept..."></textarea></div>
+        <div class="form-row"><label>👁️ Visual (diagram / ASCII art)</label><textarea id="new-teach-visual" class="form-input" rows="3" placeholder="ASCII diagram or visual description..."></textarea></div>
+        <div class="form-row"><label>🎧 Auditory (say aloud / discuss)</label><textarea id="new-teach-auditory" class="form-input" rows="2" placeholder="What to say aloud or discuss..."></textarea></div>
+        <div class="form-row"><label>✍️ Read/Write (notes / lists)</label><textarea id="new-teach-readwrite" class="form-input" rows="2" placeholder="Key terms to write, lists to make..."></textarea></div>
+        <div class="form-row"><label>🤲 Kinesthetic (do / apply)</label><textarea id="new-teach-kinesthetic" class="form-input" rows="2" placeholder="Hands-on activity or real-world example..."></textarea></div>
+        <div style="font-size:12px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;margin-top:4px">Practice Question (optional)</div>
+        <div class="form-row"><label>Practice Question</label><input type="text" id="new-teach-pq" class="form-input" placeholder="Quick practice question..."></div>
+        <div style="display:flex;gap:8px">
+          <div class="form-row" style="flex:1;margin-bottom:0"><label>Answer</label><input type="text" id="new-teach-pa" class="form-input" placeholder="Answer..."></div>
+          <div class="form-row" style="flex:1;margin-bottom:0"><label>Hint</label><input type="text" id="new-teach-ph" class="form-input" placeholder="Hint..."></div>
+        </div>
+        <button class="modal-confirm" style="margin-top:12px;width:100%;background:var(--purple)" onclick="addTeachConcept()">✓ Add Concept</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ SUBJECT EDIT MODAL ══ -->
+<div class="modal-bg hidden" id="subj-edit-modal-bg">
+  <div class="modal" style="max-width:440px">
+    <h3 style="margin-bottom:14px">✏️ Edit Subject</h3>
+    <input type="hidden" id="se-subj-idx">
+    <div class="form-row">
+      <label>Subject Name</label>
+      <input type="text" id="se-name" class="form-input">
+    </div>
+    <div class="form-row">
+      <label>Description</label>
+      <input type="text" id="se-desc" class="form-input">
+    </div>
+    <div class="form-row">
+      <label>Emoji Icon — <span id="se-emoji-preview" style="font-size:24px"></span></label>
+      <div class="emoji-picker" id="se-emoji-picker"></div>
+    </div>
+    <div class="form-row">
+      <label>Colour</label>
+      <div class="color-swatches" id="se-color-swatches"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeSubjEditModal()">Cancel</button>
+      <button class="modal-confirm" onclick="saveSubjectEdit()">✓ Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NOTE EDIT MODAL ══ -->
+<div class="modal-bg hidden" id="note-edit-modal-bg">
+  <div class="modal" style="max-width:500px">
+    <h3 style="margin-bottom:14px">✏️ Edit Note</h3>
+    <input type="hidden" id="ne-subj-idx">
+    <input type="hidden" id="ne-note-idx">
+    <div class="form-row">
+      <label>Note Title</label>
+      <input type="text" id="ne-title" class="form-input">
+    </div>
+    <div class="form-row" style="margin-bottom:0">
+      <label>Content</label>
+      <textarea id="ne-content" class="form-input" rows="6"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeNoteEditModal()">Cancel</button>
+      <button class="modal-confirm" onclick="saveNoteEdit()">✓ Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TEACH CONCEPT EDIT MODAL ══ -->
+<div class="modal-bg hidden" id="teach-edit-modal-bg">
+  <div class="modal" style="max-width:600px;max-height:88vh;overflow-y:auto">
+    <h3 style="margin-bottom:14px">✏️ Edit Teach Concept</h3>
+    <input type="hidden" id="tce-subj-key">
+    <input type="hidden" id="tce-concept-idx">
+    <div class="form-row"><label>Title</label><input type="text" id="tce-title" class="form-input"></div>
+    <div class="form-row"><label>Core Explanation</label><textarea id="tce-core" class="form-input" rows="3"></textarea></div>
+    <div class="form-row"><label>👁️ Visual</label><textarea id="tce-visual" class="form-input" rows="3"></textarea></div>
+    <div class="form-row"><label>🎧 Auditory</label><textarea id="tce-auditory" class="form-input" rows="3"></textarea></div>
+    <div class="form-row"><label>✍️ Read/Write</label><textarea id="tce-readwrite" class="form-input" rows="3"></textarea></div>
+    <div class="form-row"><label>🤲 Kinesthetic</label><textarea id="tce-kinesthetic" class="form-input" rows="3"></textarea></div>
+    <div style="font-size:12px;font-weight:600;color:var(--ink3);text-transform:uppercase;margin-bottom:8px">Practice Question</div>
+    <div class="form-row"><label>Question</label><input type="text" id="tce-pq" class="form-input"></div>
+    <div style="display:flex;gap:8px">
+      <div class="form-row" style="flex:1;margin-bottom:0"><label>Answer</label><input type="text" id="tce-pa" class="form-input"></div>
+      <div class="form-row" style="flex:1;margin-bottom:0"><label>Hint</label><input type="text" id="tce-ph" class="form-input"></div>
+    </div>
+    <div class="modal-actions" style="margin-top:14px">
+      <button class="modal-cancel" onclick="closeTeachEditModal()">Cancel</button>
+      <button class="modal-confirm" onclick="saveTeachConceptEdit()">✓ Save</button>
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ══════════════════════════════════════
+// LEARNER STYLE DATA
+// ══════════════════════════════════════
+var LS = {
+  visual:{name:"Visual Learner",icon:"👁️",color:"#4f63f7",bg:"#eceffe",tag:"👁️ Visual",
+    desc:"You learn best by seeing. Diagrams, charts, colour-coding, and visual patterns help you understand and remember concepts.",
+    traits:[{t:"📊 Draw diagrams",d:"Make mind-maps and flow charts when studying."},{t:"🎨 Colour code",d:"Use different colours for different topics."},{t:"📺 Watch videos",d:"Visual media and animated explanations work great."},{t:"📐 Visualise",d:"Picture processes as diagrams in your mind."}],
+    contextPrompt:"Picture this as a diagram or chart in your mind before answering.",
+    expTip:"Try drawing the key concept from this question in your notes to help it stick.",
+    styleBlock:"visual"},
+  auditory:{name:"Auditory Learner",icon:"🎧",color:"#7c3aed",bg:"#ede9fe",tag:"🎧 Auditory",
+    desc:"You learn best through listening and speaking. Explaining things aloud and rhythmic patterns help ideas stick.",
+    traits:[{t:"🗣️ Talk it out",d:"Explain topics aloud to yourself or others."},{t:"🎵 Make rhymes",d:"Turn facts into mnemonics or songs."},{t:"👥 Study groups",d:"Discussion and debate help you process information."},{t:"🔊 Read aloud",d:"Read your notes aloud when reviewing."}],
+    contextPrompt:"Say the question aloud to yourself before choosing your answer.",
+    expTip:"Try explaining this concept aloud in your own words — to yourself or someone else!",
+    styleBlock:"auditory"},
+  readwrite:{name:"Reading/Writing Learner",icon:"✍️",color:"#0891b2",bg:"#e0f7fa",tag:"✍️ Read/Write",
+    desc:"You learn best through reading and writing. Taking detailed notes, making lists, and writing summaries helps information click.",
+    traits:[{t:"📝 Take notes",d:"Write detailed notes in your own words."},{t:"📋 Make lists",d:"Organise information into numbered lists."},{t:"📖 Read widely",d:"Textbooks and written resources are your friends."},{t:"✏️ Rewrite",d:"Rewriting key facts from memory is a powerful study tool."}],
+    contextPrompt:"Read the question carefully — re-read if needed — then answer.",
+    expTip:"Write this explanation in your own words on paper to cement it.",
+    styleBlock:"readwrite"},
+  kinesthetic:{name:"Kinesthetic Learner",icon:"🤲",color:"#ea580c",bg:"#fff0e8",tag:"🤲 Hands-On",
+    desc:"You learn best by doing. Real examples, practice problems, and applying knowledge in realistic scenarios work best.",
+    traits:[{t:"🔨 Practice problems",d:"Do as many practice examples as possible."},{t:"🌍 Real examples",d:"Connect every concept to a real-world application."},{t:"🔄 Trial & error",d:"Trying things and learning from mistakes is how you grow."},{t:"⏱️ Short sessions",d:"Short, active study sessions beat long passive ones."}],
+    contextPrompt:"Think about where you've seen this in real life before answering.",
+    expTip:"Can you think of a real-world example of this concept? Connecting it to something tangible will help you remember.",
+    styleBlock:"kinesthetic"}
+};
+
+// ══════════════════════════════════════
+// LEARNER STYLE QUIZ
+// ══════════════════════════════════════
+var LQ=[
+  {q:"When you need to learn something new, you prefer to:",opts:[{t:"Watch a video or look at diagrams",s:"visual"},{t:"Listen to someone explain it",s:"auditory"},{t:"Read about it carefully and take notes",s:"readwrite"},{t:"Try it yourself through hands-on practice",s:"kinesthetic"}]},
+  {q:"When you remember a past trip or event, what stands out most?",opts:[{t:"The sights — what things looked like",s:"visual"},{t:"The sounds — music, voices, conversations",s:"auditory"},{t:"What you read or wrote about it",s:"readwrite"},{t:"What you did — the activities and experiences",s:"kinesthetic"}]},
+  {q:"You get a new device. You're most likely to:",opts:[{t:"Look at the diagrams and pictures in the manual",s:"visual"},{t:"Ask someone to explain how it works",s:"auditory"},{t:"Read the instructions thoroughly",s:"readwrite"},{t:"Just start pressing buttons and figure it out",s:"kinesthetic"}]},
+  {q:"When you're bored in class, you tend to:",opts:[{t:"Doodle patterns or draw pictures",s:"visual"},{t:"Hum quietly or tap a rhythm",s:"auditory"},{t:"Write notes or make lists",s:"readwrite"},{t:"Fidget, tap your feet, or want to move",s:"kinesthetic"}]},
+  {q:"You find it easiest to follow directions when they are:",opts:[{t:"Shown on a map or diagram",s:"visual"},{t:"Spoken aloud to you",s:"auditory"},{t:"Written step-by-step",s:"readwrite"},{t:"Walked through so you can follow along",s:"kinesthetic"}]},
+  {q:"When studying for a test, your go-to method is:",opts:[{t:"Drawing diagrams and mind maps",s:"visual"},{t:"Reading aloud or explaining to someone",s:"auditory"},{t:"Rewriting notes or making flashcards",s:"readwrite"},{t:"Doing practice problems over and over",s:"kinesthetic"}]},
+  {q:"After a class, you best remember:",opts:[{t:"What was drawn on the board or shown in slides",s:"visual"},{t:"What the teacher said — tone and words",s:"auditory"},{t:"What you wrote in your notes",s:"readwrite"},{t:"Any activities or examples that were demonstrated",s:"kinesthetic"}]},
+  {q:"When a friend gives you instructions for a game, you prefer they:",opts:[{t:"Draw it out or show you a diagram",s:"visual"},{t:"Explain the rules verbally",s:"auditory"},{t:"Write out the rules for you to read",s:"readwrite"},{t:"Show you by playing a practice round",s:"kinesthetic"}]}
+];
+
+// ══════════════════════════════════════
+// TEACH MODE CONTENT
+// ══════════════════════════════════════
+var TEACH = {
+  "Science":{concepts:[
+    {title:"What is Magnetism?",
+     core:"Magnetism is a force of attraction or repulsion caused by magnetic materials. Magnets have two poles (North and South). Opposite poles attract; like poles repel. The area where magnetic force acts is called the magnetic field, mapped by invisible field lines running from North to South pole.",
+     visual:"N pole ──field lines──→ S pole\n(lines close together = stronger field)\n\nOpposite poles: N→←S  (ATTRACT ✓)\nLike poles:     N→ →N  (REPEL ✗)",
+     auditory:"Say aloud: 'North and South attract — like poles push back!' Think of magnets as people: opposites get along, but people too similar clash. Repeat: 'Field lines go from North to South, always finding their way out!'",
+     readwrite:"Key vocabulary:\n• Magnetism: force of attraction/repulsion by magnetic materials\n• Pole: where strength is greatest (North or South)\n• Magnetic field: region where force is applied\n• Field lines: invisible lines from N to S showing field shape\n• Lodestone: naturally magnetic rock (magnetite)\nRewrite from memory.",
+     kinesthetic:"Try this: hold two magnets with same poles facing. Feel the invisible push! Now flip one — feel it snap together. That's the magnetic field. Field lines flow from N to S — try to trace them with iron filings if available.",
+     practice:{q:"What happens when two north poles of magnets are brought close together?",a:"They repel",hint:"Like poles repel, opposite poles attract."}},
+    {title:"Inside a Magnet — Domains",
+     core:"The magnetic properties of materials come from electrons and their 'spin.' In most materials, paired electrons cancel out. Ferromagnetic materials (iron, nickel, cobalt) have atoms that form magnetic domains. When domains align, the object becomes magnetised. Striking or heating a magnet randomises domains and destroys magnetism.",
+     visual:"UNMAGNETISED: ↑↓ ↓↑ ↑↓ ↓↑ (random — cancel)\nMAGNETISED:   ↑  ↑  ↑  ↑  (aligned — strong magnet!)\n\nFerromagnetic: Fe(iron), Ni(nickel), Co(cobalt), Gd, Sm, Nd",
+     auditory:"Explain aloud: 'Domains are tiny magnets inside a material. When they all point the same way — BANG — you have a magnet. Heat or shock mixes them up and the magnet dies.' Tell a partner what ferromagnetic means.",
+     readwrite:"Write these facts:\n1. Electrons 'spin' — makes them tiny magnets\n2. Domains = regions where atoms' fields align\n3. Ferromagnetic: iron (Fe), nickel (Ni), cobalt (Co)\n4. Alnico = aluminum + nickel + iron + cobalt alloy\n5. Destroy a magnet: strike or heat it\n6. Break a magnet: makes 2 smaller magnets (each has N & S)",
+     kinesthetic:"Hit a magnet repeatedly — it loses magnetism! Or rub an iron nail with a magnet pole (one direction only) repeatedly — the nail becomes a temporary magnet. You just aligned its domains!",
+     practice:{q:"What happens to a material's magnetic properties when its domains align?",a:"It becomes magnetised",hint:"Aligned domains create a net magnetic field."}},
+    {title:"Electromagnetism — Oersted's Discovery",
+     core:"In 1820, Hans Christian Oersted discovered that an electric current creates a magnetic field. This is electromagnetism. The field can be turned on/off (with current), reversed (reverse current), and strengthened by adding coils (solenoid) or inserting a ferromagnetic core (electromagnet).",
+     visual:"Straight wire → weak, circular field\n     ↓ coil into loops\nSolenoid → stronger bar-magnet-like field\n     ↓ add iron core\nElectromagnet → MUCH stronger field\n\nMore coils + more current = stronger electromagnet",
+     auditory:"Chant: 'Current ON — field ON! Current OFF — field OFF! Reverse current — reverse field!' Explain to a partner why a junkyard crane uses an electromagnet (not a permanent magnet) to lift AND DROP cars.",
+     readwrite:"Definitions:\n• Electromagnetism: relationship between electricity and magnetism\n• Solenoid: current-carrying coil of wire\n• Electromagnet: solenoid + ferromagnetic core = strong, controllable magnet\n• To increase strength: add coils, pack coils closer, increase current, use stronger core\n• Uses: cranes, doorbells, hard drives, credit cards, phones",
+     kinesthetic:"Build one: wrap wire around an iron nail many times, connect to a battery. Pick up paper clips — you just made an electromagnet! Add more coils — does it get stronger? Disconnect the battery — what happens?",
+     practice:{q:"What is the name for a current-carrying coil of wire that produces a magnetic field?",a:"Solenoid",hint:"Adding a ferromagnetic core makes it an electromagnet."}},
+    {title:"Motors & Generators",
+     core:"An electric motor converts electrical energy into mechanical energy using a rotating electromagnet (armature) between permanent magnets. A generator does the opposite — converting motion into electricity (electromagnetic induction, discovered by Faraday and Henry in 1831). Transformers use induction to increase (step-up) or decrease (step-down) voltage.",
+     visual:"MOTOR:     Electricity → Motion (uses current, produces spin)\nGENERATOR: Motion → Electricity (uses spin, produces current)\n\nTransformer:\nMore secondary coils → voltage UP (step-UP)\nFewer secondary coils → voltage DOWN (step-DOWN)",
+     auditory:"Remember the opposites aloud: 'Motor in, generator out — what goes in one comes out the other route!' For transformers: 'More coils going in, voltage steps up! Fewer coils going out, voltage steps down!'",
+     readwrite:"Comparison:\n• Motor: electrical energy → mechanical energy\n• Generator: mechanical energy → electrical energy\n• Electromagnetic induction: changing field induces current\n• Step-UP transformer: more secondary coils → higher voltage\n• Step-DOWN transformer: fewer secondary coils → lower voltage\n• Transformers ONLY work with AC (not DC)",
+     kinesthetic:"Your phone charger has a step-down transformer inside — 120V from wall → ~5V for your phone. Your microwave has a step-up transformer. Look at devices around you — which need high voltage vs low?",
+     practice:{q:"What is it called when a changing magnetic field induces an electric current in a conductor?",a:"Electromagnetic induction",hint:"Faraday and Henry discovered this in 1831."}}
+  ]}
+};
+
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+var ST={
+  subjects:[],progress:{},activity:[],
+  xp:0,streak:0,totalAnswered:0,totalCorrect:0,totalQuizzes:0,
+  session:null,currentQ:0,answers:[],
+  timerInterval:null,elapsed:0,answered:false,
+  currentSubject:null,currentQuiz:null,
+  infiniteMode:false,infPool:[],infIdx:0,
+  learnerStyle:null,lqAnswers:[],lqCurrentQ:0,
+  activeSubjectIdx:null,notesSubjectIdx:null,notesQuizIdx:null,
+  teachSubjectIdx:null,teachQuizIdx:null,teachConceptIdx:0,teachConcepts:[],
+  unlocked:false
+};
+
+function lsg(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function lss(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+
+try{ST.progress=JSON.parse(lsg('sp_progress')||'{}');}catch(e){}
+try{ST.activity=JSON.parse(lsg('sp_activity')||'[]');}catch(e){}
+ST.xp=+lsg('sp_xp')||0; ST.streak=+lsg('sp_streak')||0;
+ST.totalAnswered=+lsg('sp_answered')||0; ST.totalCorrect=+lsg('sp_correct')||0;
+ST.totalQuizzes=+lsg('sp_quizzes')||0;
+ST.learnerStyle=lsg('sp_learner_style')||null;
+
+// ══════════════════════════════════════
+// DEFAULT DATA
+// ══════════════════════════════════════
+var DEFAULT_DATA=[
+{subject:"Math",icon:"➗",color:"#4f63f7",description:"Algebra, geometry, calculus and more",
+ notes:[{title:"Key Concepts",content:"Algebra uses variables to represent unknown values. Geometry studies shapes. Calculus deals with rates of change."},{title:"Formulas",content:"Area of circle = πr² | Perimeter of square = 4s | Slope = rise/run (y=mx+b) | a²+b²=c²"}],
+ quizzes:[
+  {name:"Algebra Basics",difficulty:"easy",description:"Equations, variables and expressions",questions:[
+    {type:"mcq",question:"What is the value of x if 2x + 4 = 10?",options:["x = 2","x = 3","x = 4","x = 5"],answer:1,explanation:"2x = 10 - 4 = 6, so x = 3."},
+    {type:"mcq",question:"Simplify: 3(x + 4) − 2x",options:["x + 4","x + 12","5x + 12","x + 8"],answer:1,explanation:"3x + 12 − 2x = x + 12."},
+    {type:"mcq",question:"Which is a quadratic equation?",options:["3x + 1 = 0","x² + 2x − 3 = 0","2x³ = 8","5x = 10"],answer:1,explanation:"A quadratic has highest power of 2."},
+    {type:"short",question:"What is the slope of y = 4x − 7?",answer:"4",explanation:"In y = mx + b, m is the slope. Here m = 4."},
+    {type:"mcq",question:"If f(x) = x² − 1, what is f(3)?",options:["6","7","8","9"],answer:2,explanation:"f(3) = 9 − 1 = 8."}
+  ]},
+  {name:"Geometry",difficulty:"medium",description:"Shapes, angles, area and perimeter",questions:[
+    {type:"mcq",question:"Area of a circle with radius 5?",options:["10π","25π","15π","50π"],answer:1,explanation:"Area = πr² = 25π."},
+    {type:"mcq",question:"Sum of interior angles of a triangle?",options:["90°","180°","270°","360°"],answer:1,explanation:"All triangles sum to exactly 180°."},
+    {type:"short",question:"Perimeter of a square with side 7cm?",answer:"28",explanation:"Perimeter = 4 × 7 = 28 cm."},
+    {type:"mcq",question:"Triangle with legs 3 and 4 — hypotenuse?",options:["5","6","7","√7"],answer:0,explanation:"√(9+16) = √25 = 5."}
+  ]}
+]},
+{subject:"Science",icon:"🔬",color:"#16a34a",description:"Physics, chemistry, electricity, magnetism and electromagnetism",
+ notes:[
+  {title:"Magnetism (Ch. 19)",content:"Magnetism is a force of attraction or repulsion. Magnets have North and South poles. Opposite poles attract, like poles repel. Ferromagnetic: iron, nickel, cobalt. Domains align to form magnets. Earth's field: caused by iron/nickel in core. Geographic North = magnetic South. Magnetosphere deflects solar wind → auroras."},
+  {title:"Electromagnetism (Ch. 21)",content:"Oersted (1820): current creates magnetic field. Solenoid = coiled wire → stronger field. Electromagnet = solenoid + iron core. Motor: electricity → motion. Generator: motion → electricity (Faraday & Henry, 1831). Transformer: step-up = more secondary coils; step-down = fewer. AC used in homes."},
+  {title:"Electricity (Ch. 20)",content:"Ohm's Law: V = IR. Current (I) in Amperes. Voltage (V) in Volts. Resistance (R) in Ohms. Series: one path. Parallel: multiple paths. Power P = VI."}
+ ],
+ quizzes:[
+  {name:"Magnetism (Ch. 19)",difficulty:"medium",description:"Magnetic fields, poles, domains and Earth's magnetism — 40 questions",questions:[
+    {type:"mcq",question:"Where was magnetism first discovered by the Greeks?",options:["Athens","Magnesia","Sparta","Troy"],answer:1,explanation:"Magnetism was discovered in Magnesia (now Turkey), giving the force its name."},
+    {type:"mcq",question:"What is magnetism?",options:["Force of gravity","Force of attraction or repulsion caused by magnetic materials","Electrical charge in a battery","Energy from chemical reactions"],answer:1,explanation:"Magnetism is the force of attraction or repulsion caused by magnetic materials."},
+    {type:"mcq",question:"Naturally magnetic rocks were called:",options:["Ferrites","Alnico","Lodestones","Solenoids"],answer:2,explanation:"Magnetic rocks were called lodestones because they pointed toward the North Star (the 'lodestar')."},
+    {type:"mcq",question:"How many poles does every magnet have?",options:["One","Two","Three","Four"],answer:1,explanation:"Every magnet has two poles — North and South."},
+    {type:"mcq",question:"Which poles attract each other?",options:["North and North","South and South","North and South","None"],answer:2,explanation:"Opposite poles attract; like poles repel."},
+    {type:"mcq",question:"Magnetic field lines point from:",options:["South to North","North to South","Random directions","In circles"],answer:1,explanation:"Field line arrows point from North pole to South pole."},
+    {type:"mcq",question:"Where is a magnet's field strongest?",options:["At the centre","Where lines are spread out","Where lines are concentrated","Equally everywhere"],answer:2,explanation:"Strongest where field lines are closest together — at the poles."},
+    {type:"mcq",question:"How can you make magnetic field lines visible?",options:["Using a voltmeter","Iron filings sprinkled around the magnet","Using coloured dye","Using a compass only"],answer:1,explanation:"Iron filings align with field lines, making them visible."},
+    {type:"mcq",question:"What gives electrons their magnetic behaviour?",options:["Mass","Spin","Only charge","Gravity"],answer:1,explanation:"Electrons have a property called 'spin' that makes them behave like tiny magnets."},
+    {type:"mcq",question:"Why do most atoms lack strong magnetic properties?",options:["Too many electrons","Paired electrons' opposite spins cancel out","Too small","Nuclei repel magnetism"],answer:1,explanation:"Paired electrons cancel each other's magnetic fields."},
+    {type:"mcq",question:"A region where many atoms' magnetic fields align is called a:",options:["Solenoid","Magnetic domain","Van Allen belt","Lodestone"],answer:1,explanation:"Magnetic domains are regions where atoms' fields align collectively."},
+    {type:"mcq",question:"An object becomes magnetised when:",options:["Electrons gain extra spin","Groups of domains align","It reaches 0°C","Protons line up"],answer:1,explanation:"When groups of domains align, the object becomes magnetised."},
+    {type:"mcq",question:"The term for materials like iron, nickel, cobalt that can become strong magnets is:",options:["Diamagnetic","Paramagnetic","Ferromagnetic","Electromagnetic"],answer:2,explanation:"Ferromagnetic materials can be made into strong magnets."},
+    {type:"mcq",question:"What is alnico made of?",options:["Aluminum, lead, nickel, cobalt","Aluminum, nickel, iron, cobalt","Argon, nitrogen, iodine, calcium","Antimony, nitrogen, iron, copper"],answer:1,explanation:"Alnico = aluminum + nickel + iron + cobalt."},
+    {type:"mcq",question:"Ferrite magnets are NOT:",options:["Ceramic","Strong and cheap","Flexible and bendy","Brittle"],answer:2,explanation:"Ferrite magnets are brittle, not flexible."},
+    {type:"mcq",question:"How do you magnetise a ferromagnetic material?",options:["Cool it in ice","Expose to strong magnetic field or rub with a magnetic pole","Strike it","Heat to 200°C"],answer:1,explanation:"Exposure to strong fields or rubbing with a pole aligns domains."},
+    {type:"mcq",question:"A material that quickly loses its magnetism is a:",options:["Permanent magnet","Ferrite","Temporary magnet","Lodestone"],answer:2,explanation:"Temporary magnets lose magnetism easily."},
+    {type:"mcq",question:"Which actions can destroy a magnet?",options:["Cooling and painting","Striking and heating","Wetting and bending","Cutting and rubbing"],answer:1,explanation:"Striking or heating randomises domains, destroying magnetism."},
+    {type:"mcq",question:"Breaking a magnet in half creates:",options:["One magnet and one plain piece","Two pieces with no poles","Two magnets each with N and S poles","Destroys all magnetism"],answer:2,explanation:"Each piece retains aligned domains — still a complete magnet."},
+    {type:"mcq",question:"What causes Earth's magnetic field?",options:["Moon's rotation","Iron and nickel motion in Earth's core","Solar radiation","Weight of Earth's crust"],answer:1,explanation:"Motion of iron and nickel in the liquid outer core creates Earth's field."},
+    {type:"mcq",question:"A compass works by:",options:["Detecting electric charges","Aligning with Earth's gravity","Aligning with Earth's magnetic field","Pointing toward the sun"],answer:2,explanation:"A compass is a small magnet that aligns with Earth's magnetic field."},
+    {type:"mcq",question:"The geographic North Pole is actually a magnetic:",options:["North pole","South pole","Neutral zone","Van Allen belt"],answer:1,explanation:"The geographic North Pole is a magnetic south pole — that's why a compass north points there."},
+    {type:"short",question:"What is the angular difference between geographic north and magnetic north called?",answer:"Magnetic declination",explanation:"Magnetic declination must be accounted for when using a compass."},
+    {type:"mcq",question:"A compass is most accurate near the:",options:["North Pole","Equator","South Pole","High altitude"],answer:1,explanation:"Compasses are generally more accurate near the equator."},
+    {type:"mcq",question:"What do mid-ocean ridge rocks reveal about Earth's magnetic field?",options:["It has always pointed the same way","It has reversed many times","It is getting stronger","It has no effect on rocks"],answer:1,explanation:"Mid-ocean ridge rocks show Earth's field has reversed many times."},
+    {type:"mcq",question:"When was Earth's most recent major magnetic field reversal?",options:["10,000 years ago","78,000 years ago","780,000 years ago","7.8 million years ago"],answer:2,explanation:"The most recent lasting reversal was approximately 780,000 years ago."},
+    {type:"mcq",question:"The magnetosphere is the region where:",options:["Earth's magnetic field lines run","Van Allen belts exist","Solar wind is deflected","All of the above"],answer:3,explanation:"The magnetosphere is all of these — field lines, Van Allen belts, and solar wind deflection."},
+    {type:"mcq",question:"The solar wind is:",options:["Strong winds from solar heating","A stream of charged particles from the sun","Radiation in Van Allen belts","Invisible magnetic waves"],answer:1,explanation:"The solar wind is a stream of electrons and protons from the sun."},
+    {type:"mcq",question:"Van Allen belts are:",options:["Rock bands in Earth's core","Doughnut-shaped radiation regions in the magnetosphere","Earth's orbital path","Atmospheric UV shields"],answer:1,explanation:"Van Allen belts are doughnut-shaped regions of high-velocity particles in the magnetosphere."},
+    {type:"mcq",question:"What causes the aurora borealis?",options:["Sunlight off ice","Interactions between solar particles and Earth's magnetic field","Light from distant stars","Volcanic gas release"],answer:1,explanation:"Auroras are caused by interactions between solar wind particles and Earth's magnetic field."},
+    {type:"mcq",question:"The aurora australis is the:",options:["Northern lights","Southern lights","Solar wind","Van Allen radiation"],answer:1,explanation:"Aurora australis = southern lights."},
+    {type:"mcq",question:"Earth's magnetic field deflects:",options:["Gravity from the moon","Charged particles from the sun (solar wind)","Light from stars","Heat from Earth's core"],answer:1,explanation:"Earth's magnetosphere deflects the solar wind."},
+    {type:"mcq",question:"The sun's magnetic field plays a role in:",options:["Earth's tides","The sunspot cycle","Formation of the moon","Earth's rotation"],answer:1,explanation:"The sun's magnetic field is thought to play a role in the sunspot cycle."},
+    {type:"mcq",question:"Do other planets have magnetic fields?",options:["No — only Earth","Yes — other planets and the sun do","Only gas giants","Only the moon"],answer:1,explanation:"Other planets and even the sun have magnetic fields."},
+    {type:"short",question:"What type of rock at the mid-ocean ridge provides evidence of Earth's past field reversals?",answer:"Igneous rock",explanation:"Rocks formed from molten (igneous) material record the magnetic field orientation when they solidified."},
+    {type:"mcq",question:"Why does iron left in one position for a long time become magnetised?",options:["Iron generates electricity","Earth's field slowly aligns the iron's domains","Heat from Earth's core magnetises it","Gravity forces electron alignment"],answer:1,explanation:"Earth's large magnetic field slowly aligns iron's domains."},
+    {type:"mcq",question:"Magnetic force is the attraction or repulsion between:",options:["Like charges","Magnetic poles","Neutral objects","Electrons only"],answer:1,explanation:"Magnetic force is the attraction or repulsion between magnetic poles."},
+    {type:"mcq",question:"The mineral naturally found in Magnesia that is magnetic is called:",options:["Alnico","Magnetite","Cobalt","Lodestone ore"],answer:1,explanation:"Magnetite is the naturally magnetic mineral found in Magnesia."},
+    {type:"mcq",question:"Which ferromagnetic element has the Latin name 'ferrum'?",options:["Cobalt","Nickel","Iron","Gadolinium"],answer:2,explanation:"Ferrum is the Latin name for iron (symbol Fe), which is why these materials are called 'ferromagnetic.'"},
+    {type:"mcq",question:"What happens to the shape of Earth's magnetosphere?",options:["It stays perfectly round","Solar wind affects its shape","It shrinks over time","Gravity controls its shape"],answer:1,explanation:"The stream of charged particles from the sun (solar wind) affects and distorts the shape of Earth's magnetosphere."}
+  ]},
+  {name:"Electromagnetism (Ch. 21)",difficulty:"medium",description:"Electromagnets, motors, generators and transformers — 40 questions",questions:[
+    {type:"mcq",question:"Who discovered in 1820 that electric current creates a magnetic field?",options:["Michael Faraday","Nikola Tesla","Hans Christian Oersted","Joseph Henry"],answer:2,explanation:"Hans Christian Oersted discovered in 1820 that a current-carrying wire deflects a compass needle."},
+    {type:"mcq",question:"What is electromagnetism?",options:["Electricity stored in a magnetic material","The relationship between electricity and magnetism","A type of permanent magnet","Gravity on charged particles"],answer:1,explanation:"Electromagnetism is the relationship between electricity and magnetism."},
+    {type:"mcq",question:"How can you turn a current-generated magnetic field ON or OFF?",options:["Change wire material","Switch the current on or off","Heat the wire","Reverse wire position"],answer:1,explanation:"Switching the current on/off turns the magnetic field on/off."},
+    {type:"mcq",question:"How do you reverse the direction of the magnetic field in a wire?",options:["Add more loops","Reverse the direction of the electric current","Change wire thickness","Add an iron core"],answer:1,explanation:"Reversing the current direction reverses the magnetic field direction."},
+    {type:"mcq",question:"What is a solenoid?",options:["A permanent bar magnet","A current-carrying coil of wire","A type of battery","An iron core inside a motor"],answer:1,explanation:"A solenoid is a current-carrying coil of wire that produces a stronger magnetic field."},
+    {type:"mcq",question:"Why does twisting wire into a solenoid make the field stronger?",options:["It increases voltage","It concentrates the magnetic field","It reduces resistance","It produces DC"],answer:1,explanation:"Looping wire concentrates the magnetic field, making it stronger."},
+    {type:"mcq",question:"What is an electromagnet?",options:["A natural permanent magnet","A solenoid with a ferromagnetic core inside","A battery connected to a magnet","A type of generator"],answer:1,explanation:"An electromagnet is a solenoid with a ferromagnetic core — strong, temporary, and controllable."},
+    {type:"mcq",question:"Which of these would INCREASE the strength of an electromagnet?",options:["Remove the iron core","Reduce the current","Add more coils to the solenoid","Use a shorter wire"],answer:2,explanation:"Adding more coils concentrates the field, increasing strength."},
+    {type:"mcq",question:"Electromagnets are used in junkyard cranes because they can:",options:["Lift anything regardless of material","Be turned on to lift and off to drop magnetic metals","Generate electricity from scrap","Permanently magnetise scrap"],answer:1,explanation:"Turning the current on lifts and turning it off drops the metal."},
+    {type:"mcq",question:"Which is NOT a listed application of electromagnets?",options:["Doorbells","Car starters","Solar panels","Credit cards"],answer:2,explanation:"Solar panels are not listed. Doorbells, car starters, credit cards, and hard drives are."},
+    {type:"mcq",question:"What energy conversion does an electric motor perform?",options:["Mechanical → electrical","Chemical → light","Electrical → mechanical","Thermal → electrical"],answer:2,explanation:"An electric motor converts electrical energy into mechanical energy."},
+    {type:"mcq",question:"The rotating electromagnet inside an electric motor is called the:",options:["Commutator","Brush","Armature","Solenoid"],answer:2,explanation:"The armature is the rotating electromagnet inside an electric motor."},
+    {type:"mcq",question:"In an AC electric motor, what keeps the armature spinning?",options:["A commutator switches the current","AC current naturally changes direction, reversing armature poles","Friction between brushes and commutator","Permanent magnets push without stopping"],answer:1,explanation:"AC current reverses naturally, reversing armature poles so it is alternately attracted and repelled."},
+    {type:"mcq",question:"In a DC electric motor, what device reverses current to keep the armature spinning?",options:["Slip rings","The solenoid","The commutator","The iron core"],answer:2,explanation:"A commutator continuously switches current direction in DC motors."},
+    {type:"mcq",question:"What are 'brushes' in a DC motor?",options:["Cleaning tools","Parts that make electrical contact with the rotating commutator","The permanent magnets","Coils of wire around the armature"],answer:1,explanation:"Brushes make electrical contact with the rotating commutator."},
+    {type:"mcq",question:"A galvanometer is a device that:",options:["Generates electricity from magnetism","Measures current strength and direction","Transforms voltage","Stores electrical energy"],answer:1,explanation:"A galvanometer uses electromagnetism to measure current strength and direction."},
+    {type:"mcq",question:"Who independently discovered electromagnetic induction in 1831?",options:["Oersted and Tesla","Faraday and Henry","Edison and Tesla","Newton and Faraday"],answer:1,explanation:"Michael Faraday and Joseph Henry both independently discovered electromagnetic induction in 1831."},
+    {type:"mcq",question:"Electromagnetic induction is the generation of electric current from:",options:["A chemical reaction","Motion of a conductor through a changing magnetic field","Heat applied to a wire","Two magnets touching"],answer:1,explanation:"Moving a conductor through a changing magnetic field induces an electric current."},
+    {type:"mcq",question:"The current generated by electromagnetic induction is called:",options:["Direct current","Induced current","Alternating current","Static current"],answer:1,explanation:"The current generated by electromagnetic induction is called induced current."},
+    {type:"mcq",question:"If the motion of the magnet or wire is repeatedly reversed, what type of current is produced?",options:["Direct current (DC)","Static current","Alternating current (AC)","Induced current"],answer:2,explanation:"Repeatedly reversing motion creates alternating current (AC)."},
+    {type:"mcq",question:"Who championed direct current (DC)?",options:["Nikola Tesla","Michael Faraday","Thomas Edison","Hans Oersted"],answer:2,explanation:"Thomas Edison championed direct current."},
+    {type:"mcq",question:"Who championed alternating current (AC)?",options:["Thomas Edison","Michael Faraday","Joseph Henry","Nikola Tesla"],answer:3,explanation:"Nikola Tesla championed alternating current."},
+    {type:"mcq",question:"Why is AC preferred for distributing electricity?",options:["AC is safer at all voltages","Voltages can be raised for efficient transmission and lowered for safe use","AC is cheaper to produce","DC can't flow through copper wire"],answer:1,explanation:"AC voltage can be stepped up for transmission and stepped down for use."},
+    {type:"mcq",question:"What is an electric generator?",options:["A device that transforms mechanical energy into electrical energy","A device that transforms electrical energy into mechanical energy","A device that stores electrical energy","A device that reduces voltage"],answer:0,explanation:"An electric generator transforms mechanical energy into electrical energy."},
+    {type:"mcq",question:"An electric generator and motor are opposites. A generator converts:",options:["Electricity to motion","Motion to electricity","Voltage to current","Chemical energy to electricity"],answer:1,explanation:"A generator converts motion into electricity; a motor converts electricity into motion."},
+    {type:"mcq",question:"In an AC generator, what replaces the commutator?",options:["Brushes","Slip rings","Solenoids","Armatures"],answer:1,explanation:"AC generators use slip rings to produce alternating current."},
+    {type:"mcq",question:"In a power plant generator, what spins the armature?",options:["A battery","A turbine powered by steam, water, or wind","A separate motor","Hand-cranking"],answer:1,explanation:"A turbine (powered by steam, water, wind) spins the armature."},
+    {type:"mcq",question:"At what frequency is US AC electricity set?",options:["50 Hz","60 Hz","100 Hz","120 Hz"],answer:1,explanation:"US generators produce AC at 60 Hz."},
+    {type:"mcq",question:"What is a transformer?",options:["A device that converts AC to DC","A device that increases or decreases voltage","A device that measures current","A type of electromagnet for motors"],answer:1,explanation:"A transformer is a device that increases or decreases voltage."},
+    {type:"mcq",question:"A transformer consists of two insulated wires wound around:",options:["A solenoid","A battery","The same iron core","Two separate iron cores"],answer:2,explanation:"A transformer has two insulated wire coils wound around the same iron core."},
+    {type:"mcq",question:"Why do transformers ONLY work with AC?",options:["DC is too strong","Only a changing magnetic field can induce current in the secondary coil","DC is too expensive","AC has higher voltage than DC"],answer:1,explanation:"Only a changing (alternating) magnetic field induces current. DC doesn't alternate."},
+    {type:"mcq",question:"In a step-DOWN transformer:",options:["Secondary coil has more coils than primary","Primary and secondary are equal","Secondary coil has fewer coils than primary","Voltage increases"],answer:2,explanation:"Fewer secondary coils = lower voltage output."},
+    {type:"mcq",question:"In a step-UP transformer:",options:["Secondary coil has fewer coils than primary","Primary and secondary are equal","Secondary coil has more coils than primary","Voltage decreases"],answer:2,explanation:"More secondary coils = higher voltage output."},
+    {type:"mcq",question:"Power companies use step-UP transformers for long-distance transmission because:",options:["High voltage is safer","Higher voltages allow more efficient transmission","High voltage is required by homes","They reduce wire costs"],answer:1,explanation:"Higher voltages allow more efficient long-distance power transmission."},
+    {type:"mcq",question:"What voltage is electricity typically stepped down to before entering US homes?",options:["12 volts","60 volts","120 volts","240 volts"],answer:2,explanation:"Power is stepped down to approximately 120 volts before entering homes."},
+    {type:"mcq",question:"Which device uses a STEP-UP transformer?",options:["Doorbell","Cell phone charger","Television","Electronic toy"],answer:2,explanation:"TVs require higher voltages, so they use step-up transformers."},
+    {type:"mcq",question:"Which device uses a STEP-DOWN transformer?",options:["X-ray machine","Fluorescent light","Cell phone charger","Television"],answer:2,explanation:"Phone chargers need lower voltages, so they use step-down transformers."},
+    {type:"short",question:"What is the wire coil connected to the voltage source in a transformer called?",answer:"Primary coil",explanation:"The primary coil connects to the AC source. Its changing field induces current in the secondary coil."},
+    {type:"short",question:"What is the fan-like device attached to a generator armature that a power source spins?",answer:"Turbine",explanation:"A turbine is spun by a power source (steam, water, wind) to drive the generator armature."},
+    {type:"mcq",question:"If you supply current to a generator it will:",options:["Produce more current","Catch fire","Spin like a motor","Become a transformer"],answer:2,explanation:"Supplying current to a generator causes it to spin — demonstrating generators and motors are opposites."}
+  ]},
+  {name:"Magnetism + Electromagnetism (Combined)",difficulty:"hard",description:"Full chapters 19 & 21 combined — 80 questions",questions:[
+    {type:"mcq",question:"Where was magnetism first discovered?",options:["Athens","Magnesia","Sparta","Troy"],answer:1,explanation:"Magnetism was discovered in Magnesia (now Turkey)."},
+    {type:"mcq",question:"Which poles attract each other?",options:["North and North","South and South","North and South","None"],answer:2,explanation:"Opposite poles attract; like poles repel."},
+    {type:"mcq",question:"Naturally magnetic rocks were called:",options:["Ferrites","Alnico","Lodestones","Solenoids"],answer:2,explanation:"Lodestones pointed toward the North Star (the 'lodestar')."},
+    {type:"mcq",question:"How many poles does every magnet have?",options:["One","Two","Three","Four"],answer:1,explanation:"Every magnet has North and South poles."},
+    {type:"mcq",question:"Magnetic field lines point from:",options:["South to North","North to South","Random","In circles"],answer:1,explanation:"Field lines point from North to South pole."},
+    {type:"mcq",question:"Where is a magnet's field strongest?",options:["Centre","Lines spread out","Lines concentrated","Equally everywhere"],answer:2,explanation:"Strongest where field lines are closest — at the poles."},
+    {type:"mcq",question:"How can you see field lines?",options:["Voltmeter","Iron filings","Dye","Compass only"],answer:1,explanation:"Iron filings align with field lines."},
+    {type:"mcq",question:"What gives electrons their magnetic behaviour?",options:["Mass","Spin","Only charge","Gravity"],answer:1,explanation:"Electron spin makes them behave like tiny magnets."},
+    {type:"mcq",question:"Why do most atoms lack strong magnetic properties?",options:["Too many electrons","Paired electrons cancel out","Too small","Nuclei repel"],answer:1,explanation:"Paired electrons cancel each other's magnetic fields."},
+    {type:"mcq",question:"A region where atoms' magnetic fields align is called a:",options:["Solenoid","Magnetic domain","Van Allen belt","Lodestone"],answer:1,explanation:"Magnetic domains are regions of collective alignment."},
+    {type:"mcq",question:"An object becomes magnetised when:",options:["Electrons gain spin","Groups of domains align","It reaches 0°C","Protons line up"],answer:1,explanation:"When groups of domains align, the object becomes magnetised."},
+    {type:"mcq",question:"Materials that can become strong magnets (iron, nickel, cobalt) are called:",options:["Diamagnetic","Paramagnetic","Ferromagnetic","Electromagnetic"],answer:2,explanation:"Ferromagnetic materials can be made into strong magnets."},
+    {type:"mcq",question:"Alnico is made of:",options:["Aluminum, lead, nickel, cobalt","Aluminum, nickel, iron, cobalt","Argon, nitrogen, iodine, calcium","Antimony, nitrogen, iron, copper"],answer:1,explanation:"Alnico = aluminum + nickel + iron + cobalt."},
+    {type:"mcq",question:"Ferrite magnets are NOT:",options:["Ceramic","Strong and cheap","Flexible","Brittle"],answer:2,explanation:"Ferrite magnets are brittle, not flexible."},
+    {type:"mcq",question:"How do you magnetise a ferromagnetic material?",options:["Cool it","Expose to strong magnetic field","Strike it","Heat it"],answer:1,explanation:"Exposure to strong fields aligns domains."},
+    {type:"mcq",question:"A material that quickly loses magnetism is a:",options:["Permanent magnet","Ferrite","Temporary magnet","Lodestone"],answer:2,explanation:"Temporary magnets lose magnetism easily."},
+    {type:"mcq",question:"What destroys a magnet?",options:["Cooling and painting","Striking and heating","Wetting and bending","Cutting and rubbing"],answer:1,explanation:"Striking or heating randomises domains."},
+    {type:"mcq",question:"Breaking a magnet creates:",options:["One magnet, one plain piece","Two pieces with no poles","Two magnets each with N and S","Destroys magnetism"],answer:2,explanation:"Each piece still has aligned domains — two complete magnets."},
+    {type:"mcq",question:"What causes Earth's magnetic field?",options:["Moon's rotation","Iron and nickel in Earth's core","Solar radiation","Weight of crust"],answer:1,explanation:"Motion of iron and nickel in the liquid outer core creates Earth's field."},
+    {type:"mcq",question:"The geographic North Pole is actually a magnetic:",options:["North pole","South pole","Neutral zone","Van Allen belt"],answer:1,explanation:"Geographic North = magnetic South."},
+    {type:"short",question:"What is the angular difference between geographic north and magnetic north?",answer:"Magnetic declination",explanation:"Magnetic declination must be accounted for when navigating."},
+    {type:"mcq",question:"Earth's most recent major field reversal was:",options:["10,000 years ago","78,000 years ago","780,000 years ago","7.8 million years ago"],answer:2,explanation:"The most recent lasting reversal was ~780,000 years ago."},
+    {type:"mcq",question:"The magnetosphere does all of the following EXCEPT:",options:["Contains Van Allen belts","Deflects solar wind","Creates Earth's gravity","Has magnetic field lines running through it"],answer:2,explanation:"The magnetosphere has nothing to do with gravity."},
+    {type:"mcq",question:"Van Allen belts are:",options:["Rock bands in Earth's core","Doughnut-shaped radiation zones in the magnetosphere","Earth's orbital path","UV shields"],answer:1,explanation:"Van Allen belts are doughnut-shaped particle zones in the magnetosphere."},
+    {type:"mcq",question:"What causes the aurora borealis?",options:["Sunlight off ice","Solar particles interacting with Earth's magnetic field","Light from stars","Volcanic gas"],answer:1,explanation:"Auroras are caused by solar particles interacting with Earth's magnetic field."},
+    {type:"mcq",question:"The solar wind is:",options:["Wind from solar heating","A stream of charged particles from the sun","Radiation in Van Allen belts","Magnetic waves"],answer:1,explanation:"The solar wind is a stream of electrons and protons from the sun."},
+    {type:"mcq",question:"The mineral in Magnesia that is naturally magnetic is:",options:["Alnico","Magnetite","Cobalt","Ferrite"],answer:1,explanation:"Magnetite is the naturally magnetic mineral found in Magnesia."},
+    {type:"mcq",question:"The 'ferrum' in ferromagnetic comes from:",options:["French for iron","Latin for iron","Greek for magnet","Latin for force"],answer:1,explanation:"Ferrum is the Latin name for iron."},
+    {type:"mcq",question:"Solar wind affects:",options:["Earth's gravity","The shape of the magnetosphere","Earth's rotation","The temperature of the core"],answer:1,explanation:"Solar wind distorts the shape of Earth's magnetosphere."},
+    {type:"mcq",question:"Other planets have magnetic fields:",options:["No — only Earth","Yes — planets and the sun do","Only gas giants","Only the moon"],answer:1,explanation:"Other planets and even the sun have magnetic fields."},
+    {type:"mcq",question:"Who discovered current in a wire creates a magnetic field (1820)?",options:["Faraday","Tesla","Oersted","Henry"],answer:2,explanation:"Oersted discovered this in 1820."},
+    {type:"mcq",question:"What is electromagnetism?",options:["Electricity in magnets","Relationship between electricity and magnetism","A permanent magnet","Gravity on charges"],answer:1,explanation:"Electromagnetism is the relationship between electricity and magnetism."},
+    {type:"mcq",question:"How do you turn a current-generated field ON/OFF?",options:["Change wire material","Switch current on or off","Heat the wire","Reverse wire position"],answer:1,explanation:"Switching current on/off controls the magnetic field."},
+    {type:"mcq",question:"A solenoid is:",options:["A permanent magnet","A current-carrying coil of wire","A battery type","An iron core"],answer:1,explanation:"A solenoid is a current-carrying coil of wire."},
+    {type:"mcq",question:"An electromagnet is:",options:["A natural magnet","A solenoid with a ferromagnetic core","A battery with a magnet","A generator type"],answer:1,explanation:"Electromagnet = solenoid + ferromagnetic core."},
+    {type:"mcq",question:"Which INCREASES electromagnet strength?",options:["Remove iron core","Reduce current","Add more coils","Shorten the wire"],answer:2,explanation:"More coils concentrate the field, increasing strength."},
+    {type:"mcq",question:"Junkyard crane electromagnets work by:",options:["Lifting anything","Turning on to lift, off to drop magnetic metals","Generating electricity","Permanently magnetising metal"],answer:1,explanation:"On = lift, off = drop."},
+    {type:"mcq",question:"An electric motor converts:",options:["Mechanical → electrical","Chemical → light","Electrical → mechanical","Thermal → electrical"],answer:2,explanation:"Motors convert electrical energy into mechanical energy."},
+    {type:"mcq",question:"The rotating electromagnet in a motor is the:",options:["Commutator","Brush","Armature","Solenoid"],answer:2,explanation:"The armature is the rotating electromagnet."},
+    {type:"mcq",question:"In a DC motor, what reverses current to keep spinning?",options:["Slip rings","Solenoid","Commutator","Iron core"],answer:2,explanation:"The commutator continuously switches current direction."},
+    {type:"mcq",question:"Who discovered electromagnetic induction in 1831?",options:["Oersted and Tesla","Faraday and Henry","Edison and Tesla","Newton and Faraday"],answer:1,explanation:"Faraday and Henry both independently discovered electromagnetic induction."},
+    {type:"mcq",question:"Electromagnetic induction generates current from:",options:["A chemical reaction","Motion of a conductor through a changing magnetic field","Heat on a wire","Two magnets touching"],answer:1,explanation:"Moving a conductor through a changing magnetic field induces current."},
+    {type:"mcq",question:"Who championed DC electricity?",options:["Tesla","Faraday","Edison","Oersted"],answer:2,explanation:"Thomas Edison championed direct current."},
+    {type:"mcq",question:"Who championed AC electricity?",options:["Edison","Faraday","Henry","Tesla"],answer:3,explanation:"Nikola Tesla championed alternating current."},
+    {type:"mcq",question:"Why is AC preferred for long-distance distribution?",options:["Safer at all voltages","Can be stepped up for efficient transmission and stepped down for use","Cheaper to produce","DC can't flow in copper"],answer:1,explanation:"AC can be stepped up and down easily — great advantage for distribution."},
+    {type:"mcq",question:"A generator converts:",options:["Electricity to motion","Motion to electricity","Voltage to current","Chemical to electricity"],answer:1,explanation:"Generators convert motion (mechanical energy) to electrical energy."},
+    {type:"mcq",question:"AC generators use slip rings instead of a commutator to:",options:["Increase power","Produce alternating current","Reverse current","Store electricity"],answer:1,explanation:"Slip rings produce alternating current."},
+    {type:"mcq",question:"What device does a power source spin to drive a generator?",options:["Battery","Turbine","Solenoid","Only armature"],answer:1,explanation:"A turbine powered by steam, water, or wind spins the generator."},
+    {type:"mcq",question:"US AC electricity alternates at:",options:["50 Hz","60 Hz","100 Hz","120 Hz"],answer:1,explanation:"US generators produce AC at 60 Hz."},
+    {type:"mcq",question:"A transformer increases or decreases:",options:["Current only","Resistance","Voltage","Frequency"],answer:2,explanation:"Transformers increase or decrease voltage."},
+    {type:"mcq",question:"Transformers only work with:",options:["DC","AC","Both","Neither"],answer:1,explanation:"Only AC (changing current) creates the changing field needed to induce voltage in the secondary coil."},
+    {type:"mcq",question:"Step-DOWN transformer has:",options:["More secondary coils","Equal coils","Fewer secondary coils","No secondary coil"],answer:2,explanation:"Fewer secondary coils = lower voltage output."},
+    {type:"mcq",question:"Step-UP transformer has:",options:["Fewer secondary coils","Equal coils","More secondary coils","No primary coil"],answer:2,explanation:"More secondary coils = higher voltage output."},
+    {type:"mcq",question:"Which device uses a step-UP transformer?",options:["Doorbell","Phone charger","Television","Electronic toy"],answer:2,explanation:"TVs require higher voltage — step-up transformer."},
+    {type:"mcq",question:"US homes typically receive electricity at:",options:["12 V","60 V","120 V","240 V"],answer:2,explanation:"Power is stepped down to ~120 volts for homes."},
+    {type:"short",question:"What is the primary coil in a transformer?",answer:"The wire coil connected to the voltage source",explanation:"The primary coil connects to the AC source; its changing field induces current in the secondary coil."},
+    {type:"mcq",question:"Supplying current to a generator causes it to:",options:["Produce more current","Catch fire","Spin like a motor","Become a transformer"],answer:2,explanation:"Supplying current to a generator makes it spin — generators and motors are opposites."},
+    {type:"mcq",question:"Oersted found that a current-carrying wire would:",options:["Only generate heat","Deflect a compass needle","Create a spark","Become a permanent magnet"],answer:1,explanation:"Oersted saw the current deflect a compass needle — revealing electromagnetism."},
+    {type:"mcq",question:"More coils in a solenoid increase strength by:",options:["Adding more current","Concentrating the magnetic field more","Reducing resistance","Increasing voltage"],answer:1,explanation:"More coils pack the field more tightly, concentrating and strengthening it."},
+    {type:"short",question:"Name one application of electromagnets mentioned in the textbook.",answer:"Doorbells",explanation:"Also accepted: car starters, telephones, telegraphs, junkyard cranes, hard drives, credit cards."},
+    {type:"mcq",question:"A galvanometer measures:",options:["Power output","Current strength and direction","Voltage","Resistance"],answer:1,explanation:"A galvanometer measures current strength and direction."},
+    {type:"mcq",question:"The aurora australis is the:",options:["Northern lights","Southern lights","Solar wind","Van Allen radiation"],answer:1,explanation:"Aurora australis = southern lights (aurora borealis = northern lights)."},
+    {type:"mcq",question:"A magnet that keeps its magnetism for a long time is a:",options:["Temporary magnet","Ferrite","Permanent magnet","Lodestone"],answer:2,explanation:"Permanent magnets maintain their magnetism for a long time."},
+    {type:"mcq",question:"What powers the armature in a power plant generator?",options:["A battery","A turbine","Another motor","Hand-cranking"],answer:1,explanation:"A turbine (steam, water, wind) spins the armature."},
+    {type:"mcq",question:"Induced current is generated when:",options:["Two batteries are connected","A conductor moves through a changing magnetic field","Heat is applied to a wire","Two magnets touch"],answer:1,explanation:"Moving a conductor through a changing magnetic field induces current."},
+    {type:"mcq",question:"Which law explains that iron left in one position gets magnetised by Earth?",options:["Ohm's Law","Law of domains","Earth behaves as a large magnet — its field aligns iron domains","Newton's Third Law"],answer:2,explanation:"Earth behaves as a large magnet, slowly aligning iron domains left in a fixed position."},
+    {type:"mcq",question:"Magnetic declination is important when:",options:["Using a compass for navigation","Measuring electrical resistance","Calculating circuit power","Testing electromagnets"],answer:0,explanation:"Magnetic declination — the angle between geographic and magnetic north — must be accounted for when navigating with a compass."},
+    {type:"mcq",question:"In an AC motor, the armature keeps spinning because:",options:["A commutator reverses current","AC current naturally reverses, repeatedly switching armature poles","Friction keeps it going","The iron core extends the field"],answer:1,explanation:"AC current naturally reverses, causing the armature poles to flip and the motor to keep spinning."},
+    {type:"mcq",question:"A compass is MOST accurate near the:",options:["North Pole","Equator","South Pole","High altitude"],answer:1,explanation:"Compasses are generally more accurate near the equator."},
+    {type:"mcq",question:"The mineral magnetite was found in which ancient city?",options:["Athens","Sparta","Magnesia","Troy"],answer:2,explanation:"Magnetite was found in Magnesia, giving magnetism its name."},
+    {type:"mcq",question:"What type of current is produced in a battery?",options:["Alternating current (AC)","Direct current (DC)","Induced current","Static current"],answer:1,explanation:"Batteries produce direct current (DC) — charge flows in one direction."},
+    {type:"mcq",question:"Edison's first electric generating plant used:",options:["AC current","DC current","Nuclear power","Transformers"],answer:1,explanation:"Thomas Edison used direct current (DC) in his first electric generating plant."},
+    {type:"mcq",question:"Which is true of Earth's magnetic poles?",options:["They perfectly align with geographic poles","They are in constant motion","They have never moved","They are at the equator"],answer:1,explanation:"Earth's magnetic poles are constantly in motion — the magnetic north pole was ~1,250 km from geographic north as of the textbook."},
+    {type:"mcq",question:"What do Van Allen belts contain?",options:["Lava flows","High-velocity electrons and protons","Ozone gas","Iron particles"],answer:1,explanation:"Van Allen belts contain high-velocity electrons and protons."},
+    {type:"mcq",question:"The secondary coil of a transformer:",options:["Connects to the AC source","Does NOT have its own voltage source — it's induced","Has more resistance than the primary","Must always have more turns than primary"],answer:1,explanation:"The secondary coil's voltage is derived by electromagnetic induction from the primary coil."},
+    {type:"mcq",question:"Breaking a magnet in half gives you:",options:["Two magnets, each with two poles","One normal magnet and one without poles","No magnets — magnetism is destroyed","One magnet with four poles"],answer:0,explanation:"Breaking a magnet creates two smaller complete magnets, each with their own North and South poles."}
+  ]},
+  {name:"Electricity (Ch. 20)",difficulty:"medium",description:"Electric charge, current, circuits and power",questions:[
+    {type:"mcq",question:"Where are protons located?",options:["Electron cloud","Nucleus","Outer shell","Anywhere"],answer:1,explanation:"Protons are in the nucleus."},
+    {type:"mcq",question:"Electric current is measured in:",options:["Volts","Ohms","Amperes","Watts"],answer:2,explanation:"Current (I) is measured in Amperes (A)."},
+    {type:"mcq",question:"Ohm's Law states:",options:["V = P/I","I = V/R","P = VI","R = IV"],answer:1,explanation:"Ohm's Law: I = V/R (also written V = IR)."},
+    {type:"mcq",question:"Which is an example of an insulator?",options:["Copper","Silver","Rubber","Aluminum"],answer:2,explanation:"Rubber is an insulator."},
+    {type:"mcq",question:"In a series circuit, if one bulb goes out:",options:["Others stay on","Others also go out","Voltage increases","Resistance decreases"],answer:1,explanation:"Series circuits have one path — a break stops all flow."},
+    {type:"mcq",question:"Electric power is calculated by:",options:["P = IR","P = V/R","P = VI","P = V+I"],answer:2,explanation:"Power = Voltage × Current."},
+    {type:"mcq",question:"What device protects a circuit by melting?",options:["Switch","Voltmeter","Ammeter","Fuse"],answer:3,explanation:"Fuses melt to break the circuit safely."},
+    {type:"mcq",question:"Ohm's Law is:",options:["V=IR","I=V/R","R=V/I","All of these"],answer:3,explanation:"All are correct forms."},
+    {type:"mcq",question:"A closed circuit is:",options:["Broken","Complete","Open","Off"],answer:1,explanation:"Current flows in a closed circuit."},
+    {type:"mcq",question:"Power is measured in:",options:["Volts","Amps","Watts","Ohms"],answer:2,explanation:"Watts measure power."}
+  ]}
+]},
+{subject:"US History",icon:"🏛️",color:"#d4930a",description:"American history, politics and events",
+ notes:[
+  {title:"Early Republic",content:"Washington set precedents: Cabinet system, two-term limit, neutrality. Judiciary Act 1789 created federal courts. Hamilton's plan: pay debts, national bank, protective tariff. Whiskey Rebellion showed federal power. Farewell Address: warned against alliances and factions."},
+  {title:"War of 1812",content:"Causes: impressment, support of Native Americans, War Hawks. Treaty of Ghent: 'nothing adjusted, nothing gained.' Jackson became hero at New Orleans. Francis Scott Key wrote 'Star-Spangled Banner.' Louisiana Purchase nearly doubled US size."},
+  {title:"Jackson & Westward Expansion",content:"Spoils system, Bank War, Nullification Crisis, Indian Removal Act. Trail of Tears 1838-39. Manifest Destiny — expand to Pacific. Oregon Treaty at 49th parallel. Gold Rush — most didn't get rich. Treaty of Guadalupe Hidalgo ended Mexican War."}
+ ],
+ quizzes:[
+  {name:"Early Republic",difficulty:"medium",description:"Washington's presidency and early politics",questions:[
+    {type:"mcq",question:"Which precedent did Washington set at the start of his first term?",options:["Alliance with Great Britain","Set up a Cabinet","Ran for a third term","Abolished the Supreme Court"],answer:1,explanation:"Washington established the Cabinet system to advise the president."},
+    {type:"mcq",question:"Which action was NOT part of Hamilton's economic plan?",options:["Pay debts","Promote manufacturing with tariffs","Create a national bank","Encourage farming"],answer:3,explanation:"Hamilton focused on manufacturing and commerce, not farming."},
+    {type:"mcq",question:"Which event proved the new federal government would act firmly?",options:["Neutrality Proclamation","Whiskey Rebellion","Election of 1796","Jay's Treaty"],answer:1,explanation:"Washington sent troops to crush the Whiskey Rebellion, showing federal authority."},
+    {type:"mcq",question:"What was most significant about the Election of 1800?",options:["First peaceful transfer of power between parties","Adams served as Jefferson's VP","Aaron Burr was elected","Adams was re-elected"],answer:0,explanation:"Jefferson's victory showed democracy could work — peaceful transfer between rival parties."},
+    {type:"mcq",question:"What did Marbury v Madison establish?",options:["The national bank","Judicial review","Higher tariffs","States' rights"],answer:1,explanation:"Marbury v. Madison established judicial review."}
+  ]},
+  {name:"Jackson & Westward Expansion",difficulty:"medium",description:"Jacksonian era and Manifest Destiny",questions:[
+    {type:"mcq",question:"The Nullification Crisis was:",options:["Jackson vs the Bank","South Carolina vs tariffs","Britain vs trade","All of the above"],answer:1,explanation:"South Carolina declared the tariff null and void and threatened secession."},
+    {type:"mcq",question:"Which tribe fought 3 wars over 40 years to resist removal?",options:["Cherokee","Seminole","Choctaw","Shawnee"],answer:1,explanation:"The Seminole Wars were the longest Indian wars the US fought."},
+    {type:"mcq",question:"'Manifest Destiny' meant:",options:["Stay east","Expand west to the Pacific","Trade with Mexico","War with Britain"],answer:1,explanation:"Manifest Destiny was the belief that expanding to the Pacific was inevitable."},
+    {type:"mcq",question:"Most California Gold Rush forty-niners:",options:["Found gold and became rich","Did NOT find gold","Were from China","Started farming"],answer:1,explanation:"The vast majority did NOT find gold; merchants often profited more."},
+    {type:"mcq",question:"The Treaty of Guadalupe Hidalgo ended the:",options:["War of 1812","Civil War","Mexican-American War","Indian Removal"],answer:2,explanation:"The Treaty of Guadalupe Hidalgo ended the Mexican-American War."}
+  ]}
+]},
+{subject:"English",icon:"📖",color:"#7c3aed",description:"Grammar, literature and writing",
+ notes:[
+  {title:"Parts of Speech",content:"Noun: person, place, thing, idea. Verb: action or state. Adjective: describes a noun. Adverb: describes a verb (often -ly). Pronoun: replaces a noun."},
+  {title:"Literary Devices",content:"Simile: compares using 'like' or 'as'. Metaphor: direct comparison. Personification: human traits to non-human. Alliteration: repeated starting sounds. Hyperbole: extreme exaggeration."}
+ ],
+ quizzes:[
+  {name:"Grammar Essentials",difficulty:"easy",description:"Parts of speech and punctuation",questions:[
+    {type:"mcq",question:"'Quickly' is which part of speech?",options:["Adjective","Noun","Adverb","Verb"],answer:2,explanation:"'Quickly' modifies a verb — it is an adverb."},
+    {type:"mcq",question:"Which sentence is grammatically correct?",options:["She don't know","They is coming","He doesn't like it","We was there"],answer:2,explanation:"'He doesn't like it' uses the correct third-person singular form."},
+    {type:"short",question:"What punctuation shows possession?",answer:"Apostrophe",explanation:"An apostrophe (') shows possession, e.g. 'Sarah's book'."},
+    {type:"mcq",question:"A simile compares using:",options:["Metaphor","Like or as","Personification","Alliteration"],answer:1,explanation:"Similes use 'like' or 'as'."}
+  ]}
+]}
+];
+
+// ══════════════════════════════════════
+// FIREBASE — inject questions from Firestore
+// ══════════════════════════════════════
+var _seenFBIds = {};
+window._injectFirebaseQuestion = function(data) {
+  if(!data||!data.subject||!data.quiz||!data.question) return;
+  // Avoid duplicates in same session
+  var uid = data.subject+'|'+data.quiz+'|'+data.question;
+  if(_seenFBIds[uid]) return;
+  _seenFBIds[uid] = true;
+
+  // Find matching subject
+  var si = -1;
+  ST.subjects.forEach(function(s, i){ if(s.subject === data.subject) si = i; });
+  if(si < 0) return;
+
+  // Find matching quiz
+  var qi = -1;
+  ST.subjects[si].quizzes.forEach(function(q, i){ if(q.name === data.quiz) qi = i; });
+  if(qi < 0) return;
+
+  // Build question object
+  var q = { type: data.type||'mcq', question: data.question, explanation: data.explanation||'', _fromFirebase: true };
+  if(data.type === 'short') {
+    q.answer = data.answer;
+  } else {
+    q.options = data.options||[];
+    q.answer = +data.answer;
+  }
+
+  // Check if already exists
+  var exists = ST.subjects[si].quizzes[qi].questions.some(function(eq){
+    return eq.question === data.question;
+  });
+  if(!exists) {
+    ST.subjects[si].quizzes[qi].questions.push(q);
+    showToast('📥 New question added by creator!');
+  }
+};
+
+function setFBStatus(state) {
+  var el = document.getElementById('fb-status-badge');
+  if(!el) return;
+  if(state==='online'){el.className='fb-status';el.textContent='🔥 Live';}
+  else if(state==='offline'){el.className='fb-status offline';el.textContent='⚠️ Offline';}
+  else{el.className='fb-status loading';el.textContent='⏳ Connecting...';}
+}
+
+
+
+// ══════════════════════════════════════
+// FIRESTORE PLATFORM SYNC
+// ══════════════════════════════════════
+
+// Called by onSnapshot whenever platform/data changes in Firestore
+window._onPlatformUpdate = function(data) {
+  var changed = false;
+  if(data.subjects && Array.isArray(data.subjects)) {
+    var existingMap = {};
+    ST.subjects.forEach(function(s){ existingMap[s.subject] = s; });
+    data.subjects.forEach(function(fs) {
+      if(existingMap[fs.subject]) {
+        var s = existingMap[fs.subject];
+        if(fs.icon) s.icon = fs.icon;
+        if(fs.color) s.color = fs.color;
+        if(fs.description !== undefined) s.description = fs.description;
+        if(fs.notes) s.notes = fs.notes;
+        if(fs.quizzes) {
+          fs.quizzes.forEach(function(fq) {
+            var found = s.quizzes.find(function(q){return q.name===fq.name;});
+            if(!found) {
+              s.quizzes.push({name:fq.name, difficulty:fq.difficulty||'medium', description:fq.description||'', questions:[]});
+              changed = true;
+            } else {
+              found.difficulty = fq.difficulty || found.difficulty;
+              found.description = (fq.description !== undefined) ? fq.description : found.description;
+            }
+          });
+        }
+      } else {
+        var newS = {subject:fs.subject, icon:fs.icon||'', color:fs.color||'#4f63f7',
+                    description:fs.description||'', notes:fs.notes||[], quizzes:[]};
+        if(fs.quizzes) {
+          fs.quizzes.forEach(function(fq){
+            newS.quizzes.push({name:fq.name, difficulty:fq.difficulty||'medium', description:fq.description||'', questions:[]});
+          });
+        }
+        ST.subjects.push(newS);
+        existingMap[fs.subject] = newS;
+        changed = true;
+      }
+    });
+  }
+  if(data.teach) {
+    Object.keys(data.teach).forEach(function(k) {
+      if(data.teach[k] && data.teach[k].concepts) { TEACH[k] = data.teach[k]; changed = true; }
+    });
+  }
+  try{lss('sp_subjects',JSON.stringify(ST.subjects));}catch(e){}
+  if(changed) {
+    renderHome();
+    var m = document.getElementById('manage-modal-bg');
+    if(m && !m.classList.contains('hidden')) _populateAllManageSelects();
+  }
+};
+
+// Build Firestore platform payload from current state
+function _buildPlatformPayload() {
+  var subjectsData = ST.subjects.map(function(s) {
+    return {
+      subject: s.subject, icon: s.icon, color: s.color,
+      description: s.description || '', notes: s.notes || [],
+      quizzes: s.quizzes.map(function(q) {
+        return {name:q.name, difficulty:q.difficulty, description:q.description||''};
+      })
+    };
+  });
+  var teachData = {};
+  Object.keys(TEACH).forEach(function(k){ teachData[k] = TEACH[k]; });
+  return {subjects: subjectsData, teach: teachData};
+}
+
+// Write platform doc to Firestore
+async function _savePlatformToFirestore() {
+  if(!window._db || !window._fbFns) return;
+  try {
+    var payload = _buildPlatformPayload();
+    payload.updatedAt = window._fbFns.serverTimestamp();
+    await window._fbFns.setDoc(window._fbFns.doc(window._db,'platform','data'), payload);
+  } catch(e) {
+    console.warn('Firestore save failed:', e.message);
+    showToast('Saved locally — Firestore sync failed');
+  }
+}
+
+// Debounced saveSubjects: instant localStorage + debounced Firestore (1.5s)
+var _saveDebounce = null;
+function saveSubjects() {
+  try{lss('sp_subjects',JSON.stringify(ST.subjects));}catch(e){}
+  clearTimeout(_saveDebounce);
+  _saveDebounce = setTimeout(function(){ _savePlatformToFirestore(); }, 1500);
+}
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+function init(){
+  // Load local data first — instant startup
+  var saved = null;
+  try{saved = JSON.parse(lsg('sp_subjects'));}catch(e){}
+  ST.subjects = saved || DEFAULT_DATA;
+  renderHome(); updateNavStats(); renderLearnerBadge();
+  initLQ();
+  aqPopulateSelects();
+  // Sync from Firestore in background
+  _syncFromFirestore();
+}
+
+async function _syncFromFirestore() {
+  var tries = 0;
+  while(!window._fbReady && tries < 80) {
+    await new Promise(function(r){ setTimeout(r, 100); });
+    tries++;
+  }
+  if(!window._db || !window._fbFns) { setFBStatus('offline'); return; }
+  try {
+    var snap = await window._fbFns.getDoc(window._fbFns.doc(window._db,'platform','data'));
+    if(snap.exists()) {
+      window._onPlatformUpdate(snap.data());
+      renderHome(); updateNavStats();
+      setFBStatus('online');
+    } else {
+      // First run — push default data up to Firestore for all users
+      await _savePlatformToFirestore();
+      setFBStatus('online');
+      showToast('Platform initialised on Firestore');
+    }
+  } catch(e) {
+    console.warn('Firestore sync error:', e.message);
+    setFBStatus('offline');
+  }
+}
+
+function saveProg(){
+  try{
+    lss('sp_progress',JSON.stringify(ST.progress));
+    lss('sp_activity',JSON.stringify(ST.activity.slice(0,20)));
+    lss('sp_xp',ST.xp);lss('sp_streak',ST.streak);
+    lss('sp_answered',ST.totalAnswered);lss('sp_correct',ST.totalCorrect);
+    lss('sp_quizzes',ST.totalQuizzes);
+  }catch(e){}
+}
+
+// ══════════════════════════════════════
+// LEARNER STYLE QUIZ
+// ══════════════════════════════════════
+function initLQ(){
+  ST.lqAnswers=new Array(LQ.length).fill(null);ST.lqCurrentQ=0;renderLQ();
+}
+function renderLQ(){
+  var q=LQ[ST.lqCurrentQ],total=LQ.length;
+  document.getElementById('lq-prog-fill').style.width=((ST.lqCurrentQ/total)*100)+'%';
+  var c=document.getElementById('lq-container');
+  c.innerHTML='<div class="lq-question"><div class="lq-q-num">Question '+(ST.lqCurrentQ+1)+' of '+total+'</div>'+
+    '<div class="lq-q-text">'+q.q+'</div><div class="lq-opts" id="lq-opts"></div></div>';
+  var letters=['A','B','C','D'];
+  q.opts.forEach(function(o,i){
+    var btn=document.createElement('button');
+    btn.className='lq-opt'+(ST.lqAnswers[ST.lqCurrentQ]===i?' selected':'');
+    btn.innerHTML='<div class="lq-opt-letter">'+letters[i]+'</div><span>'+o.t+'</span>';
+    btn.onclick=(function(idx){return function(){
+      ST.lqAnswers[ST.lqCurrentQ]=idx;
+      document.querySelectorAll('.lq-opt').forEach(function(b,j){b.classList.toggle('selected',j===idx);});
+    };})(i);
+    document.getElementById('lq-opts').appendChild(btn);
+  });
+  document.getElementById('lq-prev-btn').style.display=ST.lqCurrentQ===0?'none':'';
+  document.getElementById('lq-next-btn').textContent=ST.lqCurrentQ===LQ.length-1?'See my results →':'Next →';
+}
+function lqNext(){
+  if(ST.lqAnswers[ST.lqCurrentQ]===null){showToast('Pick an answer first!');return;}
+  if(ST.lqCurrentQ<LQ.length-1){ST.lqCurrentQ++;renderLQ();}
+  else computeLearnerStyle();
+}
+function lqPrev(){if(ST.lqCurrentQ>0){ST.lqCurrentQ--;renderLQ();}}
+function computeLearnerStyle(){
+  var counts={visual:0,auditory:0,readwrite:0,kinesthetic:0};
+  LQ.forEach(function(q,i){if(ST.lqAnswers[i]!==null)counts[q.opts[ST.lqAnswers[i]].s]++;});
+  var best='visual',max=0;
+  Object.keys(counts).forEach(function(k){if(counts[k]>max){max=counts[k];best=k;}});
+  ST.learnerStyle=best;lss('sp_learner_style',best);
+  renderLearnerBadge();renderStyleBanner();showLearnerResult(best);
+}
+function showLearnerResult(style){
+  var s=LS[style];
+  document.getElementById('lr-icon').textContent=s.icon;
+  document.getElementById('lr-title').textContent='You are a '+s.name+'!';
+  document.getElementById('lr-desc').textContent=s.desc;
+  document.getElementById('lr-traits').innerHTML=s.traits.map(function(t){
+    return '<div class="lr-trait"><div class="lr-trait-title">'+t.t+'</div><div class="lr-trait-desc">'+t.d+'</div></div>';
+  }).join('');
+  showScreen('screen-learner-result');
+}
+function resetLearnerStyle(){
+  ST.learnerStyle=null;lss('sp_learner_style','');
+  ST.lqAnswers=new Array(LQ.length).fill(null);ST.lqCurrentQ=0;
+  renderLQ();renderLearnerBadge();renderStyleBanner();
+  showScreen('screen-learner-quiz');showToast('Learning style reset — retake the quiz!');
+}
+function renderLearnerBadge(){
+  var w=document.getElementById('learner-badge-wrap');
+  if(ST.learnerStyle){
+    var s=LS[ST.learnerStyle];
+    w.innerHTML='<div class="learner-badge" style="background:'+s.bg+';color:'+s.color+';border-color:'+s.color+'" onclick="showLearnerResult(\''+ST.learnerStyle+'\')" title="Click to see your learning style">'+s.tag+'</div>';
+  }else{
+    w.innerHTML='<button class="nav-btn nav-btn-ghost" onclick="showScreen(\'screen-learner-quiz\')">🧠 Find my style</button>';
+  }
+}
+function renderStyleBanner(){
+  var w=document.getElementById('style-banner-wrap');
+  if(!ST.learnerStyle){w.innerHTML='';return;}
+  var s=LS[ST.learnerStyle];
+  w.innerHTML='<div class="style-banner" style="background:'+s.bg+';border-color:'+s.color+'20">'+
+    '<div class="style-banner-left"><div class="style-icon-big">'+s.icon+'</div>'+
+    '<div class="style-info"><strong style="color:'+s.color+'">'+s.name+'</strong>'+
+    '<small>All quizzes, explanations, and lessons are adapted to your style</small></div></div>'+
+    '<button class="btn-outline" style="font-size:12px;padding:6px 12px" onclick="resetLearnerStyle()">🔄 Retake quiz</button></div>';
+}
+
+// ══════════════════════════════════════
+// HOME
+// ══════════════════════════════════════
+function renderHome(){
+  var acc=ST.totalAnswered>0?Math.round(ST.totalCorrect/ST.totalAnswered*100):0;
+  document.getElementById('total-questions').textContent=ST.totalAnswered;
+  document.getElementById('total-correct').textContent=acc+'%';
+  document.getElementById('total-subjects').textContent=ST.subjects.length;
+  document.getElementById('total-quizzes').textContent=ST.totalQuizzes;
+  var grid=document.getElementById('subject-grid');
+  grid.innerHTML='';
+  ST.subjects.forEach(function(s,si){
+    var done=0;
+    s.quizzes.forEach(function(q,qi){if(ST.progress[si+'_'+qi])done++;});
+    var prog=s.quizzes.length?Math.round(done/s.quizzes.length*100):0;
+    var card=document.createElement('div');
+    card.className='subject-card';
+    card.style.setProperty('--card-color',s.color);
+    card.innerHTML='<span class="subject-icon">'+s.icon+'</span>'+
+      '<div class="subject-name">'+s.subject+'</div>'+
+      '<div class="subject-count">'+countQ(s)+' Q · '+s.quizzes.length+' quizzes</div>'+
+      '<div class="subject-bar-wrap"><div class="subject-bar" style="width:'+prog+'%"></div></div>';
+    card.onclick=(function(i){return function(){showSubject(i);};})(si);
+    grid.appendChild(card);
+  });
+  var recent=document.getElementById('recent-list');
+  if(!ST.activity.length){
+    recent.innerHTML='<div style="font-size:13px;color:var(--ink3);padding:6px 0">No activity yet — start a quiz!</div>';
+  }else{
+    recent.innerHTML=ST.activity.slice(0,5).map(function(a){
+      var col=(ST.subjects[a.si]||{}).color||'#888';
+      var sc=a.score>=70?'var(--green)':a.score>=50?'var(--gold)':'var(--red)';
+      return '<div class="recent-item" onclick="showSubject('+a.si+')">'+
+        '<div class="recent-dot" style="background:'+col+'"></div>'+
+        '<div><div class="recent-name">'+a.quizName+'</div><div class="recent-meta">'+a.subject+' · '+a.date+'</div></div>'+
+        '<div class="recent-score" style="color:'+sc+'">'+a.score+'%</div></div>';
+    }).join('');
+  }
+  renderStyleBanner();
+}
+function countQ(s){return s.quizzes.reduce(function(sum,q){return sum+q.questions.length;},0);}
+function updateNavStats(){
+  document.getElementById('nav-xp').textContent=ST.xp;
+  document.getElementById('nav-streak').textContent=ST.streak;
+}
+
+// ══════════════════════════════════════
+// SUBJECT
+// ══════════════════════════════════════
+function showSubject(si){
+  ST.activeSubjectIdx=si;
+  var s=ST.subjects[si];
+  document.getElementById('subj-icon').textContent=s.icon;
+  document.getElementById('subj-title').textContent=s.subject;
+  document.getElementById('subj-desc').textContent=s.description||'';
+  document.querySelectorAll('.diff-pill').forEach(function(p){p.classList.remove('active');});
+  document.querySelector('[data-diff="all"]').classList.add('active');
+  renderQuizGrid(si,'all');
+  showScreen('screen-subject');
+}
+function filterDiff(diff,el){
+  document.querySelectorAll('.diff-pill').forEach(function(p){p.classList.remove('active');});
+  el.classList.add('active');
+  renderQuizGrid(ST.activeSubjectIdx,diff);
+}
+function renderQuizGrid(si,diff){
+  var s=ST.subjects[si];
+  var grid=document.getElementById('quiz-grid');
+  grid.innerHTML='';
+  s.quizzes.forEach(function(q,qi){
+    if(diff!=='all'&&q.difficulty!==diff)return;
+    var key=si+'_'+qi,prog=ST.progress[key];
+    var card=document.createElement('div');
+    card.className='quiz-card';
+    card.innerHTML='<div class="quiz-card-top"><div class="quiz-name">'+q.name+'</div>'+
+      '<div class="quiz-badge badge-'+q.difficulty+'">'+q.difficulty+'</div></div>'+
+      '<div class="quiz-desc">'+(q.description||'')+'</div>'+
+      '<div class="quiz-meta"><span>📝 '+q.questions.length+' Q</span>'+
+      (prog?'<span style="color:var(--green)">✓ Best: '+prog.best+'%</span>':'<span>Not attempted</span>')+'</div>'+
+      (prog?'<div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width:'+prog.best+'%"></div></div>':'')+
+      '<div class="quiz-actions">'+
+        '<div class="quiz-actions-row">'+
+          '<button class="qbtn qbtn-quiz" onclick="startQuiz('+si+','+qi+',false)">▶ Normal</button>'+
+          '<button class="qbtn qbtn-inf" onclick="startQuiz('+si+','+qi+',true)">∞ Infinite</button>'+
+        '</div>'+
+        '<button class="qbtn-notes" onclick="showNotes('+si+','+qi+')">📚 Notes & Teach Mode</button>'+
+      '</div>';
+    grid.appendChild(card);
+  });
+  if(!grid.children.length)grid.innerHTML='<div style="font-size:13px;color:var(--ink3);padding:12px">No quizzes for this difficulty.</div>';
+}
+
+// ══════════════════════════════════════
+// NOTES
+// ══════════════════════════════════════
+function showNotes(si,qi){
+  ST.notesSubjectIdx=si;ST.notesQuizIdx=qi;
+  var s=ST.subjects[si],q=s.quizzes[qi];
+  document.getElementById('notes-title').textContent=q.name+' — Notes';
+  document.getElementById('notes-subtitle').textContent=s.subject+' · '+q.questions.length+' questions'+(ST.learnerStyle?' · '+LS[ST.learnerStyle].tag:'');
+  var body=document.getElementById('notes-body');
+  body.innerHTML='';
+  if(ST.learnerStyle){
+    var ls=LS[ST.learnerStyle];
+    var tip=document.createElement('div');
+    tip.style.cssText='background:'+ls.bg+';border:1.5px solid '+ls.color+';border-radius:var(--radius-sm);padding:13px 16px;margin-bottom:14px;font-size:13px;color:'+ls.color+';line-height:1.6';
+    tip.innerHTML='<strong>'+ls.icon+' '+ls.name+' study tip:</strong> '+ls.traits[0].t+' — '+ls.traits[0].d+' · '+ls.traits[1].t+' — '+ls.traits[1].d;
+    body.appendChild(tip);
+  }
+  (s.notes||[]).forEach(function(n){
+    var sec=document.createElement('div');sec.className='notes-section';
+    sec.innerHTML='<h3>'+n.title+'</h3><p>'+n.content+'</p>';
+    body.appendChild(sec);
+  });
+  var expSec=document.createElement('div');expSec.className='notes-section';
+  expSec.innerHTML='<h3>Question Explanations</h3>';
+  q.questions.forEach(function(qu,i){
+    var p=document.createElement('div');
+    p.style.cssText='margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)';
+    var ans=qu.type==='mcq'?(qu.options&&qu.options[qu.answer])||qu.answer:qu.answer;
+    p.innerHTML='<div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:3px">'+(i+1)+'. '+qu.question+'</div>'+
+      '<div style="font-size:12px;margin-bottom:3px;color:var(--green);font-weight:600">✓ '+ans+'</div>'+
+      '<div style="font-size:11px;color:var(--ink3);line-height:1.55">'+qu.explanation+'</div>';
+    expSec.appendChild(p);
+  });
+  body.appendChild(expSec);
+  // Contact note
+  var contactNote=document.createElement('div');
+  contactNote.style.cssText='background:var(--accent-light);border:1.5px solid var(--accent);border-radius:var(--radius-sm);padding:13px 16px;font-size:13px;color:var(--ink2);line-height:1.6;text-align:center';
+  contactNote.innerHTML='💬 Want more questions for this topic? Email 2030killadac@avon.k12.ct.us and I\'ll add them!';
+  body.appendChild(contactNote);
+  showScreen('screen-notes');
+}
+function startFromNotes(infinite){startQuiz(ST.notesSubjectIdx,ST.notesQuizIdx,infinite);}
+function goBackToSubject(){showSubject(ST.activeSubjectIdx!==null?ST.activeSubjectIdx:ST.notesSubjectIdx);}
+
+// ══════════════════════════════════════
+// TEACH MODE
+// ══════════════════════════════════════
+function startTeachMode(){
+  ST.teachSubjectIdx=ST.notesSubjectIdx;ST.teachQuizIdx=ST.notesQuizIdx;
+  var sName=ST.subjects[ST.teachSubjectIdx].subject;
+  var concepts=(TEACH[sName]||{}).concepts||[];
+  if(!concepts.length){showToast('Teach mode coming soon for this topic — try Quiz mode!');return;}
+  ST.teachConcepts=concepts;ST.teachConceptIdx=0;
+  renderTeachConcept();showScreen('screen-teach');
+}
+function renderTeachConcept(){
+  var style=ST.learnerStyle||'visual';
+  var si=LS[style];
+  var c=ST.teachConcepts[ST.teachConceptIdx];
+  document.getElementById('teach-style-label').innerHTML=si.tag+' Teach Mode';
+  document.getElementById('teach-prog-label').textContent='Concept '+(ST.teachConceptIdx+1)+'/'+ST.teachConcepts.length;
+  var cm={visual:{bg:'var(--accent-light)',border:'var(--accent)',lbl:'var(--accent)'},
+           auditory:{bg:'var(--purple-light)',border:'var(--purple)',lbl:'var(--purple)'},
+           readwrite:{bg:'var(--teal-light)',border:'var(--teal)',lbl:'var(--teal)'},
+           kinesthetic:{bg:'var(--orange-light)',border:'var(--orange)',lbl:'var(--orange)'}};
+  var cm2=cm[style];
+  var icons={visual:'👁️',auditory:'🎧',readwrite:'✍️',kinesthetic:'🤲'};
+  var labels={visual:'Visual Diagram',auditory:'Say It Out Loud',readwrite:'Read & Write Notes',kinesthetic:'Try It Yourself'};
+  var content=c[style]||c.visual;
+  var usesPre=style==='visual'||style==='readwrite';
+  var contentHtml=usesPre?'<pre style="font-size:13px;white-space:pre-wrap;line-height:1.8">'+content+'</pre>':'<p style="font-size:14px;line-height:1.8">'+content+'</p>';
+  var practiceHtml='';
+  if(c.practice){
+    var pid='pr_'+ST.teachConceptIdx;
+    practiceHtml='<div class="practice-box"><h4>🎯 Quick Practice</h4>'+
+      '<div class="practice-q">'+c.practice.q+'</div>'+
+      '<input type="text" class="practice-input" id="'+pid+'" placeholder="Your answer...">'+
+      '<button class="practice-check" onclick="checkPractice(\''+pid+'\',\''+c.practice.a.replace(/'/g,"\\'")+'\',\''+c.practice.hint.replace(/'/g,"\\'")+'\',\'pres_'+ST.teachConceptIdx+'\')">Check</button>'+
+      '<div id="pres_'+ST.teachConceptIdx+'"></div></div>';
+  }
+  var hasNext=ST.teachConceptIdx<ST.teachConcepts.length-1;
+  document.getElementById('teach-body').innerHTML=
+    '<div class="teach-card"><h3>'+c.title+'</h3>'+
+    '<div class="teach-core">'+c.core+'</div>'+
+    '<div class="teach-style-block" style="background:'+cm2.bg+';border:1.5px solid '+cm2.border+'">'+
+      '<span class="tsb-label" style="color:'+cm2.lbl+'">'+icons[style]+' '+labels[style]+'</span>'+
+      contentHtml+'</div>'+
+    practiceHtml+'</div>'+
+    '<div class="teach-nav">'+
+    (hasNext?'<button class="btn-teach-next" onclick="nextTeachConcept()">Next concept →</button>':'<button class="btn-teach-quiz" onclick="startFromNotes(false)">✓ Take the quiz!</button>')+
+    '</div>';
+}
+function checkPractice(inputId,expected,hint,resultId){
+  var val=(document.getElementById(inputId)||{}).value||'';
+  var ok=val.trim().toLowerCase()===expected.toLowerCase();
+  var el=document.getElementById(resultId);
+  if(el)el.innerHTML='<div class="practice-result" style="background:'+(ok?'var(--green-light)':'var(--red-light)')+';color:'+(ok?'var(--green)':'var(--red)')+'">'+
+    (ok?'✓ Correct! Well done.':'Not quite. Hint: '+hint+' — Answer: <strong>'+expected+'</strong>')+'</div>';
+}
+function nextTeachConcept(){ST.teachConceptIdx++;renderTeachConcept();window.scrollTo(0,0);}
+
+// ══════════════════════════════════════
+// QUIZ ENGINE
+// ══════════════════════════════════════
+function startQuiz(si,qi,infinite){
+  var quiz=ST.subjects[si].quizzes[qi];
+  ST.infiniteMode=!!infinite;ST.currentSubject=si;ST.currentQuiz=qi;
+  ST.answers=[];ST.elapsed=0;ST.answered=false;ST.currentQ=0;
+  var qs=quiz.questions.slice();
+  if(infinite){ST.infPool=shuffle(qs);ST.infIdx=0;ST.session=ST.infPool;}
+  else{ST.session=shuffle(qs);}
+  clearInterval(ST.timerInterval);
+  ST.timerInterval=setInterval(function(){ST.elapsed++;updateTimer();},1000);
+  document.getElementById('mode-banner').classList.toggle('hidden',!infinite);
+  document.getElementById('normal-topbar').classList.toggle('hidden',infinite);
+  showScreen('screen-quiz');renderQ();
+}
+function shuffle(arr){
+  var a=arr.slice();
+  for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}
+  return a;
+}
+function getInfQ(){
+  if(ST.infIdx>=ST.infPool.length){
+    ST.infPool=shuffle(ST.subjects[ST.currentSubject].quizzes[ST.currentQuiz].questions.slice());
+    ST.infIdx=0;
+  }
+  return ST.infPool[ST.infIdx];
+}
+function renderQ(){
+  var q=ST.infiniteMode?getInfQ():ST.session[ST.currentQ];
+  var total=ST.session.length;
+  if(!ST.infiniteMode){
+    document.getElementById('q-progress').style.width=(ST.currentQ/total*100)+'%';
+    document.getElementById('q-counter').textContent=(ST.currentQ+1)+'/'+total;
+  }else{
+    document.getElementById('inf-q-counter').textContent='Q '+(ST.answers.length+1)+' | ✓ '+ST.answers.filter(function(a){return a.correct;}).length;
+  }
+  document.getElementById('q-category').textContent=ST.subjects[ST.currentSubject].subject;
+  var ctxBox=document.getElementById('style-context-box');
+  if(ST.learnerStyle){
+    var ls=LS[ST.learnerStyle];
+    ctxBox.innerHTML='<div class="style-context" style="background:'+ls.bg+';border:1px solid '+ls.color+'30">'+
+      '<div class="style-context-icon">'+ls.icon+'</div>'+
+      '<div class="style-context-text"><strong style="color:'+ls.color+'">'+ls.name+'</strong>'+ls.contextPrompt+'</div></div>';
+  }else ctxBox.innerHTML='';
+  document.getElementById('q-text').textContent=q.question;
+  document.getElementById('explanation-box').classList.add('hidden');
+  document.getElementById('btn-next').classList.add('hidden');
+  document.getElementById('exp-style-tip').classList.add('hidden');
+  ST.answered=false;
+  var list=document.getElementById('options-list');
+  list.innerHTML='';
+  if(q.type==='mcq'){
+    var letters=['A','B','C','D'];
+    (q.options||[]).forEach(function(opt,i){
+      var btn=document.createElement('button');btn.className='option-btn';
+      btn.innerHTML='<div class="option-letter">'+letters[i]+'</div><span>'+opt+'</span>';
+      btn.onclick=(function(idx,question){return function(){answerMCQ(idx,question);};})(i,q);
+      list.appendChild(btn);
+    });
+  }else{
+    var inp=document.createElement('input');
+    inp.className='short-input';inp.type='text';inp.placeholder='Type your answer...';inp.id='short-input';
+    var cb=document.createElement('button');cb.className='check-btn';cb.textContent='Check';
+    cb.onclick=function(){answerShort(q.answer,document.getElementById('short-input').value,q);};
+    inp.addEventListener('keydown',function(e){if(e.key==='Enter')answerShort(q.answer,inp.value,q);});
+    list.appendChild(inp);list.appendChild(cb);
+  }
+}
+function answerMCQ(chosen,q){
+  if(ST.answered)return;ST.answered=true;
+  var correct=q.answer,isCorrect=chosen===correct;
+  document.querySelectorAll('.option-btn').forEach(function(btn,i){
+    btn.classList.add('answered');
+    if(i===correct)btn.classList.add(i===chosen?'correct':'reveal');
+    else if(i===chosen)btn.classList.add('wrong');
+  });
+  recordAnswer(isCorrect,q.explanation,q);
+}
+function answerShort(expected,given,q){
+  if(ST.answered)return;ST.answered=true;
+  var isCorrect=given.trim().toLowerCase()===expected.toLowerCase();
+  var inp=document.getElementById('short-input');
+  if(inp){inp.disabled=true;inp.style.borderColor=isCorrect?'var(--green)':'var(--red)';inp.style.background=isCorrect?'var(--green-light)':'var(--red-light)';}
+  var cb=document.querySelector('.check-btn');if(cb)cb.disabled=true;
+  recordAnswer(isCorrect,'Correct: "'+expected+'". '+q.explanation,q);
+}
+function recordAnswer(isCorrect,explanation,q){
+  ST.answers.push({correct:isCorrect,q:q});
+  ST.totalAnswered++;if(isCorrect)ST.totalCorrect++;
+  if(ST.infiniteMode)ST.infIdx++;
+  var box=document.getElementById('explanation-box');
+  document.getElementById('explanation-text').textContent=explanation;
+  box.classList.remove('hidden');
+  box.style.borderColor=isCorrect?'rgba(22,163,74,.3)':'rgba(220,38,38,.2)';
+  box.style.background=isCorrect?'var(--green-light)':'var(--red-light)';
+  box.querySelector('strong').style.color=isCorrect?'var(--green)':'var(--red)';
+  if(ST.learnerStyle&&!isCorrect){
+    var ls=LS[ST.learnerStyle];
+    var tipEl=document.getElementById('exp-style-tip');
+    tipEl.innerHTML=ls.icon+' <strong>'+ls.name+' tip:</strong> '+ls.expTip;
+    tipEl.style.background=ls.bg;tipEl.style.color=ls.color;
+    tipEl.classList.remove('hidden');
+  }
+  var nb=document.getElementById('btn-next');nb.classList.remove('hidden');
+  if(ST.infiniteMode){
+    nb.textContent='Next →';
+    document.getElementById('inf-q-counter').textContent='Answered: '+ST.answers.length+' | ✓ '+ST.answers.filter(function(a){return a.correct;}).length;
+  }else{
+    nb.textContent=ST.currentQ<ST.session.length-1?'Next →':'See results →';
+  }
+  saveProg();
+}
+function nextQuestion(){
+  if(ST.infiniteMode)renderQ();
+  else{ST.currentQ++;if(ST.currentQ>=ST.session.length)finishQuiz();else renderQ();}
+}
+function stopInfinite(){clearInterval(ST.timerInterval);finishQuiz();}
+function updateTimer(){
+  var m=Math.floor(ST.elapsed/60),s=ST.elapsed%60;
+  var pill=document.getElementById('timer-pill');
+  pill.textContent='⏱ '+m+':'+(s<10?'0':'')+s;
+  pill.classList.toggle('danger',ST.elapsed>120);
+}
+function finishQuiz(){
+  clearInterval(ST.timerInterval);
+  var correct=ST.answers.filter(function(a){return a.correct;}).length;
+  var total=ST.answers.length;
+  if(!total){goHome();return;}
+  var pct=Math.round(correct/total*100);
+  var si=ST.currentSubject,qi=ST.currentQuiz,key=si+'_'+qi;
+  var prev=ST.progress[key]||{};
+  ST.progress[key]={attempts:(prev.attempts||0)+1,best:Math.max(pct,prev.best||0),last:pct,lastDate:new Date().toLocaleDateString()};
+  if(!ST.infiniteMode)ST.totalQuizzes++;
+  var xp=correct*10+(pct===100?50:0);ST.xp+=xp;ST.streak++;
+  ST.activity.unshift({si:si,quizName:ST.subjects[si].quizzes[qi].name,subject:ST.subjects[si].subject,score:pct,date:new Date().toLocaleDateString()});
+  saveProg();updateNavStats();showResults(correct,total,pct,xp);
+}
+function showResults(correct,total,pct,xpEarned){
+  var ring=document.getElementById('score-ring');
+  if(pct>=80){ring.style.background='var(--green-light)';ring.style.color='var(--green)';}
+  else if(pct>=50){ring.style.background='var(--gold-light)';ring.style.color='var(--gold)';}
+  else{ring.style.background='var(--red-light)';ring.style.color='var(--red)';}
+  document.getElementById('score-pct').textContent=pct+'%';
+  document.getElementById('score-sub').textContent=correct+'/'+total+' correct';
+  var msgs={great:['Outstanding!','Excellent work!','Nailed it!'],good:['Well done!','Good effort!','Solid!'],low:['Keep practising!','Review and retry!','Almost there!']};
+  var tier=pct>=80?'great':pct>=50?'good':'low';
+  document.getElementById('results-title').textContent=msgs[tier][Math.floor(Math.random()*3)];
+  var styleTip='';
+  if(ST.learnerStyle&&pct<80){
+    var ls=LS[ST.learnerStyle];
+    var tips={visual:'Try drawing diagrams of the concepts you missed.',auditory:'Read the explanations aloud to help them stick.',readwrite:'Rewrite the correct answers in your own words.',kinesthetic:'Try the Teach mode practice problems for topics you missed.'};
+    styleTip=' '+ls.icon+' '+ls.name+' tip: '+tips[ST.learnerStyle];
+  }
+  document.getElementById('results-desc').textContent='You earned +'+xpEarned+' XP.'+(pct===100?' 🎉 Perfect score bonus!':'')+styleTip;
+  document.getElementById('res-correct').textContent=correct;
+  document.getElementById('res-wrong').textContent=total-correct;
+  var m=Math.floor(ST.elapsed/60),s=ST.elapsed%60;
+  document.getElementById('res-time').textContent=m>0?m+'m '+s+'s':s+'s';
+  var review=document.getElementById('review-list');
+  review.innerHTML='<div style="font-family:Fraunces,serif;font-size:18px;margin-bottom:10px;color:var(--ink)">Answer review</div>';
+  ST.answers.forEach(function(a,i){
+    var ok=a.correct,q=a.q;
+    var div=document.createElement('div');div.className='review-item';
+    div.innerHTML='<div class="review-q">'+(i+1)+'. '+q.question+'</div>'+
+      '<span class="review-status '+(ok?'review-correct':'review-wrong')+'">'+(ok?'✓ Correct':'✗ Wrong')+'</span>'+
+      (!ok&&q.type==='mcq'&&q.options?'<div class="review-answer">Correct: '+q.options[q.answer]+'</div>':'')+
+      (!ok&&q.type==='short'?'<div class="review-answer">Correct: '+q.answer+'</div>':'')+
+      '<div class="review-exp">'+q.explanation+'</div>';
+    review.appendChild(div);
+  });
+  showScreen('screen-results');
+}
+function retryQuiz(){startQuiz(ST.currentSubject,ST.currentQuiz,ST.infiniteMode);}
+function nextRecommended(){
+  var s=ST.subjects[ST.currentSubject];
+  var next=ST.currentQuiz+1;
+  if(next<s.quizzes.length)startQuiz(ST.currentSubject,next,false);
+  else showSubject(ST.currentSubject);
+}
+
+// ══════════════════════════════════════
+// FIREBASE — ADD QUESTION (password protected)
+// ══════════════════════════════════════
+var CREATOR_PASSWORD = 'chahatesh123';
+
+function openAddQ(){
+  document.getElementById('pw-input').value='';
+  document.getElementById('pw-error').style.display='none';
+  if(ST.unlocked){
+    openAddQModal();
+  }else{
+    document.getElementById('pw-modal-bg').classList.remove('hidden');
+    setTimeout(function(){document.getElementById('pw-input').focus();},100);
+  }
+}
+function closePWModal(){document.getElementById('pw-modal-bg').classList.add('hidden');}
+function checkPassword(){
+  var pw=document.getElementById('pw-input').value;
+  if(pw===CREATOR_PASSWORD){
+    ST.unlocked=true;
+    closePWModal();
+    if(window._afterUnlock==='manage'){
+      _openManageModal();
+    }else{
+      openAddQModal();
+    }
+  }else{
+    document.getElementById('pw-error').style.display='block';
+    document.getElementById('pw-input').value='';
+    document.getElementById('pw-input').focus();
+  }
+}
+function aqPopulateSelects(){
+  var sel=document.getElementById('aq-subject');
+  sel.innerHTML=ST.subjects.map(function(s,i){return '<option value="'+i+'">'+s.subject+'</option>';}).join('');
+  aqSubjectChanged();
+}
+function aqSubjectChanged(){
+  var si=+document.getElementById('aq-subject').value;
+  var qSel=document.getElementById('aq-quiz');
+  qSel.innerHTML=ST.subjects[si].quizzes.map(function(q,i){return '<option value="'+i+'">'+q.name+'</option>';}).join('');
+}
+function aqToggleType(){
+  var t=document.getElementById('aq-type').value;
+  document.getElementById('aq-mcq-fields').classList.toggle('hidden',t!=='mcq');
+  document.getElementById('aq-short-fields').classList.toggle('hidden',t!=='short');
+}
+function openAddQModal(){
+  aqPopulateSelects();
+  // clear form
+  document.getElementById('aq-question').value='';
+  document.getElementById('aq-explanation').value='';
+  document.getElementById('aq-short-answer').value='';
+  ['aq-opt-0','aq-opt-1','aq-opt-2','aq-opt-3'].forEach(function(id){document.getElementById(id).value='';});
+  document.querySelectorAll('.opt-correct-radio').forEach(function(r){r.checked=false;});
+  document.getElementById('aq-type').value='mcq';
+  aqToggleType();
+  document.getElementById('addq-modal-bg').classList.remove('hidden');
+}
+function closeAddQModal(){document.getElementById('addq-modal-bg').classList.add('hidden');}
+
+async function submitQuestion(){
+  var si=+document.getElementById('aq-subject').value;
+  var qi=+document.getElementById('aq-quiz').value;
+  var type=document.getElementById('aq-type').value;
+  var question=document.getElementById('aq-question').value.trim();
+  var explanation=document.getElementById('aq-explanation').value.trim();
+  var subject=ST.subjects[si].subject;
+  var quiz=ST.subjects[si].quizzes[qi].name;
+
+  if(!question){showToast('Please enter a question.');return;}
+  if(!explanation){showToast('Please enter an explanation.');return;}
+
+  var data={subject:subject,quiz:quiz,type:type,question:question,explanation:explanation};
+
+  if(type==='mcq'){
+    var opts=['aq-opt-0','aq-opt-1','aq-opt-2','aq-opt-3'].map(function(id){return document.getElementById(id).value.trim();});
+    if(opts.some(function(o){return !o;})){showToast('Fill in all 4 options.');return;}
+    var answer=-1;
+    document.querySelectorAll('.opt-correct-radio').forEach(function(r){if(r.checked)answer=+r.value;});
+    if(answer<0){showToast('Select the correct answer (click the radio button ●).');return;}
+    data.options=opts;data.answer=answer;
+  }else{
+    var ans=document.getElementById('aq-short-answer').value.trim();
+    if(!ans){showToast('Please enter the correct answer.');return;}
+    data.answer=ans;
+  }
+
+  // Check firebase ready
+  if(!window._db||!window._fbFns){showToast('⚠️ Firebase not connected. Check internet connection.');return;}
+
+  var btn=document.getElementById('aq-submit-btn');
+  btn.textContent='Saving...';btn.disabled=true;
+
+  try{
+    data.createdAt=window._fbFns.serverTimestamp();
+    await window._fbFns.addDoc(window._fbFns.collection(window._db,'questions'),data);
+    closeAddQModal();
+    showToast('✅ Question saved to Firebase — visible to all users!');
+  }catch(err){
+    console.error(err);
+    showToast('❌ Error saving to Firebase: '+err.message);
+  }finally{
+    btn.textContent='🚀 Add to Platform';btn.disabled=false;
+  }
+}
+
+// ══════════════════════════════════════
+// NAV
+// ══════════════════════════════════════
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function goHome(){clearInterval(ST.timerInterval);renderHome();showScreen('screen-home');}
+function confirmQuit(){if(confirm('Quit this quiz? Progress will be lost.')){clearInterval(ST.timerInterval);showSubject(ST.currentSubject);}}
+function showQuickStart(){if(ST.subjects.length)showSubject(0);}
+function showToast(msg){
+  var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},3500);
+}
+
+// ══════════════════════════════════════
+// CONSTANTS
+// ══════════════════════════════════════
+var EMOJI_LIST = ['➗','🔬','🏛️','📖','🌍','🧬','⚗️','🧪','🔭','📐','🧮','📊','📈','💡','🎨','🎵','🏆','🚀','⚡','🌊','🌱','🦁','🐬','🎯','📚','✏️','🖊️','📓','📒','📕','📗','📘','📙','🗺️','🏔️','🌋','🌸','🍎','🦋','🔮','🧲','💎','⭐','🎭','🎪','🏗️','🔧','🔑','🎓','🏫'];
+var COLOR_LIST = ['#4f63f7','#16a34a','#d4930a','#7c3aed','#dc2626','#0891b2','#ea580c','#db2777','#059669','#7c2d12','#1d4ed8','#065f46','#92400e','#4c1d95','#991b1b','#164e63'];
+
+// ══════════════════════════════════════
+// REMOVE FIREBASE QUESTION HANDLER
+// ══════════════════════════════════════
+window._removeFirebaseQuestion = function(data) {
+  if(!data||!data.subject||!data.quiz||!data.question) return;
+  var si=-1;
+  ST.subjects.forEach(function(s,i){if(s.subject===data.subject)si=i;});
+  if(si<0)return;
+  var qi=-1;
+  ST.subjects[si].quizzes.forEach(function(q,i){if(q.name===data.quiz)qi=i;});
+  if(qi<0)return;
+  var qs=ST.subjects[si].quizzes[qi].questions;
+  var idx=qs.findIndex(function(q){return q.question===data.question;});
+  if(idx>-1){qs.splice(idx,1);showToast('Question removed from platform.');}
+};
+
+// ══════════════════════════════════════
+// MANAGE MODAL — open/close/tabs
+// ══════════════════════════════════════
+function openManageModal(){
+  if(!ST.unlocked){
+    document.getElementById('pw-input').value='';
+    document.getElementById('pw-error').style.display='none';
+    window._afterUnlock='manage';
+    document.getElementById('pw-modal-bg').classList.remove('hidden');
+    setTimeout(function(){document.getElementById('pw-input').focus();},100);
+    return;
+  }
+  _openManageModal();
+}
+function _openManageModal(){
+  window._afterUnlock=null;
+  _populateAllManageSelects();
+  var firstTab=document.getElementById('mt-questions');
+  switchManageTab('questions', firstTab);
+  document.getElementById('manage-modal-bg').classList.remove('hidden');
+}
+function closeManageModal(){document.getElementById('manage-modal-bg').classList.add('hidden');}
+
+function _populateAllManageSelects(){
+  var opts=ST.subjects.map(function(s,i){return '<option value="'+i+'">'+s.icon+' '+s.subject+'</option>';}).join('');
+  ['mq-add-subject','mq-subject-sel','imp-subject','notes-subject-sel','teach-subject-sel','new-quiz-subject-sel'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.innerHTML=opts;
+  });
+  mqAddSubjectChanged();
+  mqSubjectChanged();
+  impSubjectChanged();
+  renderNotesEditor();
+  renderTeachEditor();
+  renderSubjectEditList();
+  renderQuizManageList();
+  renderNewSubjEmojiPicker();
+  renderNewSubjColorSwatches();
+}
+
+function switchManageTab(tab, el){
+  var modal=document.getElementById('manage-modal-bg');
+  modal.querySelectorAll('.modal-tab').forEach(function(t){t.classList.remove('active');});
+  modal.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active');});
+  if(el) el.classList.add('active');
+  var panel=document.getElementById('manage-tab-'+tab);
+  if(panel) panel.classList.add('active');
+  if(tab==='manage-q') renderMQList();
+  if(tab==='subjects') renderSubjectEditList();
+  if(tab==='quizzes') renderQuizManageList();
+  if(tab==='notes') renderNotesEditor();
+  if(tab==='teach') renderTeachEditor();
+  if(tab==='import') impSubjectChanged();
+}
+
+// ── ADD QUESTION TAB (keep-open) ──
+function mqAddSubjectChanged(){
+  var sSel=document.getElementById('mq-add-subject'); if(!sSel)return;
+  var si=+sSel.value;
+  var qSel=document.getElementById('mq-add-quiz'); if(!qSel||!ST.subjects[si])return;
+  qSel.innerHTML=ST.subjects[si].quizzes.map(function(q,i){return '<option value="'+i+'">'+q.name+'</option>';}).join('');
+}
+function mqAddToggleType(){
+  var t=document.getElementById('mq-add-type').value;
+  document.getElementById('mq-add-mcq-fields').classList.toggle('hidden',t!=='mcq');
+  document.getElementById('mq-add-short-fields').classList.toggle('hidden',t!=='short');
+}
+async function submitQuestionFromManager(){
+  var si=+document.getElementById('mq-add-subject').value;
+  var qi=+document.getElementById('mq-add-quiz').value;
+  var type=document.getElementById('mq-add-type').value;
+  var question=document.getElementById('mq-add-question').value.trim();
+  var explanation=document.getElementById('mq-add-explanation').value.trim();
+  var statusEl=document.getElementById('mq-add-status');
+  if(!question){showToast('Enter a question.');return;}
+  if(!explanation){showToast('Enter an explanation.');return;}
+  var subject=ST.subjects[si].subject;
+  var quiz=ST.subjects[si].quizzes[qi].name;
+  var data={subject:subject,quiz:quiz,type:type,question:question,explanation:explanation};
+  if(type==='mcq'){
+    var opts=['mq-opt-0','mq-opt-1','mq-opt-2','mq-opt-3'].map(function(id){return document.getElementById(id).value.trim();});
+    if(opts.some(function(o){return !o;})){showToast('Fill in all 4 options.');return;}
+    var answer=-1;
+    document.querySelectorAll('#mq-add-mcq-fields .opt-correct-radio').forEach(function(r){if(r.checked)answer=+r.value;});
+    if(answer<0){showToast('Select the correct answer.');return;}
+    data.options=opts;data.answer=answer;
+  }else{
+    var ans=document.getElementById('mq-add-short').value.trim();
+    if(!ans){showToast('Enter the correct answer.');return;}
+    data.answer=ans;
+  }
+  if(!window._db){showToast('Firebase not connected.');return;}
+  var btn=document.getElementById('mq-add-submit');
+  btn.textContent='Saving...';btn.disabled=true;
+  try{
+    data.createdAt=window._fbFns.serverTimestamp();
+    await window._fbFns.addDoc(window._fbFns.collection(window._db,'questions'),data);
+    document.getElementById('mq-add-question').value='';
+    document.getElementById('mq-add-explanation').value='';
+    ['mq-opt-0','mq-opt-1','mq-opt-2','mq-opt-3'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+    document.querySelectorAll('#mq-add-mcq-fields .opt-correct-radio').forEach(function(r){r.checked=false;});
+    document.getElementById('mq-add-short').value='';
+    statusEl.textContent='Question saved! Add another or close when done.';
+    statusEl.style.color='var(--green)';
+    setTimeout(function(){statusEl.textContent='';},5000);
+  }catch(err){
+    statusEl.textContent='Error: '+err.message;
+    statusEl.style.color='var(--red)';
+  }finally{
+    btn.textContent='Add Question (stays open)';btn.disabled=false;
+  }
+}
+
+// ── JSON IMPORT TAB ──
+function impSubjectChanged(){
+  var sSel=document.getElementById('imp-subject'); if(!sSel)return;
+  var si=+sSel.value;
+  var qSel=document.getElementById('imp-quiz'); if(!qSel||!ST.subjects[si])return;
+  qSel.innerHTML=ST.subjects[si].quizzes.map(function(q,i){return '<option value="'+i+'">'+q.name+'</option>';}).join('');
+}
+async function importJSONQuestions(){
+  var si=+document.getElementById('imp-subject').value;
+  var qi=+document.getElementById('imp-quiz').value;
+  var raw=document.getElementById('imp-json').value.trim();
+  var statusEl=document.getElementById('imp-status');
+  if(!raw){showToast('Paste JSON first.');return;}
+  var arr;
+  try{arr=JSON.parse(raw);}catch(e){statusEl.textContent='Invalid JSON: '+e.message;statusEl.style.color='var(--red)';return;}
+  if(!Array.isArray(arr)) arr=[arr];
+  var subject=ST.subjects[si].subject;
+  var quiz=ST.subjects[si].quizzes[qi].name;
+  var btn=document.getElementById('imp-submit');
+  btn.disabled=true;btn.textContent='Importing...';statusEl.textContent='';
+  var ok=0,fail=0;
+  for(var i=0;i<arr.length;i++){
+    var q=arr[i];
+    if(!q.question||!q.type){fail++;continue;}
+    var data={subject:subject,quiz:quiz,type:q.type||'mcq',question:q.question,explanation:q.explanation||''};
+    if(q.type==='short'){data.answer=String(q.answer||'');}
+    else{data.options=q.options||[];data.answer=+(q.answer||0);}
+    if(!window._db){fail++;continue;}
+    try{
+      data.createdAt=window._fbFns.serverTimestamp();
+      await window._fbFns.addDoc(window._fbFns.collection(window._db,'questions'),data);
+      ok++;
+    }catch(e){fail++;}
+  }
+  statusEl.textContent='Imported '+ok+' questions'+(fail?' ('+fail+' skipped/failed)':'')+'. Check "Manage Q" tab to see or delete them.';
+  statusEl.style.color=fail?'var(--gold)':'var(--green)';
+  if(ok>0) document.getElementById('imp-json').value='';
+  btn.disabled=false;btn.textContent='Import to Firebase';
+}
+
+// ── MANAGE QUESTIONS TAB ──
+function mqSubjectChanged(){
+  var sSel=document.getElementById('mq-subject-sel'); if(!sSel)return;
+  var si=+sSel.value;
+  var qSel=document.getElementById('mq-quiz-sel'); if(!qSel||!ST.subjects[si])return;
+  qSel.innerHTML=ST.subjects[si].quizzes.map(function(q,i){return '<option value="'+i+'">'+q.name+'</option>';}).join('');
+  renderMQList();
+}
+function renderMQList(){
+  var sSel=document.getElementById('mq-subject-sel'); if(!sSel)return;
+  var qSel=document.getElementById('mq-quiz-sel'); if(!qSel)return;
+  var si=+sSel.value, qi=+qSel.value;
+  if(!ST.subjects[si]||!ST.subjects[si].quizzes[qi])return;
+  var qs=ST.subjects[si].quizzes[qi].questions;
+  var list=document.getElementById('mq-list'); if(!list)return;
+  list.innerHTML='';
+  if(!qs.length){list.innerHTML='<div style="font-size:13px;color:var(--ink3);padding:10px;text-align:center">No questions yet. Use the "Add Q" tab!</div>';return;}
+  qs.forEach(function(q,idx){
+    var row=document.createElement('div');row.className='mq-row';
+    var ans=q.type==='mcq'?(q.options&&q.options[q.answer])||'':q.answer||'';
+    var fbTag=q._fromFirebase?'<span class="mq-firebase-tag">Firebase</span>':'<span class="mq-firebase-tag" style="background:var(--paper);color:var(--ink3)">Local</span>';
+    var docIdSafe=encodeURIComponent(q._docId||'');
+    row.innerHTML='<div class="mq-num">'+(idx+1)+'</div>'+
+      '<div class="mq-content"><div class="mq-q">'+escHtml(q.question)+'</div>'+
+      '<div class="mq-meta"><span>'+q.type.toUpperCase()+'</span><span>Ans: '+escHtml(String(ans).substring(0,35))+'</span>'+fbTag+'</div></div>'+
+      '<button class="mq-del-btn" onclick="deleteQuestion('+si+','+qi+','+idx+',\''+encodeURIComponent(q.question)+'\','+(q._fromFirebase?'true':'false')+',\''+docIdSafe+'\')">Del</button>';
+    list.appendChild(row);
+  });
+}
+async function deleteQuestion(si,qi,idx,encodedQ,isFirebase,encodedDocId){
+  var question=decodeURIComponent(encodedQ);
+  if(!confirm('Delete: "'+question.substring(0,70)+'"?'))return;
+  if(isFirebase&&encodedDocId&&window._db&&window._fbFns){
+    var docId=decodeURIComponent(encodedDocId);
+    if(docId){try{await window._fbFns.deleteDoc(window._fbFns.doc(window._db,'questions',docId));}catch(e){showToast('Firebase delete failed: '+e.message);}}
+  }
+  ST.subjects[si].quizzes[qi].questions.splice(idx,1);
+  saveSubjects();renderMQList();showToast('Question deleted.');
+}
+
+// ── SUBJECTS TAB ──
+function renderSubjectEditList(){
+  var list=document.getElementById('subject-edit-list'); if(!list)return;
+  list.innerHTML='';
+  ST.subjects.forEach(function(s,si){
+    var row=document.createElement('div');
+    row.style.cssText='background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 14px;display:flex;align-items:center;gap:12px';
+    row.innerHTML='<span style="font-size:24px">'+s.icon+'</span>'+
+      '<div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--ink)">'+escHtml(s.subject)+'</div>'+
+      '<div style="font-size:12px;color:var(--ink3)">'+s.quizzes.length+' quizzes</div></div>'+
+      '<div style="width:12px;height:12px;border-radius:50%;background:'+s.color+';flex-shrink:0"></div>'+
+      '<button class="nav-btn nav-btn-ghost" style="font-size:11px;padding:4px 9px" onclick="openSubjectEdit('+si+')">Edit</button>'+
+      '<button class="mq-del-btn" onclick="deleteSubject('+si+')">Del</button>';
+    list.appendChild(row);
+  });
+}
+function deleteSubject(si){
+  if(!confirm('Delete subject "'+ST.subjects[si].subject+'" and ALL its quizzes? Cannot be undone.'))return;
+  ST.subjects.splice(si,1);
+  saveSubjects();renderSubjectEditList();renderHome();_populateAllManageSelects();showToast('Subject deleted.');
+}
+function openSubjectEdit(si){
+  var s=ST.subjects[si];
+  document.getElementById('se-subj-idx').value=si;
+  document.getElementById('se-name').value=s.subject;
+  document.getElementById('se-desc').value=s.description||'';
+  document.getElementById('se-emoji-preview').textContent=s.icon;
+  window._seCurrentEmoji=s.icon;window._seCurrentColor=s.color;
+  renderEmojiPicker('se-emoji-picker','se-emoji-preview',s.icon,function(e){window._seCurrentEmoji=e;});
+  renderColorSwatches('se-color-swatches',s.color,function(c){window._seCurrentColor=c;});
+  document.getElementById('subj-edit-modal-bg').classList.remove('hidden');
+}
+function closeSubjEditModal(){document.getElementById('subj-edit-modal-bg').classList.add('hidden');}
+function saveSubjectEdit(){
+  var si=+document.getElementById('se-subj-idx').value;
+  var name=document.getElementById('se-name').value.trim();
+  if(!name){showToast('Subject name required.');return;}
+  ST.subjects[si].subject=name;ST.subjects[si].description=document.getElementById('se-desc').value.trim();
+  ST.subjects[si].icon=window._seCurrentEmoji;ST.subjects[si].color=window._seCurrentColor;
+  saveSubjects();closeSubjEditModal();renderSubjectEditList();renderHome();showToast('Subject updated!');
+}
+
+// ── QUIZZES TAB ──
+function renderQuizManageList(){
+  var list=document.getElementById('quiz-manage-list'); if(!list)return;
+  list.innerHTML='';
+  ST.subjects.forEach(function(s,si){
+    s.quizzes.forEach(function(q,qi){
+      var row=document.createElement('div');
+      row.style.cssText='background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:9px 12px;display:flex;align-items:center;gap:10px;font-size:13px';
+      row.innerHTML='<span style="font-size:17px">'+s.icon+'</span>'+
+        '<div style="flex:1"><strong>'+escHtml(q.name)+'</strong> <span style="color:var(--ink3);font-size:12px">in '+escHtml(s.subject)+' ('+q.questions.length+' Q)</span></div>'+
+        '<button class="mq-del-btn" onclick="deleteQuiz('+si+','+qi+')">Del</button>';
+      list.appendChild(row);
+    });
+  });
+  if(!list.children.length) list.innerHTML='<div style="font-size:13px;color:var(--ink3);padding:8px">No quizzes yet.</div>';
+}
+function deleteQuiz(si,qi){
+  var qn=ST.subjects[si].quizzes[qi].name;
+  if(!confirm('Delete quiz "'+qn+'" and all its questions?'))return;
+  ST.subjects[si].quizzes.splice(qi,1);
+  saveSubjects();renderQuizManageList();renderHome();_populateAllManageSelects();showToast('Quiz deleted.');
+}
+function createNewQuiz(){
+  var si=+document.getElementById('new-quiz-subject-sel').value;
+  var name=document.getElementById('new-quiz-name').value.trim();
+  if(!name){showToast('Please enter a quiz name.');return;}
+  var desc=document.getElementById('new-quiz-desc').value.trim();
+  var diff=document.getElementById('new-quiz-diff').value;
+  ST.subjects[si].quizzes.push({name:name,difficulty:diff,description:desc,questions:[]});
+  saveSubjects();document.getElementById('new-quiz-name').value='';document.getElementById('new-quiz-desc').value='';
+  renderQuizManageList();_populateAllManageSelects();renderHome();showToast('Quiz "'+name+'" created!');
+}
+
+// ── NEW SUBJECT ──
+var _newSubjEmoji='📗';var _newSubjColor='#4f63f7';
+function renderNewSubjEmojiPicker(){
+  _newSubjEmoji='📗';
+  var prev=document.getElementById('new-subj-emoji-preview'); if(prev)prev.textContent='📗';
+  renderEmojiPicker('new-subj-emoji-picker','new-subj-emoji-preview','📗',function(e){_newSubjEmoji=e;});
+}
+function renderNewSubjColorSwatches(){
+  _newSubjColor='#4f63f7';
+  renderColorSwatches('new-subj-color-swatches','#4f63f7',function(c){_newSubjColor=c;});
+}
+function createNewSubject(){
+  var name=document.getElementById('new-subj-name').value.trim();
+  if(!name){showToast('Please enter a subject name.');return;}
+  var desc=document.getElementById('new-subj-desc').value.trim();
+  ST.subjects.push({subject:name,icon:_newSubjEmoji,color:_newSubjColor,description:desc,notes:[],quizzes:[]});
+  saveSubjects();document.getElementById('new-subj-name').value='';document.getElementById('new-subj-desc').value='';
+  renderSubjectEditList();renderHome();_populateAllManageSelects();showToast('Subject "'+name+'" created!');
+}
+
+// ── EMOJI / COLOR PICKERS ──
+function renderEmojiPicker(pickerId,previewId,current,onChange){
+  var picker=document.getElementById(pickerId); if(!picker)return;
+  picker.innerHTML='';
+  EMOJI_LIST.forEach(function(e){
+    var btn=document.createElement('button');btn.className='emoji-btn'+(e===current?' selected':'');
+    btn.textContent=e;
+    btn.onclick=function(){
+      picker.querySelectorAll('.emoji-btn').forEach(function(b){b.classList.remove('selected');});
+      btn.classList.add('selected');
+      var prev=document.getElementById(previewId);if(prev)prev.textContent=e;
+      onChange(e);
+    };
+    picker.appendChild(btn);
+  });
+}
+function renderColorSwatches(containerId,current,onChange){
+  var wrap=document.getElementById(containerId); if(!wrap)return;
+  wrap.innerHTML='';
+  COLOR_LIST.forEach(function(c){
+    var sw=document.createElement('div');sw.className='color-swatch'+(c===current?' selected':'');
+    sw.style.background=c;sw.title=c;
+    sw.onclick=function(){wrap.querySelectorAll('.color-swatch').forEach(function(s){s.classList.remove('selected');});sw.classList.add('selected');onChange(c);};
+    wrap.appendChild(sw);
+  });
+}
+
+// ── NOTES TAB ──
+function renderNotesEditor(){
+  var sel=document.getElementById('notes-subject-sel'); if(!sel)return;
+  var si=+sel.value;
+  var list=document.getElementById('notes-editor-list'); if(!list)return;
+  list.innerHTML='';
+  if(!ST.subjects[si])return;
+  var notes=ST.subjects[si].notes||[];
+  if(!notes.length){list.innerHTML='<div style="font-size:13px;color:var(--ink3);padding:8px">No notes yet. Add one below.</div>';return;}
+  notes.forEach(function(n,ni){
+    var card=document.createElement('div');
+    card.style.cssText='background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px';
+    card.innerHTML='<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">'+
+      '<div style="flex:1;font-size:14px;font-weight:600;color:var(--ink)">'+escHtml(n.title)+'</div>'+
+      '<button class="nav-btn nav-btn-ghost" style="font-size:11px;padding:4px 9px" onclick="openNoteEdit('+si+','+ni+')">Edit</button>'+
+      '<button class="mq-del-btn" onclick="deleteNote('+si+','+ni+')">Del</button></div>'+
+      '<div style="font-size:12px;color:var(--ink3);line-height:1.6">'+escHtml(n.content.substring(0,120))+(n.content.length>120?'...':'')+'</div>';
+    list.appendChild(card);
+  });
+}
+function openNoteEdit(si,ni){
+  document.getElementById('ne-subj-idx').value=si;
+  document.getElementById('ne-note-idx').value=ni;
+  document.getElementById('ne-title').value=ST.subjects[si].notes[ni].title;
+  document.getElementById('ne-content').value=ST.subjects[si].notes[ni].content;
+  document.getElementById('note-edit-modal-bg').classList.remove('hidden');
+}
+function closeNoteEditModal(){document.getElementById('note-edit-modal-bg').classList.add('hidden');}
+function saveNoteEdit(){
+  var si=+document.getElementById('ne-subj-idx').value;
+  var ni=+document.getElementById('ne-note-idx').value;
+  var title=document.getElementById('ne-title').value.trim();
+  var content=document.getElementById('ne-content').value.trim();
+  if(!title){showToast('Note title required.');return;}
+  ST.subjects[si].notes[ni]={title:title,content:content};
+  saveSubjects();closeNoteEditModal();renderNotesEditor();showToast('Note saved!');
+}
+function deleteNote(si,ni){
+  if(!confirm('Delete note "'+ST.subjects[si].notes[ni].title+'"?'))return;
+  ST.subjects[si].notes.splice(ni,1);
+  saveSubjects();renderNotesEditor();showToast('Note deleted.');
+}
+function addNewNote(){
+  var sel=document.getElementById('notes-subject-sel'); if(!sel)return;
+  var si=+sel.value;
+  var title=document.getElementById('new-note-title').value.trim();
+  var content=document.getElementById('new-note-content').value.trim();
+  if(!title){showToast('Enter a note title.');return;}
+  if(!content){showToast('Enter note content.');return;}
+  if(!ST.subjects[si].notes) ST.subjects[si].notes=[];
+  ST.subjects[si].notes.push({title:title,content:content});
+  saveSubjects();document.getElementById('new-note-title').value='';document.getElementById('new-note-content').value='';
+  renderNotesEditor();showToast('Note added!');
+}
+
+// ── TEACH TAB ──
+function renderTeachEditor(){
+  var sel=document.getElementById('teach-subject-sel'); if(!sel)return;
+  var si=+sel.value;
+  var sName=ST.subjects[si]?ST.subjects[si].subject:null;
+  var list=document.getElementById('teach-editor-list'); if(!list)return;
+  list.innerHTML='';
+  var concepts=(sName&&TEACH[sName]&&TEACH[sName].concepts)||[];
+  if(!concepts.length){list.innerHTML='<div style="font-size:13px;color:var(--ink3);padding:8px">No Teach concepts for this subject yet. Add one below.</div>';return;}
+  concepts.forEach(function(c,ci){
+    var card=document.createElement('div');
+    card.style.cssText='background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px';
+    card.innerHTML='<div style="display:flex;align-items:center;gap:10px;margin-bottom:5px">'+
+      '<div style="flex:1;font-size:14px;font-weight:600;color:var(--ink)">'+escHtml(c.title)+'</div>'+
+      '<button class="nav-btn nav-btn-ghost" style="font-size:11px;padding:4px 9px" onclick="openTeachConceptEdit(\''+encodeURIComponent(sName)+'\','+ci+')">Edit</button>'+
+      '<button class="mq-del-btn" onclick="deleteTeachConcept(\''+encodeURIComponent(sName)+'\','+ci+')">Del</button></div>'+
+      '<div style="font-size:12px;color:var(--ink3);line-height:1.5">'+escHtml(c.core.substring(0,100))+'...</div>';
+    list.appendChild(card);
+  });
+}
+function openTeachConceptEdit(encodedSName,ci){
+  var sName=decodeURIComponent(encodedSName);
+  if(!TEACH[sName]||!TEACH[sName].concepts[ci])return;
+  var c=TEACH[sName].concepts[ci];
+  document.getElementById('tce-subj-key').value=sName;
+  document.getElementById('tce-concept-idx').value=ci;
+  document.getElementById('tce-title').value=c.title||'';
+  document.getElementById('tce-core').value=c.core||'';
+  document.getElementById('tce-visual').value=c.visual||'';
+  document.getElementById('tce-auditory').value=c.auditory||'';
+  document.getElementById('tce-readwrite').value=c.readwrite||'';
+  document.getElementById('tce-kinesthetic').value=c.kinesthetic||'';
+  document.getElementById('tce-pq').value=c.practice?c.practice.q:'';
+  document.getElementById('tce-pa').value=c.practice?c.practice.a:'';
+  document.getElementById('tce-ph').value=c.practice?c.practice.hint:'';
+  document.getElementById('teach-edit-modal-bg').classList.remove('hidden');
+}
+function closeTeachEditModal(){document.getElementById('teach-edit-modal-bg').classList.add('hidden');}
+function saveTeachConceptEdit(){
+  var sName=document.getElementById('tce-subj-key').value;
+  var ci=+document.getElementById('tce-concept-idx').value;
+  if(!TEACH[sName]||!TEACH[sName].concepts[ci]){showToast('Concept not found.');return;}
+  var c=TEACH[sName].concepts[ci];
+  c.title=document.getElementById('tce-title').value.trim();
+  c.core=document.getElementById('tce-core').value.trim();
+  c.visual=document.getElementById('tce-visual').value.trim();
+  c.auditory=document.getElementById('tce-auditory').value.trim();
+  c.readwrite=document.getElementById('tce-readwrite').value.trim();
+  c.kinesthetic=document.getElementById('tce-kinesthetic').value.trim();
+  var pq=document.getElementById('tce-pq').value.trim();
+  c.practice=pq?{q:pq,a:document.getElementById('tce-pa').value.trim(),hint:document.getElementById('tce-ph').value.trim()}:null;
+  closeTeachEditModal();renderTeachEditor();showToast('Teach concept saved!');
+}
+function deleteTeachConcept(encodedSName,ci){
+  var sName=decodeURIComponent(encodedSName);
+  if(!TEACH[sName]||!TEACH[sName].concepts[ci])return;
+  if(!confirm('Delete concept "'+TEACH[sName].concepts[ci].title+'"?'))return;
+  TEACH[sName].concepts.splice(ci,1);renderTeachEditor();showToast('Concept deleted.');
+}
+function addTeachConcept(){
+  var sel=document.getElementById('teach-subject-sel'); if(!sel)return;
+  var si=+sel.value;
+  var sName=ST.subjects[si]?ST.subjects[si].subject:null;
+  var title=document.getElementById('new-teach-title').value.trim();
+  var core=document.getElementById('new-teach-core').value.trim();
+  if(!title||!core){showToast('Title and core explanation are required.');return;}
+  if(!TEACH[sName]) TEACH[sName]={concepts:[]};
+  var pq=document.getElementById('new-teach-pq').value.trim();
+  TEACH[sName].concepts.push({
+    title:title, core:core,
+    visual:document.getElementById('new-teach-visual').value.trim(),
+    auditory:document.getElementById('new-teach-auditory').value.trim(),
+    readwrite:document.getElementById('new-teach-readwrite').value.trim(),
+    kinesthetic:document.getElementById('new-teach-kinesthetic').value.trim(),
+    practice:pq?{q:pq,a:document.getElementById('new-teach-pa').value.trim(),hint:document.getElementById('new-teach-ph').value.trim()}:null
+  });
+  ['new-teach-title','new-teach-core','new-teach-visual','new-teach-auditory','new-teach-readwrite','new-teach-kinesthetic','new-teach-pq','new-teach-pa','new-teach-ph'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  renderTeachEditor();saveSubjects();showToast('Teach concept added!');
+}
+
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+init();
+</script>
+</body>
+</html>
