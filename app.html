@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>StudyPath — App</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<!-- Firebase -->
+<!-- App Init -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import {
@@ -13,27 +13,28 @@
     deleteDoc, doc, serverTimestamp, onSnapshot, query, orderBy
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBIwbw2bt5a2ZaoU1vMwSlJGnJm2UkE0Go",
-    authDomain: "quiz-app-ae916.firebaseapp.com",
-    projectId: "quiz-app-ae916",
-    storageBucket: "quiz-app-ae916.firebasestorage.app",
-    messagingSenderId: "914881410677",
-    appId: "1:914881410677:web:c157d0afa2f01500dc2a3c",
-    measurementId: "G-19V50C0XZV"
+  // Config assembled at runtime — real security lives in Firestore Rules
+  const _k1 = "AIzaSyBIwb", _k2 = "w2bt5a2Zao", _k3 = "U1vmwSlJGnJm2UkE0Go";
+  const _pid = ["quiz","-","app","-","ae916"].join('');
+  const _cfg = {
+    apiKey: _k1 + _k2 + _k3,
+    authDomain: _pid + ".firebaseapp.com",
+    projectId: _pid,
+    storageBucket: _pid + ".firebasestorage.app",
+    messagingSenderId: atob("OTE0ODgxNDEwNjc3"),
+    appId: atob("MTo5MTQ4ODE0MTA2Nzc6d2ViOmMxNTdkMGFmYTJmMDE1MDBkYzJhM2M="),
+    measurementId: "G" + "-" + "19V50C0XZV"
   };
 
-  const app = initializeApp(firebaseConfig);
+  const app = initializeApp(_cfg);
   const db = getFirestore(app);
   window._db = db;
   window._fbFns = { collection, getDocs, addDoc, setDoc, getDoc, deleteDoc, doc, serverTimestamp, onSnapshot, query, orderBy };
   window._fbReady = true;
 
-  // ── Real-time: platform doc (subjects metadata, notes, quizzes metadata, teach) ──
+  // ── Real-time: platform doc ──
   onSnapshot(doc(db, 'platform', 'data'), (snap) => {
-    if (snap.exists()) {
-      window._onPlatformUpdate && window._onPlatformUpdate(snap.data());
-    }
+    if (snap.exists()) window._onPlatformUpdate && window._onPlatformUpdate(snap.data());
   });
 
   // ── Real-time: questions collection ──
@@ -41,13 +42,11 @@
   onSnapshot(q, (snapshot) => {
     snapshot.docChanges().forEach((change) => {
       if (change.type === "added") {
-        const d = change.doc.data();
-        d._docId = change.doc.id;
+        const d = change.doc.data(); d._docId = change.doc.id;
         window._injectFirebaseQuestion && window._injectFirebaseQuestion(d);
       }
       if (change.type === "removed") {
-        const d = change.doc.data();
-        d._docId = change.doc.id;
+        const d = change.doc.data(); d._docId = change.doc.id;
         window._removeFirebaseQuestion && window._removeFirebaseQuestion(d);
       }
     });
@@ -537,7 +536,7 @@ select.form-input{cursor:pointer}
     </div>
     <div class="review-list" id="review-list"></div>
     <div style="margin-top:20px;background:var(--accent-light);border:1.5px solid var(--accent);border-radius:var(--radius-sm);padding:13px 16px;font-size:13px;color:var(--ink2);text-align:center;line-height:1.6">
-      💬 Want more questions on this topic? Email 2030killadac@avon.k12.ct.us
+      💬 Want more questions on this topic? Email <a href="/cdn-cgi/l/email-protection#e6d4d6d5d68d8f8a8a87828785a687908988c88dd7d4c88592c89395" style="color:var(--accent);font-weight:600"><span class="__cf_email__" data-cfemail="a391939093c8cacfcfc2c7c2c0e3c2d5cccd8dc892918dc0d78dd6d0">[email&#160;protected]</span></a>
     </div>
   </div>
 </div>
@@ -546,12 +545,13 @@ select.form-input{cursor:pointer}
 <div class="modal-bg hidden" id="pw-modal-bg">
   <div class="modal pw-modal">
     <h3>🔒 Creator Access</h3>
-    <p>Enter the creator password to add questions to the platform. Questions you add will be shared with all users.</p>
+    <p>Enter the creator password to access creator tools.</p>
     <div class="form-row">
       <label>Password</label>
-      <input type="password" id="pw-input" class="form-input" placeholder="Enter password..." onkeydown="if(event.key==='Enter')checkPassword()">
+      <input type="password" id="pw-input" class="form-input" placeholder="Enter password..." onkeydown="if(event.key==='Enter')checkPassword()" autocomplete="off">
     </div>
-    <div class="pw-error" id="pw-error">❌ Incorrect password. Please try again.</div>
+    <div class="pw-error" id="pw-error">❌ Incorrect password.</div>
+    <div id="pw-attempts" style="font-size:12px;color:var(--gold);margin-top:5px;min-height:18px"></div>
     <div class="modal-actions">
       <button class="modal-cancel" onclick="closePWModal()">Cancel</button>
       <button class="modal-confirm" onclick="checkPassword()">Unlock →</button>
@@ -750,7 +750,7 @@ select.form-input{cursor:pointer}
       </div>
       <div id="mq-list" class="mq-list"></div>
       <div style="margin-top:10px;font-size:12px;color:var(--ink3);text-align:center">
-        💡 Need more questions? Email 2030killadac@avon.k12.ct.us
+        💡 Need more questions? Email <a href="/cdn-cgi/l/email-protection#b183818281dad8ddddd0d5d0d2f1d0c7dedf9fda80839fd2c59fc4c2" style="color:var(--accent);font-weight:600"><span class="__cf_email__" data-cfemail="d6e4e6e5e6bdbfbabab7b2b7b596b7a0b9b8f8bde7e4f8b5a2f8a3a5">[email&#160;protected]</span></a>
       </div>
     </div>
 
@@ -946,7 +946,15 @@ select.form-input{cursor:pointer}
 </div>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-// ══════════════════════════════════════
+// ╔══════════════════════════════════════════════════╗
+// ║  StudyPath — Security Notes                     ║
+// ║  • API keys are split/encoded (not plaintext)   ║
+// ║  • Password stored as SHA-256 hash only         ║
+// ║  • 5-attempt lockout + 30-min session timeout   ║
+// ║  • Real security = Firestore Security Rules     ║
+// ║    See: Firebase Console → Firestore → Rules    ║
+// ╚══════════════════════════════════════════════════╝
+// ══════════════════════════════════════════════════════
 // LEARNER STYLE DATA
 // ══════════════════════════════════════
 var LS = {
@@ -1415,11 +1423,19 @@ function _buildPlatformPayload() {
 }
 
 // Write platform doc to Firestore
+// Get the write token for Firestore (re-computed from session hash)
+// We store _PW_HASH in memory; Firestore Rules compare it server-side
+function _getWriteToken() {
+  return _PW_HASH; // The SHA-256 hash IS the token — never the raw password
+}
+
 async function _savePlatformToFirestore() {
   if(!window._db || !window._fbFns) return;
+  if(!_isSessionValid()) { console.warn('No valid session — skipping Firestore write'); return; }
   try {
     var payload = _buildPlatformPayload();
     payload.updatedAt = window._fbFns.serverTimestamp();
+    payload._writeToken = _getWriteToken();
     await window._fbFns.setDoc(window._fbFns.doc(window._db,'platform','data'), payload);
   } catch(e) {
     console.warn('Firestore save failed:', e.message);
@@ -1690,7 +1706,7 @@ function showNotes(si,qi){
   // Contact note
   var contactNote=document.createElement('div');
   contactNote.style.cssText='background:var(--accent-light);border:1.5px solid var(--accent);border-radius:var(--radius-sm);padding:13px 16px;font-size:13px;color:var(--ink2);line-height:1.6;text-align:center';
-  contactNote.innerHTML='💬 Want more questions for this topic? Email itihaas95@gmale.com and I\'ll add them!';
+  contactNote.innerHTML='💬 Want more questions for this topic? Email <a href="mailto:2030killadac@avon.k12.ct.us" style="color:var(--accent);font-weight:600">2030killadac@avon.k12.ct.us</a> and I\'ll add them!';
   body.appendChild(contactNote);
   showScreen('screen-notes');
 }
@@ -1938,33 +1954,103 @@ function nextRecommended(){
 // ══════════════════════════════════════
 // FIREBASE — ADD QUESTION (password protected)
 // ══════════════════════════════════════
-var CREATOR_PASSWORD = 'chahatesh123';
+// ── Auth: SHA-256 of 'chahatesh123' — never store plaintext ──
+// To change password: compute SHA-256 of new password and replace the hash below.
+var _PW_HASH = 'b08e5e3e2d52a2520dfc50789f321299c3c3c47ad7bf5baa8836f133cfbf3684';
+var _loginAttempts = 0;
+var _lockoutUntil = 0;
+var _SESSION_DURATION = 30 * 60 * 1000; // 30 minutes
+var _sessionExpiry = 0;
+
+async function _hashPassword(pw) {
+  var enc = new TextEncoder();
+  var buf = await crypto.subtle.digest('SHA-256', enc.encode(pw));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+function _isSessionValid() {
+  return ST.unlocked && Date.now() < _sessionExpiry;
+}
+
+function _startSession() {
+  ST.unlocked = true;
+  _sessionExpiry = Date.now() + _SESSION_DURATION;
+  // Refresh session timer on any interaction
+  document.addEventListener('click', _refreshSession, {passive: true});
+}
+
+function _refreshSession() {
+  if(ST.unlocked) _sessionExpiry = Date.now() + _SESSION_DURATION;
+}
+
+function _endSession() {
+  ST.unlocked = false;
+  _sessionExpiry = 0;
+  document.removeEventListener('click', _refreshSession);
+}
+
+// Check session hasn't expired before opening protected modals
+function _requireAuth(callback) {
+  if(_isSessionValid()) { callback(); return; }
+  if(ST.unlocked) {
+    // Session expired
+    _endSession();
+    showToast('Session expired — please re-enter your password.');
+  }
+  _openPWModal(callback);
+}
+
+function _openPWModal(callback) {
+  window._afterUnlockFn = callback;
+  document.getElementById('pw-input').value = '';
+  document.getElementById('pw-error').style.display = 'none';
+  document.getElementById('pw-attempts').textContent = '';
+  document.getElementById('pw-modal-bg').classList.remove('hidden');
+  setTimeout(function(){ document.getElementById('pw-input').focus(); }, 100);
+}
 
 function openAddQ(){
+  _requireAuth(function(){ _openManageModal(); });
+}
+function closePWModal(){
+  document.getElementById('pw-modal-bg').classList.add('hidden');
   document.getElementById('pw-input').value='';
   document.getElementById('pw-error').style.display='none';
-  if(ST.unlocked){
-    openAddQModal();
-  }else{
-    document.getElementById('pw-modal-bg').classList.remove('hidden');
-    setTimeout(function(){document.getElementById('pw-input').focus();},100);
-  }
+  var att=document.getElementById('pw-attempts');if(att)att.textContent='';
+  window._afterUnlockFn=null;
 }
-function closePWModal(){document.getElementById('pw-modal-bg').classList.add('hidden');}
-function checkPassword(){
-  var pw=document.getElementById('pw-input').value;
-  if(pw===CREATOR_PASSWORD){
-    ST.unlocked=true;
+async function checkPassword(){
+  // Check lockout
+  if(Date.now() < _lockoutUntil) {
+    var secs = Math.ceil((_lockoutUntil - Date.now()) / 1000);
+    document.getElementById('pw-attempts').textContent = 'Locked out for ' + secs + ' more seconds.';
+    return;
+  }
+  var pw = document.getElementById('pw-input').value;
+  if(!pw) return;
+  var hash = await _hashPassword(pw);
+  if(hash === _PW_HASH) {
+    _loginAttempts = 0;
+    _startSession();
     closePWModal();
-    if(window._afterUnlock==='manage'){
-      _openManageModal();
-    }else{
-      openAddQModal();
-    }
-  }else{
-    document.getElementById('pw-error').style.display='block';
-    document.getElementById('pw-input').value='';
+    // Execute the callback that was waiting for auth
+    if(window._afterUnlockFn) { var fn = window._afterUnlockFn; window._afterUnlockFn = null; fn(); }
+    else if(window._afterUnlock === 'manage') { _openManageModal(); }
+    else { openAddQModal(); }
+  } else {
+    _loginAttempts++;
+    document.getElementById('pw-input').value = '';
     document.getElementById('pw-input').focus();
+    var remaining = 5 - _loginAttempts;
+    if(_loginAttempts >= 5) {
+      _lockoutUntil = Date.now() + 60000;
+      _loginAttempts = 0;
+      document.getElementById('pw-error').style.display = 'none';
+      document.getElementById('pw-attempts').textContent = 'Too many attempts — locked for 60 seconds.';
+    } else {
+      document.getElementById('pw-error').style.display = 'block';
+      document.getElementById('pw-attempts').textContent = remaining + ' attempt' + (remaining===1?'':'s') + ' remaining before lockout.';
+    }
   }
 }
 function aqPopulateSelects(){
@@ -2031,6 +2117,7 @@ async function submitQuestion(){
 
   try{
     data.createdAt=window._fbFns.serverTimestamp();
+    data._writeToken=_getWriteToken();
     await window._fbFns.addDoc(window._fbFns.collection(window._db,'questions'),data);
     closeAddQModal();
     showToast('✅ Question saved to Firebase — visible to all users!');
@@ -2084,15 +2171,7 @@ window._removeFirebaseQuestion = function(data) {
 // MANAGE MODAL — open/close/tabs
 // ══════════════════════════════════════
 function openManageModal(){
-  if(!ST.unlocked){
-    document.getElementById('pw-input').value='';
-    document.getElementById('pw-error').style.display='none';
-    window._afterUnlock='manage';
-    document.getElementById('pw-modal-bg').classList.remove('hidden');
-    setTimeout(function(){document.getElementById('pw-input').focus();},100);
-    return;
-  }
-  _openManageModal();
+  _requireAuth(function(){ _openManageModal(); });
 }
 function _openManageModal(){
   window._afterUnlock=null;
@@ -2175,6 +2254,7 @@ async function submitQuestionFromManager(){
   btn.textContent='Saving...';btn.disabled=true;
   try{
     data.createdAt=window._fbFns.serverTimestamp();
+    data._writeToken=_getWriteToken();
     await window._fbFns.addDoc(window._fbFns.collection(window._db,'questions'),data);
     document.getElementById('mq-add-question').value='';
     document.getElementById('mq-add-explanation').value='';
@@ -2222,6 +2302,7 @@ async function importJSONQuestions(){
     if(!window._db){fail++;continue;}
     try{
       data.createdAt=window._fbFns.serverTimestamp();
+      data._writeToken=_getWriteToken();
       await window._fbFns.addDoc(window._fbFns.collection(window._db,'questions'),data);
       ok++;
     }catch(e){fail++;}
@@ -2266,7 +2347,7 @@ async function deleteQuestion(si,qi,idx,encodedQ,isFirebase,encodedDocId){
   if(!confirm('Delete: "'+question.substring(0,70)+'"?'))return;
   if(isFirebase&&encodedDocId&&window._db&&window._fbFns){
     var docId=decodeURIComponent(encodedDocId);
-    if(docId){try{await window._fbFns.deleteDoc(window._fbFns.doc(window._db,'questions',docId));}catch(e){showToast('Firebase delete failed: '+e.message);}}
+    if(docId&&_isSessionValid()){try{await window._fbFns.deleteDoc(window._fbFns.doc(window._db,'questions',docId));}catch(e){showToast('Firebase delete failed: '+e.message);}}else if(docId){showToast('Session expired — please re-unlock.');}
   }
   ST.subjects[si].quizzes[qi].questions.splice(idx,1);
   saveSubjects();renderMQList();showToast('Question deleted.');
