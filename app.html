@@ -354,6 +354,10 @@ select.form-input{cursor:pointer}
 .modal-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
 .tab-panel{display:none}
 .tab-panel.active{display:block}
+.option-btn.selected {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
 </style>
 </head>
 <body>
@@ -1798,46 +1802,157 @@ function getInfQ(){
   }
   return ST.infPool[ST.infIdx];
 }
+var currentSelectedOption = null;
+
+var currentSelectedOption = null;
+
 function renderQ(){
-  var q=ST.infiniteMode?getInfQ():ST.session[ST.currentQ];
-  var total=ST.session.length;
+  var q = ST.infiniteMode ? getInfQ() : ST.session[ST.currentQ];
+  var total = ST.session.length;
   if(!ST.infiniteMode){
-    document.getElementById('q-progress').style.width=(ST.currentQ/total*100)+'%';
-    document.getElementById('q-counter').textContent=(ST.currentQ+1)+'/'+total;
-  }else{
-    document.getElementById('inf-q-counter').textContent='Q '+(ST.answers.length+1)+' | ✓ '+ST.answers.filter(function(a){return a.correct;}).length;
+    document.getElementById('q-progress').style.width = (ST.currentQ/total*100) + '%';
+    document.getElementById('q-counter').textContent = (ST.currentQ+1) + '/' + total;
+  } else {
+    document.getElementById('inf-q-counter').textContent = 'Q ' + (ST.answers.length+1) + ' | ✓ ' + ST.answers.filter(function(a){return a.correct;}).length;
   }
-  document.getElementById('q-category').textContent=ST.subjects[ST.currentSubject].subject;
-  var ctxBox=document.getElementById('style-context-box');
+  document.getElementById('q-category').textContent = ST.subjects[ST.currentSubject].subject;
+
+  var ctxBox = document.getElementById('style-context-box');
   if(ST.learnerStyle){
-    var ls=LS[ST.learnerStyle];
-    ctxBox.innerHTML='<div class="style-context" style="background:'+ls.bg+';border:1px solid '+ls.color+'30">'+
-      '<div class="style-context-icon">'+ls.icon+'</div>'+
+    var ls = LS[ST.learnerStyle];
+    ctxBox.innerHTML = '<div class="style-context" style="background:'+ls.bg+';border:1px solid '+ls.color+'30">' +
+      '<div class="style-context-icon">'+ls.icon+'</div>' +
       '<div class="style-context-text"><strong style="color:'+ls.color+'">'+ls.name+'</strong>'+ls.contextPrompt+'</div></div>';
-  }else ctxBox.innerHTML='';
-  document.getElementById('q-text').textContent=q.question;
+  } else ctxBox.innerHTML = '';
+
+  document.getElementById('q-text').textContent = q.question;
   document.getElementById('explanation-box').classList.add('hidden');
-  document.getElementById('btn-next').classList.add('hidden');
   document.getElementById('exp-style-tip').classList.add('hidden');
-  ST.answered=false;
-  var list=document.getElementById('options-list');
-  list.innerHTML='';
-  if(q.type==='mcq'){
-    var letters=['A','B','C','D'];
-    (q.options||[]).forEach(function(opt,i){
-      var btn=document.createElement('button');btn.className='option-btn';
-      btn.innerHTML='<div class="option-letter">'+letters[i]+'</div><span>'+opt+'</span>';
-      btn.onclick=(function(idx,question){return function(){answerMCQ(idx,question);};})(i,q);
+
+  // Reset the Next button completely for the new question
+  var nb = document.getElementById('btn-next');
+  nb.classList.add('hidden');
+  nb.onclick = nextQuestion;
+
+  ST.answered = false;
+  currentSelectedOption = null;
+  var list = document.getElementById('options-list');
+  list.innerHTML = '';
+
+  if(q.type === 'mcq'){
+    var letters = ['A','B','C','D'];
+    var shuffledOptions = (q.options || []).map(function(opt, i) {
+      return { text: opt, originalIndex: i };
+    });
+    shuffledOptions = shuffle(shuffledOptions);
+
+    shuffledOptions.forEach(function(optObj, i){
+      var btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.dataset.originalIndex = optObj.originalIndex;
+      btn.innerHTML = '<div class="option-letter">' + letters[i] + '</div><span>' + optObj.text + '</span>';
+
+      btn.onclick = function(){
+        if(ST.answered) return;
+        currentSelectedOption = optObj.originalIndex;
+        document.querySelectorAll('.option-btn').forEach(function(b){ b.classList.remove('selected'); });
+        btn.classList.add('selected');
+
+        nb.textContent = 'Submit Answer';
+        nb.classList.remove('hidden');
+        nb.onclick = function() { submitSelectedAnswer(q); };
+      };
       list.appendChild(btn);
     });
-  }else{
-    var inp=document.createElement('input');
-    inp.className='short-input';inp.type='text';inp.placeholder='Type your answer...';inp.id='short-input';
-    var cb=document.createElement('button');cb.className='check-btn';cb.textContent='Check';
-    cb.onclick=function(){answerShort(q.answer,document.getElementById('short-input').value,q);};
-    inp.addEventListener('keydown',function(e){if(e.key==='Enter')answerShort(q.answer,inp.value,q);});
-    list.appendChild(inp);list.appendChild(cb);
+  } else {
+    // Short Answer logic
+    var inp = document.createElement('input');
+    inp.className = 'short-input';
+    inp.type = 'text';
+    inp.placeholder = 'Type your answer...';
+    inp.id = 'short-input';
+
+    // Show "Submit Answer" button when typing
+    inp.addEventListener('input', function() {
+      if(ST.answered) return;
+      if(inp.value.trim().length > 0) {
+        nb.textContent = 'Submit Answer';
+        nb.classList.remove('hidden');
+        nb.onclick = function() { submitShortAnswer(q); };
+      } else {
+        nb.classList.add('hidden');
+      }
+    });
+
+    // Allow Enter key to submit
+    inp.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' && inp.value.trim().length > 0 && !ST.answered) {
+        submitShortAnswer(q);
+      }
+    });
+
+    list.appendChild(inp);
   }
+}
+
+function submitShortAnswer(q) {
+  if(ST.answered) return;
+  ST.answered = true;
+
+  var inp = document.getElementById('short-input');
+  var given = inp.value;
+
+  // Safely cast expected answer to String to prevent .toLowerCase() crashes on numbers
+  var expected = String(q.answer);
+  var isCorrect = given.trim().toLowerCase() === expected.toLowerCase();
+
+  inp.disabled = true;
+  inp.style.borderColor = isCorrect ? 'var(--green)' : 'var(--red)';
+  inp.style.background = isCorrect ? 'var(--green-light)' : 'var(--red-light)';
+
+  recordAnswer(isCorrect, 'Correct: "' + expected + '". ' + q.explanation, q);
+  document.getElementById('btn-next').onclick = nextQuestion; // Reset to Next
+}
+function submitSelectedAnswer(q) {
+  if(ST.answered || currentSelectedOption === null) return;
+  ST.answered = true;
+
+  var correct = q.answer;
+  // Use loose equality (==) in case Firebase saved the answer as a string
+  var isCorrect = (currentSelectedOption == correct);
+
+  document.querySelectorAll('.option-btn').forEach(function(btn){
+    btn.classList.add('answered');
+    var btnOriginalIndex = parseInt(btn.dataset.originalIndex);
+
+    if(btnOriginalIndex == correct) {
+      btn.classList.add(btnOriginalIndex == currentSelectedOption ? 'correct' : 'reveal');
+    } else if(btnOriginalIndex == currentSelectedOption) {
+      btn.classList.add('wrong');
+    }
+  });
+
+  recordAnswer(isCorrect, q.explanation, q);
+  document.getElementById('btn-next').onclick = nextQuestion; // Reset to Next
+}
+
+function submitShortAnswer(q) {
+  if(ST.answered) return;
+  ST.answered = true;
+
+  var inp = document.getElementById('short-input');
+  var given = inp.value;
+
+  // Safely cast expected answer to String to prevent .toLowerCase() crashes on numbers
+  var expected = String(q.answer);
+  var isCorrect = given.trim().toLowerCase() === expected.toLowerCase();
+
+  inp.disabled = true;
+  inp.style.borderColor = isCorrect ? 'var(--green)' : 'var(--red)';
+  inp.style.background = isCorrect ? 'var(--green-light)' : 'var(--red-light)';
+
+  recordAnswer(isCorrect, 'Correct: "' + expected + '". ' + q.explanation, q);
+  document.getElementById('btn-next').onclick = nextQuestion; // Reset to Next
 }
 function answerMCQ(chosen,q){
   if(ST.answered)return;ST.answered=true;
@@ -1954,9 +2069,7 @@ function nextRecommended(){
 // ══════════════════════════════════════
 // FIREBASE — ADD QUESTION (password protected)
 // ══════════════════════════════════════
-// ── Auth: SHA-256 of 'chahatesh123' — never store plaintext ──
-// To change password: compute SHA-256 of new password and replace the hash below.
-var _PW_HASH = 'b08e5e3e2d52a2520dfc50789f321299c3c3c47ad7bf5baa8836f133cfbf3684';
+var _PW_HASH = '59d616084931125c55cd3b741d3d6458379ff2769547bf8172acba02dad70b51';
 var _loginAttempts = 0;
 var _lockoutUntil = 0;
 var _SESSION_DURATION = 30 * 60 * 1000; // 30 minutes
